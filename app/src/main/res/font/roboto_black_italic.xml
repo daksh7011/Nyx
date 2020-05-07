@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ MIT License
   ~
   ~ Copyright (c)  2020.  TechnoWolf FOSS
@@ -24,13 +23,8 @@
   ~
   -->
 
-<resources>
-    <dimen name="keyline_0">2dp</dimen>
-    <dimen name="keyline_1">4dp</dimen>
-    <dimen name="keyline_2">8dp</dimen>
-    <dimen name="keyline_4">16dp</dimen>
-    <dimen name="keyline_5">24dp</dimen>
-
-    <dimen name="component_label_horizontal_margin">@dimen/keyline_4</dimen>
-    <dimen name="elevation_default_top_app_bar">4dp</dimen>
-</resources>
+<font-family xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:fontProviderAuthority="com.google.android.gms.fonts"
+    app:fontProviderCerts="@array/com_google_android_gms_fonts_certs"
+    app:fontProviderPackage="com.google.android.gms"
+    app:fontProviderQuery="name=Roboto&amp;weight=900&amp;italic=1"></font-family>
