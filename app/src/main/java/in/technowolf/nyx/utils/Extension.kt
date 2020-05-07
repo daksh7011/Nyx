@@ -28,6 +28,7 @@ package `in`.technowolf.nyx.utils
 import android.view.View
 
 object Extension {
+
     infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
     infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
 
@@ -42,4 +43,7 @@ object Extension {
     fun View.visible() {
         this.visibility = View.VISIBLE
     }
+
+    fun View.setVisibility(isVisible: Boolean) = if (isVisible) this.visible() else this.gone()
+
 }
