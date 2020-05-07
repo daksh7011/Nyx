@@ -23,23 +23,19 @@
  *
  */
 
-package `in`.technowolf.nyx.utils
+package `in`.technowolf.nyx.ui.dashboard
 
-import android.view.View
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
+import `in`.technowolf.nyx.utils.binding
+import androidx.fragment.app.Fragment
 
-object Extension {
-    infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
-    infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
 
+/**
+ * A simple [Fragment] subclass.
+ */
+class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
-    infix fun Byte.and(that: Int): Int = this.toInt().and(that)
-    infix fun Int.and(that: Byte): Int = this.and(that.toInt())
+    private val binding by binding(FragmentDashboardBinding::bind)
 
-    fun View.gone() {
-        this.visibility = View.GONE
-    }
-
-    fun View.visible() {
-        this.visibility = View.VISIBLE
-    }
 }

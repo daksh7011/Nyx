@@ -23,33 +23,45 @@
  *
  */
 
-package `in`.technowolf.nyx
+package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.core.MagicWand
-import `in`.technowolf.nyx.core.Stego
-import `in`.technowolf.nyx.databinding.ActivityMainBinding
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
+import `in`.technowolf.nyx.utils.Extension.gone
+import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.binding
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.findNavController
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.setupWithNavController
 
+class DashboardActivity : AppCompatActivity() {
 
-class MainActivity : AppCompatActivity() {
-
-    private val binding by binding(ActivityMainBinding::inflate)
+    private val binding by binding(ActivityDashboardBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
-        val asd = MagicWand.encrypt(binding.editText.text.toString(), "12345")
-        val bm = (binding.raw.drawable as BitmapDrawable).bitmap
-        val stego = Stego().encodeMessage(listOf(bm), asd!!)
-        binding.finished.setImageBitmap(stego[0])
-        binding.btnDecrypt.setOnClickListener {
-            val decodedImage = (binding.finished.drawable as BitmapDrawable).bitmap
-            val decode = Stego().decodeMessage(listOf(decodedImage))
-            Log.e(javaClass.simpleName, MagicWand.decrypt(decode, "12345"))
+
+        init()
+    }
+
+    private fun init() {
+        setupNavController()
+    }
+
+    private fun setupNavController() {
+        val navController = findNavController(R.id.nav_host_fragment)
+        val appBarConfiguration = AppBarConfiguration(navController.graph)
+        binding.toolbar.setupWithNavController(navController, appBarConfiguration)
+
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.dashboardFragment -> binding.toolbar.gone()
+                else -> binding.toolbar.visible()
+            }
         }
     }
+
 }
