@@ -23,34 +23,8 @@
  *
  */
 
-package `in`.technowolf.nyx.utils
+package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.R
-import android.view.View
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModel
 
-object Extension {
-
-    infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
-    infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
-
-
-    infix fun Byte.and(that: Int): Int = this.toInt().and(that)
-    infix fun Int.and(that: Byte): Int = this.and(that.toInt())
-
-    fun View.gone() {
-        this.visibility = View.GONE
-    }
-
-    fun View.visible() {
-        this.visibility = View.VISIBLE
-    }
-
-    fun View.setVisibility(isVisible: Boolean) = if (isVisible) this.visible() else this.gone()
-
-    fun Fragment.setStatusBarColor() {
-        requireActivity().window.statusBarColor =
-            ContextCompat.getColor(requireContext(), R.color.colorPrimaryLight)
-    }
-}
+class DashboardViewModel : ViewModel()

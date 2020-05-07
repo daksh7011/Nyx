@@ -27,15 +27,45 @@ package `in`.technowolf.nyx.ui.dashboard
 
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
+import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
 import `in`.technowolf.nyx.utils.binding
+import android.os.Bundle
+import android.view.View
 import androidx.fragment.app.Fragment
 
-
-/**
- * A simple [Fragment] subclass.
- */
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private val binding by binding(FragmentDashboardBinding::bind)
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        init()
+    }
+
+    private fun init() {
+        setStatusBarColor()
+        setupEncrypt()
+        setupDecrypt()
+        setupInfo()
+    }
+
+    private fun setupEncrypt() {
+        binding.cvEncrypt.setOnClickListener {
+
+        }
+    }
+
+    private fun setupDecrypt() {
+        binding.cvDecrypt.setOnClickListener {
+
+        }
+    }
+
+    private fun setupInfo() {
+        binding.cvInfo.setOnClickListener {
+
+        }
+    }
 
 }
