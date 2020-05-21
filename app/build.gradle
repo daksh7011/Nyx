@@ -56,13 +56,13 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            buildConfigField("String", "accessKey", properties.getProperty("access.key"))
-            buildConfigField("String", "privateKey", properties.getProperty("secret.key"))
+            buildConfigField("String", "accessKey", properties.getProperty("access.key") ?: '""')
+            buildConfigField("String", "privateKey", properties.getProperty("secret.key") ?: '""')
         }
         debug {
             minifyEnabled false
-            buildConfigField("String", "accessKey", properties.getProperty("access.key"))
-            buildConfigField("String", "privateKey", properties.getProperty("secret.key"))
+            buildConfigField("String", "accessKey", properties.getProperty("access.key") ?: '""')
+            buildConfigField("String", "privateKey", properties.getProperty("secret.key") ?: '""')
 
         }
     }
