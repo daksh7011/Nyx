@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c)  2020.  TechnoWolf FOSS
+ * Copyright (c) 2020. TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,7 @@ import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
 import `in`.technowolf.nyx.utils.Extension.gone
 import `in`.technowolf.nyx.utils.Extension.visible
-import `in`.technowolf.nyx.utils.binding
+import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -38,7 +38,7 @@ import androidx.navigation.ui.setupWithNavController
 
 class DashboardActivity : AppCompatActivity() {
 
-    private val binding by binding(ActivityDashboardBinding::inflate)
+    private val binding by viewBinding(ActivityDashboardBinding::inflate)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

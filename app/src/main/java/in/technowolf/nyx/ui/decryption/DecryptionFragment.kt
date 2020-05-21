@@ -23,33 +23,16 @@
  *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package `in`.technowolf.nyx.ui.decryption
 
-buildscript {
-    ext.kotlin_version = '1.3.72'
-    repositories {
-        google()
-        jcenter()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
+import `in`.technowolf.nyx.utils.viewBinding
+import androidx.fragment.app.Fragment
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven { url "https://jitpack.io" }
-        maven { url  "https://dl.bintray.com/unsplash/unsplash-photopicker-android" }
 
-    }
-}
+class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
 
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    private val binding by viewBinding(FragmentDecryptionBinding::bind)
+
 }

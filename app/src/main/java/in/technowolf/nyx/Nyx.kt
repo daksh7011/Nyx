@@ -23,33 +23,19 @@
  *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package `in`.technowolf.nyx
 
-buildscript {
-    ext.kotlin_version = '1.3.72'
-    repositories {
-        google()
-        jcenter()
+import android.app.Application
+import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
+
+class Nyx : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        UnsplashPhotoPicker.init(
+            this,
+            BuildConfig.accessKey,
+            BuildConfig.privateKey,
+            10
+        )
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven { url "https://jitpack.io" }
-        maven { url  "https://dl.bintray.com/unsplash/unsplash-photopicker-android" }
-
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

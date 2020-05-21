@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c)  2020.  TechnoWolf FOSS
+ * Copyright (c) 2020. TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ import java.nio.charset.Charset
 import java.util.*
 import kotlin.experimental.or
 
-class Stego {
+class Steganography {
 
     private val binary = intArrayOf(16, 8, 0)
     private val andByte = byteArrayOf(0xC0.toByte(), 0x30, 0x0C, 0x03)
@@ -44,7 +44,7 @@ class Stego {
     /**
      * This method represent the core of LSB on 2 bit (Encoding).
      *
-     * @param imageArray The **rgb** array.
+     * @param imageArray The rgb array.
      * @param imageWidth Image width.
      * @param imageHeight Image height.
      * @param messageEncodingStatus Message encoding model.
@@ -56,7 +56,6 @@ class Stego {
     ): ByteArray {
         val channels = 3
         var shiftIndex = 4
-        //Array.newInstance(Byte.class, imgRows * imgCols * channels);
         val result = ByteArray(imageHeight * imageWidth * channels)
         var resultIndex = 0
         for (row in 0 until imageHeight) {
@@ -90,15 +89,15 @@ class Stego {
 
     fun encodeMessage(
         imageList: List<Bitmap>,
-        string: String
+        encryptedMessage: String
     ): List<Bitmap> {
-        var str = string
+        var encryptedMessageWithConstant = encryptedMessage
         val result: MutableList<Bitmap> = ArrayList(imageList.size)
-        str += END_MESSAGE_CONSTANT
-        str = START_MESSAGE_CONSTANT + str
-        val msg = str.toByteArray(Charset.forName("UTF-8"))
+        encryptedMessageWithConstant += END_MESSAGE_CONSTANT
+        encryptedMessageWithConstant = START_MESSAGE_CONSTANT + encryptedMessageWithConstant
+        val msg = encryptedMessageWithConstant.toByteArray(Charset.forName("UTF-8"))
         val message = MessageEncodingStatus()
-        message.message = str
+        message.message = encryptedMessageWithConstant
         message.byteArrayMessage = msg
         message.currentMessageIndex = 0
         message.isMessageEncoded = false

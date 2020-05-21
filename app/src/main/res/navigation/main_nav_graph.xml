@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ MIT License
   ~
-  ~ Copyright (c)  2020.  TechnoWolf FOSS
+  ~ Copyright (c) 2020. TechnoWolf FOSS
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -33,5 +33,22 @@
         android:id="@+id/dashboardFragment"
         android:name="in.technowolf.nyx.ui.dashboard.DashboardFragment"
         android:label="fragment_dashboard"
-        tools:layout="@layout/fragment_dashboard" />
+        tools:layout="@layout/fragment_dashboard">
+        <action
+            android:id="@+id/action_dashboardFragment_to_encryptionFragment"
+            app:destination="@id/encryptionFragment" />
+        <action
+            android:id="@+id/action_dashboardFragment_to_decryptionFragment"
+            app:destination="@id/decryptionFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/encryptionFragment"
+        android:name="in.technowolf.nyx.ui.encryption.EncryptionFragment"
+        android:label="Encrypt Image"
+        tools:layout="@layout/fragment_encryption" />
+    <fragment
+        android:id="@+id/decryptionFragment"
+        android:name="in.technowolf.nyx.ui.decryption.DecryptionFragment"
+        android:label="Decrypt Image"
+        tools:layout="@layout/fragment_decryption" />
 </navigation>

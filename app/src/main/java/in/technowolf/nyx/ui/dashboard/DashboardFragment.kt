@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c)  2020.  TechnoWolf FOSS
+ * Copyright (c) 2020. TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,14 +28,15 @@ package `in`.technowolf.nyx.ui.dashboard
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
 import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
-import `in`.technowolf.nyx.utils.binding
+import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
 import android.view.View
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
-    private val binding by binding(FragmentDashboardBinding::bind)
+    private val binding by viewBinding(FragmentDashboardBinding::bind)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -52,13 +53,13 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private fun setupEncrypt() {
         binding.cvEncrypt.setOnClickListener {
-
+            findNavController().navigate(R.id.action_dashboardFragment_to_encryptionFragment)
         }
     }
 
     private fun setupDecrypt() {
         binding.cvDecrypt.setOnClickListener {
-
+            findNavController().navigate(R.id.action_dashboardFragment_to_decryptionFragment)
         }
     }
 

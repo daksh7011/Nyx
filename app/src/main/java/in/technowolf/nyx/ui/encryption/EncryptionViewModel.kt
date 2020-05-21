@@ -23,33 +23,31 @@
  *
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package `in`.technowolf.nyx.ui.encryption
 
-buildscript {
-    ext.kotlin_version = '1.3.72'
-    repositories {
-        google()
-        jcenter()
+import `in`.technowolf.nyx.core.MagicWand
+import `in`.technowolf.nyx.core.Steganography
+import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+
+class EncryptionViewModel : ViewModel() {
+
+    private val steganography = Steganography()
+
+    private var _encryptedMessage = MutableLiveData<String?>()
+    val encryptedMessage: LiveData<String?> = _encryptedMessage
+    fun encryptText(message: String, passPhrase: String) {
+        viewModelScope.launch { _encryptedMessage.value = MagicWand.encrypt(message, passPhrase) }
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:3.6.3'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-        classpath "androidx.navigation:navigation-safe-args-gradle-plugin:2.2.2"
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+
+    private var _encryptedImages = MutableLiveData<List<Bitmap>>()
+    val encryptedImages: LiveData<List<Bitmap>> = _encryptedImages
+    fun prepareEncryptedImage(imageList: List<Bitmap>, encryptedMessage: String) {
+        _encryptedImages.value = steganography.encodeMessage(imageList, encryptedMessage)
     }
-}
 
-allprojects {
-    repositories {
-        google()
-        jcenter()
-        maven { url "https://jitpack.io" }
-        maven { url  "https://dl.bintray.com/unsplash/unsplash-photopicker-android" }
-
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

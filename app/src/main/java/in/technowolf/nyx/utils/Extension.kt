@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c)  2020.  TechnoWolf FOSS
+ * Copyright (c) 2020. TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -48,6 +48,14 @@ object Extension {
     }
 
     fun View.setVisibility(isVisible: Boolean) = if (isVisible) this.visible() else this.gone()
+
+    fun View.enable() {
+        this.isEnabled = true
+    }
+
+    fun View.disable() {
+        this.isEnabled = false
+    }
 
     fun Fragment.setStatusBarColor() {
         requireActivity().window.statusBarColor =
