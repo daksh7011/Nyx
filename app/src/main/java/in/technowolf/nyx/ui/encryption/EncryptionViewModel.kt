@@ -38,6 +38,8 @@ class EncryptionViewModel : ViewModel() {
 
     private val steganography = Steganography()
 
+    var imageForEncryption: Bitmap? = null
+
     private var _encryptedMessage = MutableLiveData<String?>()
     val encryptedMessage: LiveData<String?> = _encryptedMessage
     fun encryptText(message: String, passPhrase: String) {
@@ -46,8 +48,13 @@ class EncryptionViewModel : ViewModel() {
 
     private var _encryptedImages = MutableLiveData<List<Bitmap>>()
     val encryptedImages: LiveData<List<Bitmap>> = _encryptedImages
-    fun prepareEncryptedImage(imageList: List<Bitmap>, encryptedMessage: String) {
-        _encryptedImages.value = steganography.encodeMessage(imageList, encryptedMessage)
+    fun prepareEncryptedImage(encryptedMessage: String) {
+        if (imageForEncryption != null) {
+            _encryptedImages.value =
+                steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
+        } else {
+            throw IllegalStateException("Image to be encrypted is still null")
+        }
     }
 
 }

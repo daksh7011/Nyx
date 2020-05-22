@@ -6,7 +6,9 @@ apply plugin: "androidx.navigation.safeargs.kotlin"
 def versionMajor = 0
 def versionMinor = 1
 def versionPatch = 0
-def versionBuild = 0  /*
+def versionBuild = 0 // bump for dogfood builds, public betas, etc.
+
+/*
  * MIT License
  *
  * Copyright (c) 2020. TechnoWolf FOSS
@@ -29,7 +31,7 @@ def versionBuild = 0  /*
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  *
- */  // bump for dogfood builds, public betas, etc.
+ */
 
 android {
     compileSdkVersion 29
@@ -56,14 +58,15 @@ android {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField("String", "AppName", '"Nyx"')
             buildConfigField("String", "accessKey", properties.getProperty("access.key") ?: '""')
             buildConfigField("String", "privateKey", properties.getProperty("secret.key") ?: '""')
         }
         debug {
             minifyEnabled false
+            buildConfigField("String", "AppName", '"Nyx"')
             buildConfigField("String", "accessKey", properties.getProperty("access.key") ?: '""')
             buildConfigField("String", "privateKey", properties.getProperty("secret.key") ?: '""')
-
         }
     }
 

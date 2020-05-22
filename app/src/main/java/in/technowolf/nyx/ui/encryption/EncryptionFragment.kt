@@ -27,12 +27,21 @@ package `in`.technowolf.nyx.ui.encryption
 
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
+import `in`.technowolf.nyx.utils.ImageHelper
 import `in`.technowolf.nyx.utils.viewBinding
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
+import android.util.Log
 import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import java.io.FileDescriptor
+import java.io.IOException
 
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
@@ -53,6 +62,14 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun setupFab() {
+
+        binding.appCompatImageView.setOnClickListener {
+            startActivityForResult(
+                ImageHelper.prepareImagePickerIntent(),
+                ImageHelper.IMAGE_PICKER_INTENT
+            )
+        }
+
         binding.fabEncryptImage.setOnClickListener {
             binding.apply {
                 if (isInputValid()) {
@@ -72,15 +89,35 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryption() {
         encryptionViewModel.encryptedMessage.observe(viewLifecycleOwner, Observer {
-//            if (it != null) encryptionViewModel.prepareEncryptedImage(listOf(), it)
-//            else Log.e("TAG", "Encrypted Message is null is empty")
+            prepareImageEncryption(it)
         })
     }
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-
+            // save file to internal storage
         })
+    }
+
+    private fun prepareImageEncryption(encryptedMessage: String?) {
+        if (encryptedMessage != null) encryptImage(encryptedMessage)
+        else Log.e("TAG", "Encrypted Message is null is empty")
+    }
+
+    private fun encryptImage(encryptedMessage: String) {
+        encryptionViewModel.prepareEncryptedImage(encryptedMessage)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        when (requestCode) {
+            ImageHelper.IMAGE_PICKER_INTENT -> {
+                getBitmapFromUri(data?.data)?.let {
+                    encryptionViewModel.imageForEncryption = it
+                    binding.appCompatImageView.setImageBitmap(it)
+                }
+            }
+        }
     }
 
     private fun isInputValid(): Boolean {
@@ -100,6 +137,20 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         }
 
         return true
+    }
+
+    @Throws(IOException::class, IllegalStateException::class)
+    private fun getBitmapFromUri(uri: Uri?): Bitmap? {
+        if (uri != null) {
+            val parcelFileDescriptor: ParcelFileDescriptor? =
+                requireContext().contentResolver.openFileDescriptor(uri, "r")
+            val fileDescriptor: FileDescriptor? = parcelFileDescriptor?.fileDescriptor
+            val image: Bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+            parcelFileDescriptor?.close()
+            return image
+        } else {
+            throw IllegalStateException("URI is null!")
+        }
     }
 
 }
