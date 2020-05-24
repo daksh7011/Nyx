@@ -25,30 +25,22 @@
 
 package `in`.technowolf.nyx.ui.decryption
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
-import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
-import `in`.technowolf.nyx.utils.viewBinding
-import android.os.Bundle
-import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
+import `in`.technowolf.nyx.core.MagicWand
+import `in`.technowolf.nyx.core.Steganography
+import android.graphics.Bitmap
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 
+class DecryptionViewModel : ViewModel() {
 
-class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
+    private val steganography = Steganography()
 
-    private val binding by viewBinding(FragmentDecryptionBinding::bind)
+    private var _decryptedText = MutableLiveData<String>()
+    val decryptedText: LiveData<String> = _decryptedText
 
-    private val decryptionViewModel: DecryptionViewModel by viewModels()
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        decryptionViewModel.decryptImage(requireContext().retrieveImage("test.jpeg"), "123")
-        decryptionViewModel.decryptedText.observe(viewLifecycleOwner, Observer {
-            it
-        })
+    fun decryptImage(bitmap: Bitmap, passPhrase: String) {
+        val bitmapText = steganography.decodeMessage(listOf(bitmap))
+        _decryptedText.value = MagicWand.decrypt(bitmapText, passPhrase)
     }
-
 }

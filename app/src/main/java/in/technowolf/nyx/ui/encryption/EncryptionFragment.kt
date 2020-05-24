@@ -28,6 +28,8 @@ package `in`.technowolf.nyx.ui.encryption
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
 import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
+import `in`.technowolf.nyx.utils.ImageHelper.saveImage
 import `in`.technowolf.nyx.utils.viewBinding
 import android.content.Intent
 import android.graphics.Bitmap
@@ -95,7 +97,8 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            // save file to internal storage
+            requireContext().saveImage(it.first(), "test.jpeg")
+            requireContext().retrieveImage("test.jpeg")
         })
     }
 

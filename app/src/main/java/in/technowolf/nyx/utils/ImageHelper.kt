@@ -26,10 +26,14 @@
 package `in`.technowolf.nyx.utils
 
 import `in`.technowolf.nyx.BuildConfig
+import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Environment
 import android.provider.MediaStore
 import java.io.File
+import java.io.FileInputStream
 
 object ImageHelper {
 
@@ -42,6 +46,20 @@ object ImageHelper {
             Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         imagePickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
         return Intent.createChooser(imagePickerIntent, "Please Select Image")
+    }
+
+    fun Context.saveImage(bitmap: Bitmap, imageName: String): String {
+        this.openFileOutput(imageName, Context.MODE_PRIVATE).use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+        return this.filesDir.absolutePath
+    }
+
+    fun Context.retrieveImage(imageName: String): Bitmap =
+        BitmapFactory.decodeStream(FileInputStream(File(filesDir, imageName)))
+
+    fun Context.deleteImage(imageName: String): Boolean {
+        return File(filesDir, imageName).delete()
     }
 
 }
