@@ -26,6 +26,7 @@
 package `in`.technowolf.nyx.ui.encryption
 
 import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.data.AppDatabase
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
 import `in`.technowolf.nyx.utils.ImageHelper
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
@@ -42,6 +43,7 @@ import android.view.View
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
+import androidx.room.Room
 import java.io.FileDescriptor
 import java.io.IOException
 
@@ -52,6 +54,8 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private val encryptionViewModel: EncryptionViewModel by viewModels()
 
+    private lateinit var database: AppDatabase
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -59,6 +63,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun init() {
+        database = provideDb()
         attachObserver()
         setupFab()
     }
@@ -154,6 +159,14 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         } else {
             throw IllegalStateException("URI is null!")
         }
+    }
+
+    private fun provideDb(): AppDatabase {
+        return Room.databaseBuilder(
+            requireActivity().applicationContext,
+            AppDatabase::class.java,
+            "Images"
+        ).build()
     }
 
 }
