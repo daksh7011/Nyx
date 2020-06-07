@@ -27,8 +27,10 @@ package `in`.technowolf.nyx.utils
 
 import `in`.technowolf.nyx.R
 import android.view.View
+import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.google.android.material.snackbar.Snackbar
 
 object Extension {
 
@@ -60,5 +62,31 @@ object Extension {
     fun Fragment.setStatusBarColor() {
         requireActivity().window.statusBarColor =
             ContextCompat.getColor(requireContext(), R.color.colorPrimaryLight)
+    }
+
+    inline fun View.snackBar(
+        message: String,
+        anchor: View? = null,
+        length: Int = Snackbar.LENGTH_LONG,
+        f: Snackbar.() -> Unit
+    ) {
+        val snackBar = Snackbar.make(this, message, length)
+        snackBar.f()
+        anchor?.let { snackBar.anchorView = it }
+        snackBar.show()
+    }
+
+    fun Snackbar.action(action: String, color: Int? = null, listener: (View) -> Unit) {
+        setAction(action, listener)
+        color?.let { setActionTextColor(color) }
+    }
+
+    inline fun View.snackBar(
+        @StringRes messageRes: Int,
+        length: Int = Snackbar.LENGTH_LONG,
+        anchor: View? = null,
+        f: Snackbar.() -> Unit
+    ) {
+        snackBar(resources.getString(messageRes), anchor, length, f)
     }
 }
