@@ -39,5 +39,5 @@ interface ImageDao {
     fun insertImage(image: ImageEntity): Long
 
     @Delete
-    fun deleteImage(image: ImageEntity): Long
+    fun deleteImage(image: ImageEntity): Int
 }

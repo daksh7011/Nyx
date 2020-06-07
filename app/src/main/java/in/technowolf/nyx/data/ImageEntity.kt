@@ -31,6 +31,6 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "images")
 data class ImageEntity(
-    @PrimaryKey val uid: Int,
-    @ColumnInfo(name = "image_name") val firstName: String
+    @ColumnInfo(name = "image_name") val imageName: String,
+    @PrimaryKey(autoGenerate = true) val id: Int? = null
 )
