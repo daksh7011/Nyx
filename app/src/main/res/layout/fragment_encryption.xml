@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!--
+<?xml version="1.0" encoding="utf-8"?><!--
   ~ MIT License
   ~
   ~ Copyright (c) 2020. TechnoWolf FOSS
@@ -33,36 +32,53 @@
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/appCompatImageView"
+                android:id="@+id/ivImagePreview"
                 android:layout_width="0dp"
                 android:layout_height="184dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
                 android:layout_marginEnd="16dp"
                 android:scaleType="fitCenter"
+                android:visibility="gone"
+                app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_encryption_illustration" />
+                tools:visibility="visible" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSelectImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/select_image"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivImagePreview" />
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilEncryptionKey"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
                 android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp"
                 android:hint="@string/encryption_key"
                 app:counterEnabled="true"
-                app:layout_constraintEnd_toEndOf="@+id/tilMessage"
-                app:layout_constraintStart_toStartOf="@+id/tilMessage"
-                app:layout_constraintTop_toBottomOf="@+id/appCompatImageView">
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/btnSelectImage">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etEncryptionKey"
@@ -80,8 +96,8 @@
                 android:layout_marginTop="8dp"
                 android:hint="@string/your_message"
                 app:counterEnabled="true"
-                app:layout_constraintEnd_toEndOf="@+id/appCompatImageView"
-                app:layout_constraintStart_toStartOf="@+id/appCompatImageView"
+                app:layout_constraintEnd_toEndOf="@+id/tilEncryptionKey"
+                app:layout_constraintStart_toStartOf="@+id/tilEncryptionKey"
                 app:layout_constraintTop_toBottomOf="@+id/tilEncryptionKey">
 
                 <com.google.android.material.textfield.TextInputEditText

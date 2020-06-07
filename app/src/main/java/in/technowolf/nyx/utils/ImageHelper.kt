@@ -38,6 +38,7 @@ import java.io.FileInputStream
 object ImageHelper {
 
     const val IMAGE_PICKER_INTENT = 69
+    const val UNSPLASH_IMAGE_PICKER_INTENT = 96
 
     val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.AppName
 

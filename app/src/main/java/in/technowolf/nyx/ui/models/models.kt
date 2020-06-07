@@ -25,7 +25,10 @@
 
 package `in`.technowolf.nyx.ui.models
 
+import `in`.technowolf.nyx.data.ImageEntity
+
 data class ImageModel(
-    val id: Int,
     val name: String
-)
+) {
+    fun toImageEntity() = ImageEntity(name)
+}

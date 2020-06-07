@@ -27,10 +27,15 @@ package `in`.technowolf.nyx
 
 import android.app.Application
 import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
+import timber.log.Timber
 
 class Nyx : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        //Planting timber instance
+        Timber.plant()
+
         UnsplashPhotoPicker.init(
             this,
             BuildConfig.accessKey,
