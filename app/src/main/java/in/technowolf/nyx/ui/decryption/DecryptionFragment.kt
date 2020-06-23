@@ -77,7 +77,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                 negativeButton("cancel") {
 
                 }
-            }
+            }.show()
         }
 
         imageGalleryAdapter.onDelete = { it: ImageModel, position: Int ->
