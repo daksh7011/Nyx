@@ -27,7 +27,7 @@ package `in`.technowolf.nyx.ui.dashboard
 
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
-import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
+import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
 import android.view.View
@@ -45,27 +45,33 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun init() {
-        setStatusBarColor()
         setupEncrypt()
         setupDecrypt()
         setupInfo()
+        setupSettings()
+    }
+
+    private fun setupSettings() {
+        binding.ivSettings.setOnClickListener {
+            binding.root.snackBar("Settings screen will be added in future releases.") {}
+        }
     }
 
     private fun setupEncrypt() {
         binding.cvEncrypt.setOnClickListener {
-            findNavController().navigate(R.id.action_dashboardFragment_to_encryptionFragment)
+            findNavController().navigate(R.id.actionToEncryptionFragment)
         }
     }
 
     private fun setupDecrypt() {
         binding.cvDecrypt.setOnClickListener {
-            findNavController().navigate(R.id.action_dashboardFragment_to_decryptionFragment)
+            findNavController().navigate(R.id.actionToDecryptionFragment)
         }
     }
 
     private fun setupInfo() {
         binding.cvInfo.setOnClickListener {
-
+            binding.root.snackBar("FAQ section will be implemented in future releases.") {}
         }
     }
 

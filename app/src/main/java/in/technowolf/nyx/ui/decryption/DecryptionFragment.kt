@@ -29,6 +29,7 @@ import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.data.AppDatabase
 import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.ImageHelper.deleteImage
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
 import `in`.technowolf.nyx.utils.alert
@@ -72,28 +73,33 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
 
     private fun observeDecryptedText() {
         decryptionViewModel.decryptedText.observe(viewLifecycleOwner, Observer {
-
-            val alertMessage =
-                if (it.isNullOrEmpty()) "Wrong passphrase, Please try again!"
-                else it
-
-            alert("Decrypted Message", alertMessage) {
-                positiveButton("Copy to clipboard") {
-                    val clipboard: ClipboardManager? =
-                        getSystemService(requireContext(), ClipboardManager::class.java)
-                    val clip = ClipData.newPlainText("Decrypted Message", alertMessage)
-                    clipboard?.setPrimaryClip(clip)
-                }
-                negativeButton("Close")
-            }.show()
+            setupDecryptionAlert(it)
         })
+    }
+
+    private fun setupDecryptionAlert(decryptedText: String?) {
+        val alertMessage: String
+        var positiveButtonText = ""
+        if (decryptedText.isNullOrEmpty()) {
+            alertMessage = "Wrong passphrase, Please try again!"
+        } else {
+            alertMessage = decryptedText
+            positiveButtonText = "Copy to clipboard"
+        }
+        alert("Decrypted Message", alertMessage) {
+            positiveButton(positiveButtonText) {
+                val clipboard: ClipboardManager? =
+                    getSystemService(requireContext(), ClipboardManager::class.java)
+                val clip = ClipData.newPlainText("Decrypted Message", alertMessage)
+                clipboard?.setPrimaryClip(clip)
+            }
+            negativeButton("Close")
+        }.show()
     }
 
     private fun setupOnImageDeleteAction() {
         imageGalleryAdapter.onDelete = { it: ImageModel, position: Int ->
-            lifecycleScope.launch(Dispatchers.IO) {
-                provideDb().imageDao().delete(it.name)
-            }
+            lifecycleScope.launch(Dispatchers.IO) { provideDb().imageDao().delete(it.name) }
             requireContext().deleteImage(it.name)
             decryptionViewModel.imageList.remove(it)
             imageGalleryAdapter.submitList(decryptionViewModel.imageList)
@@ -110,10 +116,12 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
             ) {
                 cancelable = false
                 positiveButton("Ok") {
-                    decryptionViewModel.decryptImage(
-                        requireContext().retrieveImage(it.name),
-                        passphraseEditText.text.toString()
-                    )
+                    if (etPassphrase.text.toString().isNotEmpty()) {
+                        decryptionViewModel.decryptImage(
+                            requireContext().retrieveImage(it.name),
+                            etPassphrase.text.toString()
+                        )
+                    } else binding.root.snackBar("Please enter passphrase for decryption.") {}
                 }
                 negativeButton("cancel")
             }.show()

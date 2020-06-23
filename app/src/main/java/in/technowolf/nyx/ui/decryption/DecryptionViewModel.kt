@@ -39,8 +39,8 @@ class DecryptionViewModel : ViewModel() {
 
     val imageList: MutableList<ImageModel> = mutableListOf()
 
-    private var _decryptedText = MutableLiveData<String>()
-    val decryptedText: LiveData<String> = _decryptedText
+    private var _decryptedText = MutableLiveData<String?>()
+    val decryptedText: LiveData<String?> = _decryptedText
 
     fun decryptImage(bitmap: Bitmap, passPhrase: String) {
         val bitmapText = steganography.decodeMessage(listOf(bitmap))

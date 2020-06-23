@@ -77,7 +77,7 @@ class AlertDialogHelper(
 
     var cancelable: Boolean = true
 
-    var passphraseEditText = binding.etPassphrase
+    val etPassphrase = binding.etPassphrase
 
     init {
         binding.tvTitle.text = title

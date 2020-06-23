@@ -34,21 +34,32 @@
         android:name="in.technowolf.nyx.ui.dashboard.DashboardFragment"
         android:label="fragment_dashboard"
         tools:layout="@layout/fragment_dashboard">
-        <action
-            android:id="@+id/action_dashboardFragment_to_encryptionFragment"
-            app:destination="@id/encryptionFragment" />
-        <action
-            android:id="@+id/action_dashboardFragment_to_decryptionFragment"
-            app:destination="@id/decryptionFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/encryptionFragment"
         android:name="in.technowolf.nyx.ui.encryption.EncryptionFragment"
-        android:label="Encrypt Image"
+        android:label="Encryption"
         tools:layout="@layout/fragment_encryption" />
     <fragment
         android:id="@+id/decryptionFragment"
         android:name="in.technowolf.nyx.ui.decryption.DecryptionFragment"
-        android:label="Decrypt Image"
+        android:label="Decryption"
         tools:layout="@layout/fragment_decryption" />
+
+    <action
+        android:id="@+id/actionToEncryptionFragment"
+        app:destination="@id/encryptionFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
+    <action
+        android:id="@+id/actionToDecryptionFragment"
+        app:destination="@id/decryptionFragment"
+        app:enterAnim="@anim/fragment_open_enter"
+        app:exitAnim="@anim/fragment_open_exit"
+        app:popEnterAnim="@anim/fragment_close_enter"
+        app:popExitAnim="@anim/fragment_close_exit" />
+
 </navigation>

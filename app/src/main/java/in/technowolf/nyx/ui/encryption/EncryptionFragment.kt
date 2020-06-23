@@ -50,6 +50,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.room.Room
 import com.bumptech.glide.Glide
@@ -107,7 +108,14 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 database.imageDao().insertImage(imageModel.toImageEntity())
             }
             requireContext().saveImage(it.first(), imageModel.name)
-            binding.root.snackBar("Image was encrypted with your secret message") {}
+            binding.root.snackBar("Image was encrypted with your secret message") {
+                action("Check it out") {
+                    val action = EncryptionFragmentDirections.actionToDecryptionFragment()
+                    val navOptions =
+                        NavOptions.Builder().setPopUpTo(R.id.dashboardFragment, true).build()
+                    findNavController().navigate(action, navOptions)
+                }
+            }
         })
     }
 
