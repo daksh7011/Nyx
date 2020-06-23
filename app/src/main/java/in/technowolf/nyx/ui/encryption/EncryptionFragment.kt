@@ -99,7 +99,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            val imageModel = ImageModel(UUID.randomUUID().toString() + ".png")
+            val imageModel = ImageModel(UUID.randomUUID().toString() + ".png",null)
             lifecycleScope.launch(Dispatchers.IO) {
                 database.imageDao().insertImage(imageModel.toImageEntity())
             }
