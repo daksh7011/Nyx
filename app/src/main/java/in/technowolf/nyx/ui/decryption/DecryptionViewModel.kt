@@ -27,6 +27,7 @@ package `in`.technowolf.nyx.ui.decryption
 
 import `in`.technowolf.nyx.core.MagicWand
 import `in`.technowolf.nyx.core.Steganography
+import `in`.technowolf.nyx.ui.models.ImageModel
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -35,6 +36,8 @@ import androidx.lifecycle.ViewModel
 class DecryptionViewModel : ViewModel() {
 
     private val steganography = Steganography()
+
+    val imageList: MutableList<ImageModel> = mutableListOf()
 
     private var _decryptedText = MutableLiveData<String>()
     val decryptedText: LiveData<String> = _decryptedText
