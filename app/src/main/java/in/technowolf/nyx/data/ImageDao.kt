@@ -38,6 +38,6 @@ interface ImageDao {
     @Insert
     fun insertImage(image: ImageEntity): Long
 
-    @Delete
-    fun deleteImage(image: ImageEntity): Int
+    @Query("delete from images where image_name = :imageName")
+    fun delete(imageName: String)
 }
