@@ -33,8 +33,11 @@ import `in`.technowolf.nyx.utils.ImageHelper.deleteImage
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
 import `in`.technowolf.nyx.utils.alert
 import `in`.technowolf.nyx.utils.viewBinding
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -56,30 +59,37 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.rvEncryptedImages.apply {
-            adapter = imageGalleryAdapter
-            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
-        }
+        init()
+    }
 
-        imageGalleryAdapter.onDecrypt = {
-            alert(
-                "Decrypt Message",
-                "Please enter passphrase below to decrypt the message from the image.",
-                true
-            ) {
-                cancelable = false
-                positiveButton("ok") {
-                    decryptionViewModel.decryptImage(
-                        requireContext().retrieveImage(it.name),
-                        passphraseEditText.text.toString()
-                    )
-                }
-                negativeButton("cancel") {
+    private fun init() {
+        setupRecyclerView()
+        populateImages()
+        setupOnImageDecryptAction()
+        setupOnImageDeleteAction()
+        observeDecryptedText()
+    }
 
+    private fun observeDecryptedText() {
+        decryptionViewModel.decryptedText.observe(viewLifecycleOwner, Observer {
+
+            val alertMessage =
+                if (it.isNullOrEmpty()) "Wrong passphrase, Please try again!"
+                else it
+
+            alert("Decrypted Message", alertMessage) {
+                positiveButton("Copy to clipboard") {
+                    val clipboard: ClipboardManager? =
+                        getSystemService(requireContext(), ClipboardManager::class.java)
+                    val clip = ClipData.newPlainText("Decrypted Message", alertMessage)
+                    clipboard?.setPrimaryClip(clip)
                 }
+                negativeButton("Close")
             }.show()
-        }
+        })
+    }
 
+    private fun setupOnImageDeleteAction() {
         imageGalleryAdapter.onDelete = { it: ImageModel, position: Int ->
             lifecycleScope.launch(Dispatchers.IO) {
                 provideDb().imageDao().delete(it.name)
@@ -89,22 +99,35 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
             imageGalleryAdapter.submitList(decryptionViewModel.imageList)
             imageGalleryAdapter.notifyItemRemoved(position)
         }
+    }
 
-        decryptionViewModel.decryptedText.observe(viewLifecycleOwner, Observer {
-            val alertMessage =
-                if (it.isNullOrEmpty()) "Wrong passphrase, Please try again!"
-                else "Decrypted message: $it"
-
-            alert("Secret Message", alertMessage) {
-                positiveButton("Copy to clipboard") {
-
+    private fun setupOnImageDecryptAction() {
+        imageGalleryAdapter.onDecrypt = {
+            alert(
+                "Decrypt Message",
+                "Please enter passphrase below to decrypt the message from the image.",
+                true
+            ) {
+                cancelable = false
+                positiveButton("Ok") {
+                    decryptionViewModel.decryptImage(
+                        requireContext().retrieveImage(it.name),
+                        passphraseEditText.text.toString()
+                    )
                 }
-                negativeButton("Close") {
-
-                }
+                negativeButton("cancel")
             }.show()
-        })
+        }
+    }
 
+    private fun setupRecyclerView() {
+        binding.rvEncryptedImages.apply {
+            adapter = imageGalleryAdapter
+            layoutManager = StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL)
+        }
+    }
+
+    private fun populateImages() {
         lifecycleScope.launch(Dispatchers.IO) {
             provideDb().imageDao().getAllImages().let {
                 it.map { imageEntity ->

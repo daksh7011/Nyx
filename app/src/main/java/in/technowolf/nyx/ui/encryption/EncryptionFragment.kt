@@ -50,6 +50,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import androidx.room.Room
 import com.bumptech.glide.Glide
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
@@ -93,17 +94,20 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryption() {
         encryptionViewModel.encryptedMessage.observe(viewLifecycleOwner, Observer {
-            prepareImageEncryption(it)
+            lifecycleScope.launch {
+                prepareImageEncryption(it)
+            }
         })
     }
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            val imageModel = ImageModel(UUID.randomUUID().toString() + ".png",null)
+            val imageModel = ImageModel(UUID.randomUUID().toString() + ".png", null)
             lifecycleScope.launch(Dispatchers.IO) {
                 database.imageDao().insertImage(imageModel.toImageEntity())
             }
             requireContext().saveImage(it.first(), imageModel.name)
+            binding.root.snackBar("Image was encrypted with your secret message") {}
         })
     }
 
@@ -202,10 +206,12 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             binding.apply {
                 if (isImageSelected()) {
                     if (isInputValid()) {
-                        encryptionViewModel.encryptText(
-                            etMessage.text.toString(),
-                            etEncryptionKey.text.toString()
-                        )
+                        lifecycleScope.launch {
+                            encryptionViewModel.encryptText(
+                                etMessage.text.toString(),
+                                etEncryptionKey.text.toString()
+                            )
+                        }
                     }
                 }
             }
