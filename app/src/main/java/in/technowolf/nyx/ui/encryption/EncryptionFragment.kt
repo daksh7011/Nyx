@@ -32,7 +32,6 @@ import `in`.technowolf.nyx.ui.models.ImageModel
 import `in`.technowolf.nyx.utils.Extension.action
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
-import `in`.technowolf.nyx.utils.GlideHelper
 import `in`.technowolf.nyx.utils.ImageHelper
 import `in`.technowolf.nyx.utils.ImageHelper.saveImage
 import `in`.technowolf.nyx.utils.viewBinding
@@ -53,15 +52,17 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.room.Room
-import com.bumptech.glide.Glide
+import coil.Coil
+import coil.api.load
+import coil.request.LoadRequest
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.io.FileDescriptor
 import java.util.*
-
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
@@ -72,8 +73,6 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     private lateinit var database: AppDatabase
 
     private lateinit var popupMenu: PopupMenu
-
-    private var isImageLoaded = false
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -134,27 +133,43 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             when (requestCode) {
                 ImageHelper.IMAGE_PICKER_INTENT -> setupSelectedImage(data)
                 ImageHelper.UNSPLASH_IMAGE_PICKER_INTENT -> {
-                    val photos: ArrayList<UnsplashPhoto>? =
-                        data?.getParcelableArrayListExtra(UnsplashPickerActivity.EXTRA_PHOTOS)
-                    Glide.with(requireContext()).load(photos?.first()?.urls?.regular)
-                        .listener(GlideHelper.OnCompleted {
-                            isImageLoaded = true
-                        })
-                        .into(binding.ivImagePreview)
-                    binding.ivImagePreview.visible()
+                    val photoUrl =
+                        data?.getParcelableArrayListExtra<UnsplashPhoto>(UnsplashPickerActivity.EXTRA_PHOTOS)
+                            ?.first()?.urls?.regular
+                    photoUrl?.let { setupImageFromUnsplash(it) }
                 }
             }
         }
     }
 
     private fun setupSelectedImage(data: Intent?) {
-        getBitmapFromUri(data?.data).let {
-            encryptionViewModel.imageForEncryption = it
-            binding.ivImagePreview.apply {
-                setImageBitmap(it)
-                visible()
+        val imageLoader = Coil.imageLoader(requireContext())
+        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+            .data(data?.data)
+            .target {
+                binding.ivImagePreview.load(it)
+                encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
-        }
+            .size(2048)
+            .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .build()
+        imageLoader.execute(request)
+        binding.ivImagePreview.visible()
+    }
+
+    private fun setupImageFromUnsplash(url: String) {
+        val imageLoader = Coil.imageLoader(requireContext())
+        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+            .data(url)
+            .target {
+                binding.ivImagePreview.load(it)
+                encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
+            }
+            .size(2048)
+            .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .build()
+        imageLoader.execute(request)
+        binding.ivImagePreview.visible()
     }
 
     private fun isInputValid(): Boolean {
@@ -207,35 +222,27 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun setupFab() {
         binding.fabEncryptImage.setOnClickListener {
-            if (isImageLoaded) {
-                encryptionViewModel.imageForEncryption =
-                    (binding.ivImagePreview.drawable as BitmapDrawable).bitmap
-            }
-            binding.apply {
-                if (isImageSelected()) {
+            if (encryptionViewModel.imageForEncryption == null) {
+                binding.root.snackBar(resources.getString(R.string.select_image_warning)) {
+                    action("Pick") {
+                        popupMenu.show()
+                    }
+                }
+            } else {
+                binding.apply {
                     if (isInputValid()) {
                         lifecycleScope.launch {
-                            encryptionViewModel.encryptText(
-                                etMessage.text.toString(),
-                                etEncryptionKey.text.toString()
-                            )
+                            withContext(Dispatchers.IO) {
+                                encryptionViewModel.encryptText(
+                                    etMessage.text.toString(),
+                                    etEncryptionKey.text.toString()
+                                )
+                            }
                         }
                     }
                 }
             }
         }
-    }
-
-    private fun isImageSelected(): Boolean {
-        return if (encryptionViewModel.imageForEncryption == null) {
-            binding.root.snackBar(
-                getString(R.string.select_image_warning),
-                binding.fabEncryptImage
-            ) {
-                action("Pick") { popupMenu.show() }
-            }
-            false
-        } else true
     }
 
     private fun openImagePicker() {

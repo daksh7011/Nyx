@@ -30,17 +30,16 @@
     <string name="decrypt">Decrypt</string>
     <string name="about">About</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="encryption_key">Encryption Key</string>
     <string name="your_message">Your Message</string>
     <string name="encrypt_image">Encrypt Image</string>
     <string name="select_image">Select Image</string>
-    <string name="select_image_warning">You must select an image</string>
+    <string name="select_image_warning">Image did not load, Please wait or try selecting image again</string>
     <string name="select_from_device">Select from Device</string>
     <string name="select_from_unsplash">Select from Unsplash</string>
     <string name="delete">Delete</string>
     <string name="cancel">Cancel</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="passphrase">Passphrase</string>
+    <string name="oops_no_images_found">Oops! No Images found!</string>
 </resources>

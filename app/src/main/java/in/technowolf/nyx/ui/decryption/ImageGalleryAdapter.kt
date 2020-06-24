@@ -27,10 +27,8 @@ package `in`.technowolf.nyx.ui.decryption
 
 import `in`.technowolf.nyx.databinding.CellDecryptionImageBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.ImageHelper.deleteImage
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
 import android.graphics.Outline
-import android.graphics.drawable.BitmapDrawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -39,12 +37,13 @@ import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
+import coil.api.load
 
 
 class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageViewHolder>(CALLBACK) {
 
-    var onDecrypt: ((ImageModel)-> Unit)? = null
-    var onDelete: ((ImageModel,position:Int) -> Unit)? = null
+    var onDecrypt: ((ImageModel) -> Unit)? = null
+    var onDelete: ((ImageModel, position: Int) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder =
         ImageViewHolder(
@@ -72,18 +71,15 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
                 onDecrypt?.invoke(imageModel)
             }
             binding.btnDelete.setOnClickListener {
-                onDelete?.invoke(imageModel,adapterPosition)
+                onDelete?.invoke(imageModel, adapterPosition)
             }
         }
 
         private fun setupImage(imageName: String) {
             try {
-                val drawable = BitmapDrawable(
-                    binding.root.resources,
-                    binding.root.context.retrieveImage(imageName)
-                )
-                binding.ivDecryptionImage.setImageDrawable(drawable)
+                binding.ivDecryptionImage.load(binding.root.context.retrieveImage(imageName))
             } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
 

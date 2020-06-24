@@ -29,7 +29,9 @@ import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.data.AppDatabase
 import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Extension.gone
 import `in`.technowolf.nyx.utils.Extension.snackBar
+import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper.deleteImage
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
 import `in`.technowolf.nyx.utils.alert
@@ -141,8 +143,16 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                 it.map { imageEntity ->
                     imageEntity.toImageModel()
                 }.also { imageModelList ->
-                    decryptionViewModel.imageList.addAll(imageModelList)
-                    requireActivity().runOnUiThread { imageGalleryAdapter.submitList(imageModelList) }
+                    requireActivity().runOnUiThread {
+                        if (imageModelList.isEmpty()) {
+                            binding.noResultAnimation.visible()
+                            binding.tvNoImageFound.visible()
+                            binding.rvEncryptedImages.gone()
+                        } else {
+                            decryptionViewModel.imageList.addAll(imageModelList)
+                            imageGalleryAdapter.submitList(imageModelList)
+                        }
+                    }
                 }
             }
         }

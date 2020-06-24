@@ -25,7 +25,9 @@
 
 package `in`.technowolf.nyx.utils
 
-import `in`.technowolf.nyx.R
+import android.content.Context
+import android.content.res.Configuration
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
@@ -59,9 +61,14 @@ object Extension {
         this.isEnabled = false
     }
 
-    fun Fragment.setStatusBarColor() {
+    fun Fragment.setStatusBarColor(color: Int) {
         requireActivity().window.statusBarColor =
-            ContextCompat.getColor(requireContext(), R.color.colorPrimaryLight)
+            ContextCompat.getColor(requireContext(), color)
+    }
+
+    fun Context.isDarkMode(): Boolean {
+        return resources.configuration.uiMode and
+                Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
     }
 
     inline fun View.snackBar(

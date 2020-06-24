@@ -40,4 +40,30 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="4" />
 
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/noResultAnimation"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/no_result"
+        tools:visibility="visible" />
+
+    <com.google.android.material.textview.MaterialTextView
+        android:id="@+id/tvNoImageFound"
+        style="@style/TextAppearance.AppTheme.Body1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/oops_no_images_found"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/noResultAnimation"
+        app:layout_constraintStart_toStartOf="@+id/noResultAnimation"
+        app:layout_constraintTop_toBottomOf="@+id/noResultAnimation"
+        tools:visibility="visible" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

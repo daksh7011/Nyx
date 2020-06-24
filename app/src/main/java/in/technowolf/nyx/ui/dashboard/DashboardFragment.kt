@@ -27,6 +27,8 @@ package `in`.technowolf.nyx.ui.dashboard
 
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
+import `in`.technowolf.nyx.utils.Extension.isDarkMode
+import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
@@ -45,6 +47,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     }
 
     private fun init() {
+        if (requireContext().isDarkMode()) {
+            setStatusBarColor(R.color.black_800)
+        } else setStatusBarColor(R.color.colorPrimaryLight)
         setupEncrypt()
         setupDecrypt()
         setupInfo()
