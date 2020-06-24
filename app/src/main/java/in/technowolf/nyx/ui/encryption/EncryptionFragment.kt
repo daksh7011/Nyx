@@ -55,6 +55,7 @@ import androidx.room.Room
 import coil.Coil
 import coil.api.load
 import coil.request.LoadRequest
+import coil.size.ViewSizeResolver
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
 import kotlinx.coroutines.Dispatchers
@@ -150,7 +151,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 binding.ivImagePreview.load(it)
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
-            .size(2048)
+            .size(ViewSizeResolver(binding.ivImagePreview))
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .build()
         imageLoader.execute(request)
@@ -165,7 +166,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 binding.ivImagePreview.load(it)
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
-            .size(2048)
+            .size(ViewSizeResolver(binding.ivImagePreview))
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .build()
         imageLoader.execute(request)
