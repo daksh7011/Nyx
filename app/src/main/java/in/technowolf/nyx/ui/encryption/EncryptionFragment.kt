@@ -30,6 +30,7 @@ import `in`.technowolf.nyx.data.AppDatabase
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
 import `in`.technowolf.nyx.utils.Extension.action
+import `in`.technowolf.nyx.utils.Extension.gone
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper
@@ -38,11 +39,8 @@ import `in`.technowolf.nyx.utils.viewBinding
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
-import android.net.Uri
 import android.os.Bundle
-import android.os.ParcelFileDescriptor
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
@@ -53,7 +51,6 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import androidx.room.Room
 import coil.Coil
-import coil.api.load
 import coil.request.LoadRequest
 import coil.size.ViewSizeResolver
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
@@ -62,7 +59,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.FileDescriptor
 import java.util.*
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
@@ -147,15 +143,17 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         val imageLoader = Coil.imageLoader(requireContext())
         val request = LoadRequest.Builder(binding.ivImagePreview.context)
             .data(data?.data)
+
             .target {
-                binding.ivImagePreview.load(it)
+                binding.pbImageLoading.gone()
+                binding.ivImagePreview.setImageDrawable(it)
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
             .size(ViewSizeResolver(binding.ivImagePreview))
             .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .crossfade(true)
             .build()
         imageLoader.execute(request)
-        binding.ivImagePreview.visible()
     }
 
     private fun setupImageFromUnsplash(url: String) {
@@ -163,14 +161,15 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         val request = LoadRequest.Builder(binding.ivImagePreview.context)
             .data(url)
             .target {
-                binding.ivImagePreview.load(it)
+                binding.pbImageLoading.gone()
+                binding.ivImagePreview.setImageDrawable(it)
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
             .size(ViewSizeResolver(binding.ivImagePreview))
             .bitmapConfig(Bitmap.Config.ARGB_8888)
+            .crossfade(true)
             .build()
         imageLoader.execute(request)
-        binding.ivImagePreview.visible()
     }
 
     private fun isInputValid(): Boolean {
@@ -192,20 +191,6 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         return true
     }
 
-    private fun getBitmapFromUri(uri: Uri?): Bitmap? {
-        return if (uri != null) {
-            val parcelFileDescriptor: ParcelFileDescriptor? =
-                requireContext().contentResolver.openFileDescriptor(uri, "r")
-            val fileDescriptor: FileDescriptor? = parcelFileDescriptor?.fileDescriptor
-            val image: Bitmap = BitmapFactory.decodeFileDescriptor(fileDescriptor)
-            parcelFileDescriptor?.close()
-            image
-        } else {
-            Timber.w(IllegalStateException("Uri is null, User did not select image."))
-            null
-        }
-    }
-
     private fun provideDb(): AppDatabase {
         return Room.databaseBuilder(
             requireActivity().applicationContext,
@@ -224,11 +209,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     private fun setupFab() {
         binding.fabEncryptImage.setOnClickListener {
             if (encryptionViewModel.imageForEncryption == null) {
-                binding.root.snackBar(resources.getString(R.string.select_image_warning)) {
-                    action("Pick") {
-                        popupMenu.show()
-                    }
-                }
+                binding.root.snackBar(resources.getString(R.string.select_image_warning)) {}
             } else {
                 binding.apply {
                     if (isInputValid()) {
@@ -247,6 +228,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun openImagePicker() {
+        clearCurrentImage()
         startActivityForResult(
             ImageHelper.prepareImagePickerIntent(),
             ImageHelper.IMAGE_PICKER_INTENT
@@ -254,12 +236,18 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun openUnsplashImagePicker() {
+        clearCurrentImage()
         startActivityForResult(
             UnsplashPickerActivity.getStartingIntent(
                 requireContext(),
                 false
             ), ImageHelper.UNSPLASH_IMAGE_PICKER_INTENT
         )
+    }
+
+    private fun clearCurrentImage() {
+        encryptionViewModel.imageForEncryption = null
+        binding.ivImagePreview.setImageDrawable(null)
     }
 
     private fun setupPopupMenu(): PopupMenu {
@@ -269,10 +257,12 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             when (it.itemId) {
                 R.id.nav_device -> {
                     openImagePicker()
+                    binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
                 R.id.nav_unsplash -> {
                     openUnsplashImagePicker()
+                    binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
                 else -> return@setOnMenuItemClickListener false
