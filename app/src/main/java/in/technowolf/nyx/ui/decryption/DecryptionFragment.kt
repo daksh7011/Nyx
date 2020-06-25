@@ -26,7 +26,7 @@
 package `in`.technowolf.nyx.ui.decryption
 
 import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.data.AppDatabase
+import `in`.technowolf.nyx.data.ImageDao
 import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
 import `in`.technowolf.nyx.utils.Extension.gone
@@ -46,9 +46,9 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import androidx.room.Room
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import org.koin.android.ext.android.inject
 
 
 class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
@@ -58,6 +58,8 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     private val decryptionViewModel: DecryptionViewModel by viewModels()
 
     private val imageGalleryAdapter = ImageGalleryAdapter()
+
+    private val imageDao: ImageDao by inject()
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -101,7 +103,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
 
     private fun setupOnImageDeleteAction() {
         imageGalleryAdapter.onDelete = { it: ImageModel, position: Int ->
-            lifecycleScope.launch(Dispatchers.IO) { provideDb().imageDao().delete(it.name) }
+            lifecycleScope.launch(Dispatchers.IO) { imageDao.delete(it.name) }
             requireContext().deleteImage(it.name)
             decryptionViewModel.imageList.remove(it)
             imageGalleryAdapter.submitList(decryptionViewModel.imageList)
@@ -139,7 +141,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
 
     private fun populateImages() {
         lifecycleScope.launch(Dispatchers.IO) {
-            provideDb().imageDao().getAllImages().let {
+            imageDao.getAllImages().let {
                 it.map { imageEntity ->
                     imageEntity.toImageModel()
                 }.also { imageModelList ->
@@ -157,13 +159,4 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
             }
         }
     }
-
-    private fun provideDb(): AppDatabase {
-        return Room.databaseBuilder(
-            requireActivity().applicationContext,
-            AppDatabase::class.java,
-            "Images"
-        ).build()
-    }
-
 }

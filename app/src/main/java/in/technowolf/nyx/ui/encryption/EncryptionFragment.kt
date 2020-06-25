@@ -26,7 +26,7 @@
 package `in`.technowolf.nyx.ui.encryption
 
 import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.data.AppDatabase
+import `in`.technowolf.nyx.data.ImageDao
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
 import `in`.technowolf.nyx.utils.Extension.action
@@ -49,15 +49,17 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import androidx.room.Room
 import coil.Coil
 import coil.request.LoadRequest
+import coil.size.Precision
+import coil.size.Scale
 import coil.size.ViewSizeResolver
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.koin.android.ext.android.inject
 import timber.log.Timber
 import java.util.*
 
@@ -67,7 +69,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private val encryptionViewModel: EncryptionViewModel by viewModels()
 
-    private lateinit var database: AppDatabase
+    private val imageDao: ImageDao by inject()
 
     private lateinit var popupMenu: PopupMenu
 
@@ -78,7 +80,6 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun init() {
-        database = provideDb()
         popupMenu = setupPopupMenu()
         attachObserver()
         setupButtons()
@@ -101,7 +102,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
             val imageModel = ImageModel(UUID.randomUUID().toString() + ".png", null)
             lifecycleScope.launch(Dispatchers.IO) {
-                database.imageDao().insertImage(imageModel.toImageEntity())
+                imageDao.insertImage(imageModel.toImageEntity())
             }
             requireContext().saveImage(it.first(), imageModel.name)
             binding.root.snackBar("Image was encrypted with your secret message") {
@@ -143,13 +144,15 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         val imageLoader = Coil.imageLoader(requireContext())
         val request = LoadRequest.Builder(binding.ivImagePreview.context)
             .data(data?.data)
-
             .target {
                 binding.pbImageLoading.gone()
                 binding.ivImagePreview.setImageDrawable(it)
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
             .size(ViewSizeResolver(binding.ivImagePreview))
+            .placeholder(R.drawable.ic_encryption_illustration)
+            .precision(Precision.EXACT)
+            .scale(Scale.FILL)
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
@@ -166,6 +169,9 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 encryptionViewModel.imageForEncryption = (it as BitmapDrawable).bitmap
             }
             .size(ViewSizeResolver(binding.ivImagePreview))
+            .placeholder(R.drawable.ic_encryption_illustration)
+            .precision(Precision.EXACT)
+            .scale(Scale.FILL)
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
@@ -189,14 +195,6 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         }
 
         return true
-    }
-
-    private fun provideDb(): AppDatabase {
-        return Room.databaseBuilder(
-            requireActivity().applicationContext,
-            AppDatabase::class.java,
-            "Images"
-        ).build()
     }
 
     private fun setupButtons() {
@@ -271,4 +269,12 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         return popupMenu
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (encryptionViewModel.imageForEncryption != null) {
+            BitmapDrawable(resources, encryptionViewModel.imageForEncryption).let {
+                binding.ivImagePreview.setImageDrawable(it)
+            }
+        }
+    }
 }

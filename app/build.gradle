@@ -129,4 +129,8 @@ dependencies {
     debugImplementation 'com.amitshekhar.android:debug-db:1.0.6'
 
     implementation "com.airbnb.android:lottie:3.4.1"
+
+    implementation "org.koin:koin-android:2.1.6"
+    implementation "org.koin:koin-android-scope:2.1.6"
+    implementation "org.koin:koin-android-viewmodel:2.1.6"
 }

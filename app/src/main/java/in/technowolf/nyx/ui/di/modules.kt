@@ -23,32 +23,20 @@
  *
  */
 
-package `in`.technowolf.nyx
+package `in`.technowolf.nyx.ui.di
 
-import `in`.technowolf.nyx.ui.di.databaseModule
-import android.app.Application
-import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
-import org.koin.android.ext.koin.androidContext
-import org.koin.core.context.startKoin
-import timber.log.Timber
+import `in`.technowolf.nyx.data.AppDatabase
+import androidx.room.Room
+import org.koin.dsl.module
 
-class Nyx : Application() {
-    override fun onCreate() {
-        super.onCreate()
-
-        startKoin {
-            androidContext(this@Nyx)
-            modules(listOf(databaseModule))
-        }
-
-        //Planting timber instance
-        Timber.plant()
-
-        UnsplashPhotoPicker.init(
-            this,
-            BuildConfig.accessKey,
-            BuildConfig.privateKey,
-            10
-        )
+val databaseModule = module {
+    single {
+        Room.databaseBuilder(
+            get(),
+            AppDatabase::class.java,
+            "Images"
+        ).build()
     }
+    single { get<AppDatabase>().imageDao() }
 }
+
