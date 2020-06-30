@@ -105,8 +105,11 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 imageDao.insertImage(imageModel.toImageEntity())
             }
             requireContext().saveImage(it.first(), imageModel.name)
-            binding.root.snackBar("Image was encrypted with your secret message") {
-                action("Check it out") {
+            binding.root.snackBar(
+                "Image was encrypted with your secret message",
+                anchor = binding.fabEncryptImage
+            ) {
+                action("Check out") {
                     val action = EncryptionFragmentDirections.actionToDecryptionFragment()
                     val navOptions =
                         NavOptions.Builder().setPopUpTo(R.id.dashboardFragment, true).build()
@@ -207,7 +210,10 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     private fun setupFab() {
         binding.fabEncryptImage.setOnClickListener {
             if (encryptionViewModel.imageForEncryption == null) {
-                binding.root.snackBar(resources.getString(R.string.select_image_warning)) {}
+                binding.root.snackBar(
+                    resources.getString(R.string.select_image_warning),
+                    anchor = binding.fabEncryptImage
+                ) {}
             } else {
                 binding.apply {
                     if (isInputValid()) {
