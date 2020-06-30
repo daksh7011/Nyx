@@ -50,8 +50,10 @@ class EncryptionViewModel : ViewModel() {
     val encryptedImages: LiveData<List<Bitmap>> = _encryptedImages
     fun prepareEncryptedImage(encryptedMessage: String) {
         if (imageForEncryption != null) {
-            _encryptedImages.value =
-                steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
+            viewModelScope.launch {
+                _encryptedImages.value =
+                    steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
+            }
         } else {
             throw IllegalStateException("Image to be encrypted is still null")
         }

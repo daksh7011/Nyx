@@ -26,6 +26,10 @@
 package `in`.technowolf.nyx.core
 
 import android.util.Base64
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.security.AlgorithmParameters
 import java.security.SecureRandom
@@ -37,78 +41,88 @@ import javax.crypto.spec.SecretKeySpec
 
 object MagicWand {
 
-    fun encrypt(plainText: String, passPhrase: String): String? {
+    private val job = Job()
+    private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
-        val random = SecureRandom()
-        val bytes = ByteArray(20)
-        random.nextBytes(bytes)
+    suspend fun encrypt(plainText: String, passPhrase: String): String? {
 
-        // Deriving the key
-        val secretKeyFactory =
-            SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val pbeKeySpec =
-            PBEKeySpec(passPhrase.toCharArray(), bytes, 65556, 256)
-        val secretKey: SecretKey = secretKeyFactory.generateSecret(pbeKeySpec)
-        val secretKeySpec = SecretKeySpec(secretKey.encoded, "AES")
+        return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
 
-        // Encrypting the plain text
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
-        cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
-        val params: AlgorithmParameters = cipher.parameters
-        val ivBytes = params.getParameterSpec(IvParameterSpec::class.java).iv
-        val encryptedTextBytes: ByteArray = cipher.doFinal(plainText.toByteArray(charset("UTF-8")))
+            val random = SecureRandom()
+            val bytes = ByteArray(20)
+            random.nextBytes(bytes)
 
-        // prepending salt and initialization vector
-        val buffer = ByteArray(bytes.size + ivBytes.size + encryptedTextBytes.size)
-        System.arraycopy(bytes, 0, buffer, 0, bytes.size)
-        System.arraycopy(ivBytes, 0, buffer, bytes.size, ivBytes.size)
-        System.arraycopy(
-            encryptedTextBytes,
-            0,
-            buffer,
-            bytes.size + ivBytes.size,
-            encryptedTextBytes.size
-        )
+            // Deriving the key
+            val secretKeyFactory =
+                SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            val pbeKeySpec =
+                PBEKeySpec(passPhrase.toCharArray(), bytes, 65556, 256)
+            val secretKey: SecretKey = secretKeyFactory.generateSecret(pbeKeySpec)
+            val secretKeySpec = SecretKeySpec(secretKey.encoded, "AES")
 
-        // Profit!
-        return Base64.encodeToString(buffer, Base64.DEFAULT)
+            // Encrypting the plain text
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+            cipher.init(Cipher.ENCRYPT_MODE, secretKeySpec)
+            val params: AlgorithmParameters = cipher.parameters
+            val ivBytes = params.getParameterSpec(IvParameterSpec::class.java).iv
+            val encryptedTextBytes: ByteArray =
+                cipher.doFinal(plainText.toByteArray(charset("UTF-8")))
+
+            // prepending salt and initialization vector
+            val buffer = ByteArray(bytes.size + ivBytes.size + encryptedTextBytes.size)
+            System.arraycopy(bytes, 0, buffer, 0, bytes.size)
+            System.arraycopy(ivBytes, 0, buffer, bytes.size, ivBytes.size)
+            System.arraycopy(
+                encryptedTextBytes,
+                0,
+                buffer,
+                bytes.size + ivBytes.size,
+                encryptedTextBytes.size
+            )
+
+            // Profit!
+            Base64.encodeToString(buffer, Base64.DEFAULT)
+        }
     }
 
-    fun decrypt(encryptedText: String?, passPhrase: String): String? {
+    suspend fun decrypt(encryptedText: String?, passPhrase: String): String? {
 
-        val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
+        return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
 
-        // brush off the salt and initialization vector
-        val buffer = ByteBuffer.wrap(Base64.decode(encryptedText, Base64.DEFAULT))
+            val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 
-        val saltBytes = ByteArray(20)
-        buffer[saltBytes, 0, saltBytes.size]
+            // brush off the salt and initialization vector
+            val buffer = ByteBuffer.wrap(Base64.decode(encryptedText, Base64.DEFAULT))
 
-        val ivBytes = ByteArray(cipher.blockSize)
-        buffer[ivBytes, 0, ivBytes.size]
+            val saltBytes = ByteArray(20)
+            buffer[saltBytes, 0, saltBytes.size]
 
-        // encrypted text with salt and initialization vector removed
-        val encryptedTextBytes = ByteArray(buffer.capacity() - saltBytes.size - ivBytes.size)
-        buffer.get(encryptedTextBytes)
+            val ivBytes = ByteArray(cipher.blockSize)
+            buffer[ivBytes, 0, ivBytes.size]
 
-        // deriving the key for decryption
-        val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
-        val spec = PBEKeySpec(passPhrase.toCharArray(), saltBytes, 65556, 256)
-        val secretKey = factory.generateSecret(spec)
-        val secret = SecretKeySpec(secretKey.encoded, "AES")
-        cipher.init(Cipher.DECRYPT_MODE, secret, IvParameterSpec(ivBytes))
+            // encrypted text with salt and initialization vector removed
+            val encryptedTextBytes = ByteArray(buffer.capacity() - saltBytes.size - ivBytes.size)
+            buffer.get(encryptedTextBytes)
+
+            // deriving the key for decryption
+            val factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
+            val spec = PBEKeySpec(passPhrase.toCharArray(), saltBytes, 65556, 256)
+            val secretKey = factory.generateSecret(spec)
+            val secret = SecretKeySpec(secretKey.encoded, "AES")
+            cipher.init(Cipher.DECRYPT_MODE, secret, IvParameterSpec(ivBytes))
 
 
-        var decryptedTextBytes: ByteArray? = null
-        try {
-            decryptedTextBytes = cipher.doFinal(encryptedTextBytes)
-        } catch (e: IllegalBlockSizeException) {
-            e.printStackTrace()
-        } catch (e: BadPaddingException) {
-            e.printStackTrace()
+            var decryptedTextBytes: ByteArray? = null
+            try {
+                decryptedTextBytes = cipher.doFinal(encryptedTextBytes)
+            } catch (e: IllegalBlockSizeException) {
+                e.printStackTrace()
+            } catch (e: BadPaddingException) {
+                e.printStackTrace()
+            }
+
+            decryptedTextBytes?.toString(Charsets.UTF_8)
         }
-
-        return decryptedTextBytes?.toString(Charsets.UTF_8)
     }
 
 }

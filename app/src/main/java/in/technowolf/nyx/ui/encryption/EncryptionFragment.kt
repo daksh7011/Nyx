@@ -41,6 +41,7 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
@@ -60,7 +61,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import timber.log.Timber
 import java.util.*
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
@@ -118,7 +118,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun prepareImageEncryption(encryptedMessage: String?) {
         if (encryptedMessage != null) encryptImage(encryptedMessage)
-        else Timber.w("Encrypted Message is empty")
+        else Log.w(javaClass.simpleName, "Encrypted Message is empty")
     }
 
     private fun encryptImage(encryptedMessage: String) {

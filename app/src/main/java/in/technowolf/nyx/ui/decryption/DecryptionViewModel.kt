@@ -32,6 +32,8 @@ import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
 
 class DecryptionViewModel : ViewModel() {
 
@@ -43,7 +45,9 @@ class DecryptionViewModel : ViewModel() {
     val decryptedText: LiveData<String?> = _decryptedText
 
     fun decryptImage(bitmap: Bitmap, passPhrase: String) {
-        val bitmapText = steganography.decodeMessage(listOf(bitmap))
-        _decryptedText.value = MagicWand.decrypt(bitmapText, passPhrase)
+        viewModelScope.launch {
+            val bitmapText = steganography.decodeMessage(listOf(bitmap))
+            _decryptedText.value = MagicWand.decrypt(bitmapText, passPhrase)
+        }
     }
 }
