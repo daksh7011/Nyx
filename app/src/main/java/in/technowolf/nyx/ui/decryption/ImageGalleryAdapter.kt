@@ -27,18 +27,20 @@ package `in`.technowolf.nyx.ui.decryption
 
 import `in`.technowolf.nyx.databinding.CellDecryptionImageBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
 import android.graphics.Outline
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewOutlineProvider
-import androidx.constraintlayout.widget.ConstraintSet
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
-
+import coil.size.Precision
+import coil.size.Scale
+import coil.size.ViewSizeResolver
+import kotlinx.coroutines.Dispatchers
+import java.io.File
 
 class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageViewHolder>(CALLBACK) {
 
@@ -61,10 +63,8 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
     inner class ImageViewHolder(private val binding: CellDecryptionImageBinding) :
         RecyclerView.ViewHolder(binding.root) {
 
-        val set = ConstraintSet()
-
         fun bind(imageModel: ImageModel) {
-            setCorners()
+            //setCorners()
             setupImage(imageModel.name)
 
             binding.btnDecrypt.setOnClickListener {
@@ -77,7 +77,13 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
 
         private fun setupImage(imageName: String) {
             try {
-                binding.ivDecryptionImage.load(binding.root.context.retrieveImage(imageName))
+                binding.ivDecryptionImage.load(File(binding.root.context.filesDir, imageName)) {
+                    crossfade(true)
+                    dispatcher(Dispatchers.IO)
+                    size(ViewSizeResolver(binding.ivDecryptionImage))
+                    precision(Precision.EXACT)
+                    scale(Scale.FILL)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
