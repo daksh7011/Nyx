@@ -39,7 +39,10 @@ import java.nio.charset.Charset
 import java.util.*
 import kotlin.experimental.or
 
-class Steganography {
+class Steganography(
+    private val startMessageConstant: String = "@!#",
+    private val endMessageConstant: String = "#!@"
+) {
 
     private val binary = intArrayOf(16, 8, 0)
     private val andByte = byteArrayOf(0xC0.toByte(), 0x30, 0x0C, 0x03)
@@ -54,12 +57,12 @@ class Steganography {
      * @param imageArray The rgb array.
      * @param imageWidth Image width.
      * @param imageHeight Image height.
-     * @param messageEncodingStatus Message encoding model.
+     * @param encodingState Message encoding model.
      * @return Encoded message image.
      */
     private suspend fun encodeMessage(
         imageArray: IntArray, imageWidth: Int, imageHeight: Int,
-        messageEncodingStatus: MessageEncodingStatus
+        encodingState: EncodingState
     ): ByteArray {
         val channels = 3
         var shiftIndex = 4
@@ -71,18 +74,18 @@ class Steganography {
                     val element = row * imageWidth + col
                     var tmp: Byte
                     for (channelIndex in 0 until channels) {
-                        if (!messageEncodingStatus.isMessageEncoded) {
+                        if (!encodingState.isMessageEncoded) {
                             tmp =
                                 (imageArray[element] shr binary[channelIndex] and 0xFF and 0xFC or
-                                        (messageEncodingStatus.byteArrayMessage[messageEncodingStatus.currentMessageIndex]
+                                        (encodingState.byteArrayMessage[encodingState.currentMessageIndex]
                                                 shr toShift[shiftIndex++ % toShift.size] and 0x3)).toByte()
                             if (shiftIndex % toShift.size == 0) {
                                 //progress ongoing with increment
-                                messageEncodingStatus.incrementMessageIndex()
+                                encodingState.incrementMessageIndex()
                             }
-                            if (messageEncodingStatus.currentMessageIndex == messageEncodingStatus.byteArrayMessage.size) {
+                            if (encodingState.currentMessageIndex == encodingState.byteArrayMessage.size) {
                                 //done
-                                messageEncodingStatus.isMessageEncoded = true
+                                encodingState.isMessageEncoded = true
                             }
                         } else {
                             tmp =
@@ -102,30 +105,27 @@ class Steganography {
     ): List<Bitmap> {
         var encryptedMessageWithConstant = encryptedMessage
         val result: MutableList<Bitmap> = ArrayList(imageList.size)
-        encryptedMessageWithConstant += END_MESSAGE_CONSTANT
-        encryptedMessageWithConstant = START_MESSAGE_CONSTANT + encryptedMessageWithConstant
-        val msg = encryptedMessageWithConstant.toByteArray(Charset.forName("UTF-8"))
-        val message = MessageEncodingStatus()
-        message.message = encryptedMessageWithConstant
-        message.byteArrayMessage = msg
-        message.currentMessageIndex = 0
-        message.isMessageEncoded = false
-        Log.i(javaClass.simpleName, "Message length " + msg.size)
+        encryptedMessageWithConstant += endMessageConstant
+        encryptedMessageWithConstant = startMessageConstant + encryptedMessageWithConstant
+        val byteArrayMessage = encryptedMessageWithConstant.toByteArray(Charset.forName("UTF-8"))
+        val messageEncodingStatus = EncodingState()
+        messageEncodingStatus.message = encryptedMessageWithConstant
+        messageEncodingStatus.byteArrayMessage = byteArrayMessage
+        messageEncodingStatus.currentMessageIndex = 0
+        messageEncodingStatus.isMessageEncoded = false
+        Log.i(javaClass.simpleName, "Message length " + byteArrayMessage.size)
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
             for (image in imageList) {
-                if (!message.isMessageEncoded) {
+                if (!messageEncodingStatus.isMessageEncoded) {
                     val width = image.width
                     val height = image.height
                     val oneD = IntArray(width * height)
                     image.getPixels(oneD, 0, width, 0, 0, width, height)
                     val density = image.density
                     val encodedImage =
-                        encodeMessage(oneD, width, height, message)
+                        encodeMessage(oneD, width, height, messageEncodingStatus)
                     val oneDMod = byteArrayToIntArray(encodedImage)
-                    val destBitmap = Bitmap.createBitmap(
-                        width, height,
-                        Bitmap.Config.ARGB_8888
-                    )
+                    val destBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                     destBitmap.density = density
                     var masterIndex = 0
                     for (j in 0 until height) for (i in 0 until width) {
@@ -146,17 +146,16 @@ class Steganography {
     }
 
     suspend fun decodeMessage(encodedImages: List<Bitmap>): String? {
-        val messageDecodingStatus = MessageDecodingStatus()
+        val messageDecodingStatus = DecodingState()
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-            for (bit in encodedImages) {
-                val pixels = IntArray(bit.width * bit.height)
-                bit.getPixels(
-                    pixels, 0, bit.width, 0, 0, bit.width,
-                    bit.height
+            for (bitmapImage in encodedImages) {
+                val pixelArray = IntArray(bitmapImage.width * bitmapImage.height)
+                bitmapImage.getPixels(
+                    pixelArray, 0, bitmapImage.width, 0, 0, bitmapImage.width,
+                    bitmapImage.height
                 )
-                var b: ByteArray?
-                b = convertArray(pixels)
-                decodeMessage(b, messageDecodingStatus)
+                val imageByteArray: ByteArray = convertArray(pixelArray)
+                decodeMessage(imageByteArray, messageDecodingStatus)
                 if (messageDecodingStatus.isEnded) break
             }
             messageDecodingStatus.message
@@ -167,87 +166,86 @@ class Steganography {
      * This is the decoding method of LSB on 2 bit.
      *
      * @param imageByteArray The byte array image.
-     * @param messageDecodingStatus The decoded message.
+     * @param decodingState The decoded message.
      */
     private suspend fun decodeMessage(
-        imageByteArray: ByteArray?,
-        messageDecodingStatus: MessageDecodingStatus
+        imageByteArray: ByteArray,
+        decodingState: DecodingState
     ) {
-        val v = Vector<Byte>()
+        val vector = Vector<Byte>()
         var shiftIndex = 4
-        var tmp: Byte = 0x00
+        var initialArray: Byte = 0x00
         withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-            for (i in imageByteArray!!.indices) {
-                tmp = (tmp or
-                        ((imageByteArray[i] shl toShift[shiftIndex % toShift.size]
-                                and andByte[shiftIndex++ % toShift.size]).toByte()))
+            for (i in imageByteArray.indices) {
+                initialArray =
+                    initialArray or (imageByteArray[i] shl toShift[shiftIndex % toShift.size]
+                            and andByte[shiftIndex++ % toShift.size]).toByte()
                 if (shiftIndex % toShift.size == 0) {
-                    v.addElement(tmp)
-                    val nonso = byteArrayOf(v.elementAt(v.size - 1).toByte())
-                    val str = String(nonso, Charset.forName("UTF-8"))
+                    vector.addElement(initialArray)
+                    val finalByteArray = byteArrayOf(vector.elementAt(vector.size - 1).toByte())
+                    val str = String(finalByteArray, Charset.forName("UTF-8"))
 
-                    if (messageDecodingStatus.message!!.endsWith(END_MESSAGE_CONSTANT)) {
-                        Log.i("TEST", "Decoding ended")
-                        //fix utf-8 decoding
-                        val temp = ByteArray(v.size)
-                        for (index in temp.indices) temp[index] = v[index]
-                        val stra =
-                            String(temp, Charset.forName("UTF-8"))
-                        messageDecodingStatus.message = stra.substring(0, stra.length - 1)
-                        //end fix
-                        messageDecodingStatus.isEnded = true
-                        break
-                    } else {
-                        messageDecodingStatus.message = messageDecodingStatus.message + str
-                        if (messageDecodingStatus.message!!.length == START_MESSAGE_CONSTANT.length
-                            && START_MESSAGE_CONSTANT != messageDecodingStatus.message
-                        ) {
-                            messageDecodingStatus.message = null
-                            messageDecodingStatus.isEnded = true
+                    if (decodingState.message != null) {
+                        if (decodingState.message!!.endsWith(endMessageConstant)) {
+                            Log.i(javaClass.simpleName, "Decoding ended")
+                            //fix utf-8 decoding
+                            val temp = ByteArray(vector.size)
+                            for (index in temp.indices) temp[index] = vector[index]
+                            val string =
+                                String(temp, Charset.forName("UTF-8"))
+                            decodingState.message = string.substring(0, string.length - 1)
+                            //end fix
+                            decodingState.isEnded = true
                             break
+                        } else {
+                            decodingState.message = decodingState.message + str
+                            if (decodingState.message!!.length == startMessageConstant.length
+                                && startMessageConstant != decodingState.message
+                            ) {
+                                decodingState.message = null
+                                decodingState.isEnded = true
+                                break
+                            }
                         }
                     }
-                    tmp = 0x00
+                    initialArray = 0x00
                 }
             }
-            if (messageDecodingStatus.message != null) {
-                messageDecodingStatus.message = messageDecodingStatus.message!!
+            if (decodingState.message != null) {
+                decodingState.message = decodingState.message!!
                     .substring(
-                        START_MESSAGE_CONSTANT.length,
-                        messageDecodingStatus.message!!.length - END_MESSAGE_CONSTANT.length
+                        startMessageConstant.length,
+                        decodingState.message!!.length - endMessageConstant.length
                     )
             }
         }
     }
 
     private fun byteArrayToIntArray(b: ByteArray): IntArray {
-        Log.v("Size byte array", b.size.toString() + "")
+        Log.v(javaClass.simpleName, b.size.toString())
         val size = b.size / 3
-        Log.v("Size Int array", size.toString() + "")
+        Log.v(javaClass.simpleName, size.toString())
         System.runFinalization()
         System.gc()
-        Log.v(
-            "FreeMemory",
-            Runtime.getRuntime().freeMemory().toString() + ""
-        )
+        Log.v(javaClass.simpleName, Runtime.getRuntime().freeMemory().toString())
         val result = IntArray(size)
-        var off = 0
+        var byteOffset = 0
         var index = 0
-        while (off < b.size) {
-            result[index++] = byteArrayToInt(b, off)
-            off += 3
+        while (byteOffset < b.size) {
+            result[index++] = byteArrayToInt(b, byteOffset)
+            byteOffset += 3
         }
         return result
     }
 
-    private fun byteArrayToInt(b: ByteArray, offset: Int = 0): Int {
-        var value = 0x00000000
+    private fun byteArrayToInt(byteArray: ByteArray, offset: Int = 0): Int {
+        var finalInt = 0x00000000
         for (i in 0..2) {
             val shift = (3 - 1 - i) * 8
-            value = value or (b[i + offset] and 0x000000FF shl shift)
+            finalInt = finalInt or (byteArray[i + offset] and 0x000000FF shl shift)
         }
-        value = value and 0x00FFFFFF
-        return value
+        finalInt = finalInt and 0x00FFFFFF
+        return finalInt
     }
 
     private fun convertArray(array: IntArray): ByteArray {
@@ -261,13 +259,12 @@ class Steganography {
     }
 
 
-    private class MessageDecodingStatus {
+    private class DecodingState {
         var message: String? = ""
         var isEnded = false
-
     }
 
-    private class MessageEncodingStatus {
+    private class EncodingState {
         var isMessageEncoded = false
         var currentMessageIndex = 0
         lateinit var byteArrayMessage: ByteArray
@@ -278,8 +275,4 @@ class Steganography {
 
     }
 
-    companion object {
-        private const val START_MESSAGE_CONSTANT = "@!#"
-        private const val END_MESSAGE_CONSTANT = "#!@"
-    }
 }
