@@ -258,7 +258,6 @@ class Steganography(
         return newArray
     }
 
-
     private class DecodingState {
         var message: String? = ""
         var isEnded = false
@@ -272,7 +271,6 @@ class Steganography(
         fun incrementMessageIndex() {
             currentMessageIndex++
         }
-
     }
 
 }
