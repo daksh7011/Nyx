@@ -27,11 +27,9 @@ package `in`.technowolf.nyx.ui.decryption
 
 import `in`.technowolf.nyx.databinding.CellDecryptionImageBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
-import android.graphics.Outline
+import `in`.technowolf.nyx.utils.Logger
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
-import android.view.ViewOutlineProvider
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -85,25 +83,10 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
                     scale(Scale.FILL)
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Logger.e("Image loading failed!", e)
             }
         }
 
-        private fun setCorners() {
-            val curveRadius = 8F
-            binding.ivDecryptionImage.outlineProvider = object : ViewOutlineProvider() {
-                override fun getOutline(view: View, outline: Outline) {
-                    outline.setRoundRect(
-                        0,
-                        0,
-                        view.width,
-                        (view.height + curveRadius).toInt(),
-                        curveRadius
-                    )
-                }
-            }
-            binding.ivDecryptionImage.clipToOutline = true
-        }
     }
 
     companion object {

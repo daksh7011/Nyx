@@ -25,6 +25,7 @@
 
 package `in`.technowolf.nyx.core
 
+import `in`.technowolf.nyx.utils.Logger
 import android.util.Base64
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +38,6 @@ import javax.crypto.*
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
-
 
 object MagicWand {
 
@@ -116,9 +116,9 @@ object MagicWand {
             try {
                 decryptedTextBytes = cipher.doFinal(encryptedTextBytes)
             } catch (e: IllegalBlockSizeException) {
-                e.printStackTrace()
+                Logger.e("Illegal block size while decrypting!", e)
             } catch (e: BadPaddingException) {
-                e.printStackTrace()
+                Logger.e("Bad Padding while decrypting!", e)
             }
 
             decryptedTextBytes?.toString(Charsets.UTF_8)

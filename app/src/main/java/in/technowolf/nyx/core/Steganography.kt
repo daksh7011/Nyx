@@ -28,9 +28,9 @@ package `in`.technowolf.nyx.core
 import `in`.technowolf.nyx.utils.Extension.and
 import `in`.technowolf.nyx.utils.Extension.shl
 import `in`.technowolf.nyx.utils.Extension.shr
+import `in`.technowolf.nyx.utils.Logger
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.util.Log
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -113,7 +113,7 @@ class Steganography(
         messageEncodingStatus.byteArrayMessage = byteArrayMessage
         messageEncodingStatus.currentMessageIndex = 0
         messageEncodingStatus.isMessageEncoded = false
-        Log.i(javaClass.simpleName, "Message length " + byteArrayMessage.size)
+        Logger.i(javaClass.simpleName, "Message length " + byteArrayMessage.size)
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
             for (image in imageList) {
                 if (!messageEncodingStatus.isMessageEncoded) {
@@ -187,7 +187,7 @@ class Steganography(
 
                     if (decodingState.message != null) {
                         if (decodingState.message!!.endsWith(endMessageConstant)) {
-                            Log.i(javaClass.simpleName, "Decoding ended")
+                            Logger.i(javaClass.simpleName, "Decoding ended")
                             //fix utf-8 decoding
                             val temp = ByteArray(vector.size)
                             for (index in temp.indices) temp[index] = vector[index]
@@ -222,12 +222,12 @@ class Steganography(
     }
 
     private fun byteArrayToIntArray(b: ByteArray): IntArray {
-        Log.v(javaClass.simpleName, b.size.toString())
+        Logger.v(javaClass.simpleName, b.size.toString())
         val size = b.size / 3
-        Log.v(javaClass.simpleName, size.toString())
+        Logger.v(javaClass.simpleName, size.toString())
         System.runFinalization()
         System.gc()
-        Log.v(javaClass.simpleName, Runtime.getRuntime().freeMemory().toString())
+        Logger.v(javaClass.simpleName, Runtime.getRuntime().freeMemory().toString())
         val result = IntArray(size)
         var byteOffset = 0
         var index = 0

@@ -34,6 +34,7 @@ import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper.deleteImage
 import `in`.technowolf.nyx.utils.ImageHelper.retrieveImage
+import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.alert
 import `in`.technowolf.nyx.utils.viewBinding
 import android.content.ClipData
@@ -121,6 +122,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                 cancelable = false
                 positiveButton("Ok") {
                     if (etPassphrase.text.toString().isNotEmpty()) {
+                        Logger.i("Starting decryption from image")
                         decryptionViewModel.decryptImage(
                             requireContext().retrieveImage(it.name),
                             etPassphrase.text.toString()

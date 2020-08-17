@@ -30,6 +30,7 @@ import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
 import `in`.technowolf.nyx.utils.Extension.isDarkMode
 import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
 import `in`.technowolf.nyx.utils.Extension.snackBar
+import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
 import android.view.View
@@ -64,18 +65,21 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
     private fun setupEncrypt() {
         binding.cvEncrypt.setOnClickListener {
+            Logger.i("Navigating from Dashboard to Encryption fragment.")
             findNavController().navigate(R.id.actionToEncryptionFragment)
         }
     }
 
     private fun setupDecrypt() {
         binding.cvDecrypt.setOnClickListener {
+            Logger.i("Navigating from Dashboard to Decryption fragment.")
             findNavController().navigate(R.id.actionToDecryptionFragment)
         }
     }
 
     private fun setupInfo() {
         binding.cvInfo.setOnClickListener {
+            Logger.i("Navigating from Dashboard to FAQ fragment.")
             binding.root.snackBar("FAQ section will be implemented in future releases.") {}
         }
     }
