@@ -15,7 +15,7 @@
     <a href="https://gitlab.com/technowolf/nyx/-/blob/develop/LICENSE" target="_blank">
         <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg">
     </a>
-    <a href="https://gitlab.com/technowolf/nyx/commits/master">
+    <a href="https://gitlab.com/technowolf/nyx/-/pipelines">
         <img alt="pipeline status" src="https://gitlab.com/technowolf/nyx/badges/develop/pipeline.svg" />
     </a>
     <a href="https://saythanks.io/to/daksh7011" target="_blank">
