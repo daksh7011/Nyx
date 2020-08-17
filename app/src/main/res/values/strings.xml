@@ -42,4 +42,9 @@
     <string name="ok">OK</string>
     <string name="passphrase">Passphrase</string>
     <string name="oops_no_images_found">Oops! No Images found!</string>
+    <string name="install_source_warning">This app was not installed from Play Store.
+        Do you trust the source from which you download and install this apk from?
+        Tempered application often contain Malware and compromise your privacy/security.
+        In order to keep yourself safe, Please download the application from play store.
+    </string>
 </resources>

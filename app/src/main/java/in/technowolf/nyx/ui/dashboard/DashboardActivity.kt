@@ -29,7 +29,12 @@ import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
 import `in`.technowolf.nyx.utils.Extension.gone
 import `in`.technowolf.nyx.utils.Extension.visible
+import `in`.technowolf.nyx.utils.alert
 import `in`.technowolf.nyx.utils.viewBinding
+import android.content.ActivityNotFoundException
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
@@ -48,6 +53,7 @@ class DashboardActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        verifyInstallation()
         setupNavController()
     }
 
@@ -61,6 +67,53 @@ class DashboardActivity : AppCompatActivity() {
                 R.id.dashboardFragment -> binding.toolbar.gone()
                 else -> binding.toolbar.visible()
             }
+        }
+    }
+
+    private fun verifyInstallation() {
+        if (isValidInstallation(this)) {
+            this.alert(
+                "Warning",
+                getString(R.string.install_source_warning)
+            ) {
+                cancelable = false
+                positiveButton("Yes") {}
+                negativeButton("No") { openPlayStore() }
+            }
+        }
+    }
+
+    /*Suppression of Deprecation for PackageManager.getInstallerPackageName() was added
+    * because PackageManager.getInstallSourceInfo() needs Android R (API 30).
+    * Proper support will be added when android 11 is available in stable.
+    */
+    @Suppress("DEPRECATION")
+    fun isValidInstallation(context: Context): Boolean {
+        val validInstallers: List<String> =
+            listOf("com.android.vending", "com.google.android.feedback")
+        val installer = context.packageManager.getInstallerPackageName(context.packageName)
+        return installer != null && validInstallers.contains(installer)
+    }
+
+    private fun openPlayStore() {
+        val uri: Uri = Uri.parse("market://details?id=$packageName")
+        val goToMarket = Intent(Intent.ACTION_VIEW, uri)
+        // To count with Play market backstack, After pressing back button,
+        // to taken back to our application, we need to add following flags to intent.
+        goToMarket.addFlags(
+            Intent.FLAG_ACTIVITY_NO_HISTORY or
+                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+        )
+        try {
+            startActivity(goToMarket)
+        } catch (e: ActivityNotFoundException) {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://play.google.com/store/apps/details?id=$packageName")
+                )
+            )
         }
     }
 

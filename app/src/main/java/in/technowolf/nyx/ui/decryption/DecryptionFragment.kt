@@ -129,7 +129,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                         )
                     } else binding.root.snackBar("Please enter passphrase for decryption.") {}
                 }
-                negativeButton("cancel")
+                negativeButton("Cancel")
             }.show()
         }
     }
