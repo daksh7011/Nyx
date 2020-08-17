@@ -43,7 +43,7 @@ import java.io.File
 class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageViewHolder>(CALLBACK) {
 
     var onDecrypt: ((ImageModel) -> Unit)? = null
-    var onDelete: ((ImageModel, position: Int) -> Unit)? = null
+    var onDelete: ((ImageModel) -> Unit)? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder =
         ImageViewHolder(
@@ -62,14 +62,14 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
         RecyclerView.ViewHolder(binding.root) {
 
         fun bind(imageModel: ImageModel) {
-            //setCorners()
+            binding.tvImageName.text = imageModel.date
             setupImage(imageModel.name)
 
-            binding.btnDecrypt.setOnClickListener {
+            binding.root.setOnClickListener {
                 onDecrypt?.invoke(imageModel)
             }
             binding.btnDelete.setOnClickListener {
-                onDelete?.invoke(imageModel, adapterPosition)
+                onDelete?.invoke(imageModel)
             }
         }
 

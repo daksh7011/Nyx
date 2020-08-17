@@ -29,7 +29,8 @@ import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.data.ImageDao
 import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
 import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.Extension.action
+import `in`.technowolf.nyx.utils.Extension.getImageName
+import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
 import `in`.technowolf.nyx.utils.Extension.gone
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
@@ -48,8 +49,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.NavOptions
-import androidx.navigation.fragment.findNavController
 import coil.Coil
 import coil.request.LoadRequest
 import coil.size.Precision
@@ -61,7 +60,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
-import java.util.*
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
@@ -100,7 +98,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            val imageModel = ImageModel(UUID.randomUUID().toString() + ".png", null)
+            val imageModel = ImageModel(getImageName(), getTimeStampForImage(), null)
             lifecycleScope.launch(Dispatchers.IO) {
                 imageDao.insertImage(imageModel.toImageEntity())
             }
@@ -108,14 +106,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             binding.root.snackBar(
                 "Image was encrypted with your secret message",
                 anchor = binding.fabEncryptImage
-            ) {
-                action("Check out") {
-                    val action = EncryptionFragmentDirections.actionToDecryptionFragment()
-                    val navOptions =
-                        NavOptions.Builder().setPopUpTo(R.id.dashboardFragment, true).build()
-                    findNavController().navigate(action, navOptions)
-                }
-            }
+            ) {}
         })
     }
 

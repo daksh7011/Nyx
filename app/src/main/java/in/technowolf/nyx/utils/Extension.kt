@@ -33,6 +33,9 @@ import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.google.android.material.snackbar.Snackbar
+import java.text.DateFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 object Extension {
 
@@ -95,5 +98,16 @@ object Extension {
         f: Snackbar.() -> Unit
     ) {
         snackBar(resources.getString(messageRes), anchor, length, f)
+    }
+
+    fun getImageName() = UUID.randomUUID().toString() + ".png"
+
+    fun getTimeStampForImage(): String {
+        val date = Calendar.getInstance().time
+        val dateFormat: DateFormat = SimpleDateFormat("yyyy/MM/dd", Locale.getDefault())
+        val timeFormat: DateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        val strDate: String = dateFormat.format(date)
+        val strTime: String = timeFormat.format(date)
+        return String.format("%s at %s", strDate, strTime)
     }
 }

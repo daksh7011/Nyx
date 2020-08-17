@@ -70,4 +70,6 @@
     <!--color on surface (light)-->
     <color name="black_900">#000000</color>
 
+    <color name="card_footer">#90A4AE</color>
+
 </resources>

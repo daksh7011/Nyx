@@ -33,7 +33,8 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "images")
 data class ImageEntity(
     @ColumnInfo(name = "image_name") val imageName: String,
+    @ColumnInfo(name = "image_date") val imageDate: String,
     @PrimaryKey(autoGenerate = true) val id: Int? = null
 ) {
-    fun toImageModel() = ImageModel(imageName, id ?: -1)
+    fun toImageModel() = ImageModel(imageName, imageDate, id ?: -1)
 }

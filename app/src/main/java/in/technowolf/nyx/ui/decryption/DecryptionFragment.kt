@@ -103,12 +103,12 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     }
 
     private fun setupOnImageDeleteAction() {
-        imageGalleryAdapter.onDelete = { it: ImageModel, position: Int ->
+        imageGalleryAdapter.onDelete = { it: ImageModel ->
             lifecycleScope.launch(Dispatchers.IO) { imageDao.delete(it.name) }
             requireContext().deleteImage(it.name)
             decryptionViewModel.imageList.remove(it)
             imageGalleryAdapter.submitList(decryptionViewModel.imageList)
-            imageGalleryAdapter.notifyItemRemoved(position)
+            imageGalleryAdapter.notifyDataSetChanged()
         }
     }
 

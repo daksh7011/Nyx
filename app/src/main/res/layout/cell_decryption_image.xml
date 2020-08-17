@@ -45,6 +45,19 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
+            <com.google.android.material.textview.MaterialTextView
+                android:id="@+id/tvImageName"
+                style="@style/TextAppearance.MaterialComponents.Body1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_margin="8dp"
+                android:ellipsize="end"
+                app:layout_constraintBottom_toBottomOf="@+id/btnDelete"
+                app:layout_constraintEnd_toStartOf="@+id/btnDelete"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/btnDelete"
+                tools:text="Image Date Goes here" />
+
             <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/ivDecryptionImage"
                 android:layout_width="0dp"
@@ -55,26 +68,17 @@
                 app:layout_constraintTop_toTopOf="parent"
                 tools:srcCompat="@tools:sample/avatars" />
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnDecrypt"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@string/decrypt"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/ivDecryptionImage" />
-
-            <com.google.android.material.button.MaterialButton
+            <androidx.appcompat.widget.AppCompatImageView
                 android:id="@+id/btnDelete"
-                style="@style/Widget.MaterialComponents.Button.TextButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:text="@string/delete"
-                app:layout_constraintStart_toEndOf="@+id/btnDecrypt"
-                app:layout_constraintTop_toTopOf="@+id/btnDecrypt" />
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_margin="8dp"
+                android:src="@drawable/ic_delete"
+                android:tint="@color/red_200"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/ivDecryptionImage"
+                app:layout_constraintVertical_bias="0" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
