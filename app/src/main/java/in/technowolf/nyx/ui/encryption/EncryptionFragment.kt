@@ -107,6 +107,8 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                 "Image was encrypted with your secret message",
                 anchor = binding.fabEncryptImage
             ) {}
+
+            clearInputs()
         })
     }
 
@@ -264,6 +266,16 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             }
         }
         return popupMenu
+    }
+
+    private fun clearInputs() {
+        with(binding) {
+            ivImagePreview.setImageResource(android.R.color.transparent)
+            etEncryptionKey.setText("")
+            etEncryptionKey.clearFocus()
+            etMessage.setText("")
+            etMessage.clearFocus()
+        }
     }
 
     override fun onResume() {
