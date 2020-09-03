@@ -115,21 +115,21 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     private fun setupOnImageDecryptAction() {
         imageGalleryAdapter.onDecrypt = {
             alert(
-                "Decrypt Message",
-                "Please enter passphrase below to decrypt the message from the image.",
+                getString(R.string.alert_decryption_title),
+                getString(R.string.alert_decryption_message),
                 true
             ) {
                 cancelable = false
-                positiveButton("Ok") {
+                positiveButton(getString(R.string.ok)) {
                     if (etPassphrase.text.toString().isNotEmpty()) {
                         Logger.i("Starting decryption from image")
                         decryptionViewModel.decryptImage(
                             requireContext().retrieveImage(it.name),
                             etPassphrase.text.toString()
                         )
-                    } else binding.root.snackBar("Please enter passphrase for decryption.") {}
+                    } else binding.root.snackBar(getString(R.string.error_enter_passphrase)) {}
                 }
-                negativeButton("Cancel")
+                negativeButton(getString(R.string.cancel))
             }.show()
         }
     }

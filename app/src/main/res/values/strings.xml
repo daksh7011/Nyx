@@ -47,4 +47,7 @@
         Tempered application often contain Malware and compromise your privacy/security.
         In order to keep yourself safe, Please download the application from play store.
     </string>
+    <string name="alert_decryption_message">Please enter passphrase below to decrypt the message from the image.</string>
+    <string name="alert_decryption_title">Decrypt Message</string>
+    <string name="error_enter_passphrase">Please enter passphrase for decryption.</string>
 </resources>
