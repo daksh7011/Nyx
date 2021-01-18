@@ -1,13 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 apply plugin: "androidx.navigation.safeargs.kotlin"
 apply plugin: "kotlin-kapt"
+apply plugin: "kotlin-parcelize"
 
 /*
  * MIT License
  *
- * Copyright (c) 2020. TechnoWolf FOSS
+ * Copyright (c) 2021 TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,11 +36,11 @@ def versionBuild = 0 // bump for dogfood builds, public betas, etc.
 
 android {
     compileSdkVersion 30
-    buildToolsVersion "29.0.3"
+    buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "in.technowolf.nyx"
-        minSdkVersion 23
+        minSdkVersion 24
         targetSdkVersion 30
         versionCode versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
         versionName "${versionMajor}.${versionMinor}" + (versionPatch == 0 ? "" : ".${versionPatch}")
@@ -68,8 +68,6 @@ android {
             buildConfigField("String", "AppName", '"Nyx"')
             buildConfigField("String", "accessKey", properties.getProperty("access.key") ?: '""')
             buildConfigField("String", "privateKey", properties.getProperty("secret.key") ?: '""')
-            resValue("string", "PORT_NUMBER", "8081")
-            resValue "string", "sentryKey", properties.getProperty("sentry.key") ?: ""
         }
     }
 
@@ -89,29 +87,30 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.3.72"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.4.21"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     implementation 'com.google.android.material:material:1.2.1'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.1'
-    implementation "androidx.navigation:navigation-fragment-ktx:2.3.0"
-    implementation "androidx.navigation:navigation-ui-ktx:2.3.0"
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
+    implementation "androidx.navigation:navigation-fragment-ktx:2.3.2"
+    implementation "androidx.navigation:navigation-ui-ktx:2.3.2"
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.3.0'
-    testImplementation 'junit:junit:4.13'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.3.2'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.3.2'
+
+    testImplementation 'junit:junit:4.13.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.6'
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.6'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.0'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.4.0'
 
     implementation 'androidx.cardview:cardview:1.0.0'
 
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-livedata-ktx:2.2.0"
-    implementation "androidx.lifecycle:lifecycle-runtime:2.2.0"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:2.2.0"
     implementation "androidx.lifecycle:lifecycle-common-java8:2.2.0"
     implementation 'androidx.activity:activity-ktx:1.1.0'
@@ -119,9 +118,9 @@ dependencies {
 
     implementation 'com.unsplash.pickerandroid:photopicker:1.0.0'
 
-    implementation "androidx.room:room-runtime:2.2.5"
-    kapt "androidx.room:room-compiler:2.2.5"
-    implementation "androidx.room:room-ktx:2.2.5"
+    implementation "androidx.room:room-runtime:2.2.6"
+    kapt "androidx.room:room-compiler:2.2.6"
+    implementation "androidx.room:room-ktx:2.2.6"
 
     implementation "io.coil-kt:coil:0.11.0"
 
@@ -130,6 +129,4 @@ dependencies {
     implementation "org.koin:koin-android:2.1.6"
     implementation "org.koin:koin-android-scope:2.1.6"
     implementation "org.koin:koin-android-viewmodel:2.1.6"
-
-    implementation 'io.sentry:sentry-android:2.2.2'
 }

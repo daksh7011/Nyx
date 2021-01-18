@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020. TechnoWolf FOSS
+ * Copyright (c) 2021 TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -27,8 +27,6 @@ package `in`.technowolf.nyx.ui.dashboard
 
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
-import `in`.technowolf.nyx.utils.Extension.gone
-import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.alert
 import `in`.technowolf.nyx.utils.viewBinding
 import android.content.ActivityNotFoundException
@@ -38,8 +36,6 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupWithNavController
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -59,15 +55,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private fun setupNavController() {
         val navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(navController.graph)
-        binding.toolbar.setupWithNavController(navController, appBarConfiguration)
-
-        navController.addOnDestinationChangedListener { _, destination, _ ->
-            when (destination.id) {
-                R.id.dashboardFragment -> binding.toolbar.gone()
-                else -> binding.toolbar.visible()
-            }
-        }
+        navController.addOnDestinationChangedListener { _, _, _ -> }
     }
 
     private fun verifyInstallation() {
@@ -83,11 +71,9 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    /*Suppression of Deprecation for PackageManager.getInstallerPackageName() was added
-    * because PackageManager.getInstallSourceInfo() needs Android R (API 30).
-    * Proper support will be added when android 11 is available in stable.
-    */
-    @Suppress("DEPRECATION")
+    /**
+     * Deprecation will be updated after app is live on store. With an incremental update.
+     */
     fun isValidInstallation(context: Context): Boolean {
         val validInstallers: List<String> =
             listOf("com.android.vending", "com.google.android.feedback")

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ MIT License
   ~
-  ~ Copyright (c) 2020. TechnoWolf FOSS
+  ~ Copyright (c) 2021 TechnoWolf FOSS
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -49,17 +49,9 @@
 
     <action
         android:id="@+id/actionToEncryptionFragment"
-        app:destination="@id/encryptionFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
+        app:destination="@id/encryptionFragment" />
     <action
         android:id="@+id/actionToDecryptionFragment"
-        app:destination="@id/decryptionFragment"
-        app:enterAnim="@anim/fragment_open_enter"
-        app:exitAnim="@anim/fragment_open_exit"
-        app:popEnterAnim="@anim/fragment_close_enter"
-        app:popExitAnim="@anim/fragment_close_exit" />
+        app:destination="@id/decryptionFragment" />
 
 </navigation>

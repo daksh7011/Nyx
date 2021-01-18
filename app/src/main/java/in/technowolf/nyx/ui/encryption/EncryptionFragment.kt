@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020. TechnoWolf FOSS
+ * Copyright (c) 2021 TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -36,10 +36,12 @@ import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper
 import `in`.technowolf.nyx.utils.ImageHelper.saveImage
+import `in`.technowolf.nyx.utils.themeColor
 import `in`.technowolf.nyx.utils.viewBinding
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.util.Log
@@ -54,6 +56,7 @@ import coil.request.LoadRequest
 import coil.size.Precision
 import coil.size.Scale
 import coil.size.ViewSizeResolver
+import com.google.android.material.transition.MaterialContainerTransform
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
 import kotlinx.coroutines.Dispatchers
@@ -70,6 +73,17 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     private val imageDao: ImageDao by inject()
 
     private lateinit var popupMenu: PopupMenu
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        sharedElementEnterTransition = MaterialContainerTransform().apply {
+            drawingViewId = R.id.nav_host_fragment
+            duration = 300.toLong()
+            scrimColor = Color.TRANSPARENT
+            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
+        }
+
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020. TechnoWolf FOSS
+ * Copyright (c) 2021 TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,6 @@
 package `in`.technowolf.nyx.utils
 
 import android.util.Log
-import io.sentry.core.Sentry
 
 object Logger {
     fun v(message: String, tag: String = "Nyx Logger") {
@@ -51,7 +50,6 @@ object Logger {
 
     fun e(message: String = "", t: Throwable, tag: String = "Nyx Logger") {
         Log.e(tag, message, t)
-        Sentry.captureException(t)
     }
 
     fun wtf(message: String, tag: String = "Nyx Logger") {
