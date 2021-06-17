@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<!--
   ~ MIT License
-  ~
-  ~ Copyright (c) 2021 TechnoWolf FOSS
+  ~ Copyright (c) 2021.  TechnoWolf FOSS
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
   ~ copies of the Software, and to permit persons to whom the Software is
   ~ furnished to do so, subject to the following conditions:
   ~
-  ~ The above copyright notice and this permission notice shall be included in all
-  ~ copies or substantial portions of the Software.
+  ~  The above copyright notice and this permission notice shall be included in all
+  ~  copies or substantial portions of the Software.
   ~
   ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -23,11 +22,13 @@
   ~
   -->
 
-<resources>
-    <array name="preloaded_fonts" translatable="false">
-
-        <item>@font/roboto</item>
-        <item>@font/roboto_bold</item>
-        <item>@font/roboto_medium</item>
-    </array>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:tint="?attr/colorControlNormal"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M21,6h-2v9L6,15v2c0,0.55 0.45,1 1,1h11l4,4L22,7c0,-0.55 -0.45,-1 -1,-1zM17,12L17,3c0,-0.55 -0.45,-1 -1,-1L3,2c-0.55,0 -1,0.45 -1,1v14l4,-4h10c0.55,0 1,-0.45 1,-1z" />
+</vector>

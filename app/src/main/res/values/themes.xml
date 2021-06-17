@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?><!--
   ~ MIT License
-  ~
-  ~ Copyright (c) 2021 TechnoWolf FOSS
+  ~ Copyright (c) 2021.  TechnoWolf FOSS
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
   ~ copies of the Software, and to permit persons to whom the Software is
   ~ furnished to do so, subject to the following conditions:
   ~
-  ~ The above copyright notice and this permission notice shall be included in all
-  ~ copies or substantial portions of the Software.
+  ~  The above copyright notice and this permission notice shall be included in all
+  ~  copies or substantial portions of the Software.
   ~
   ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -24,9 +23,9 @@
   -->
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!--Top level DayNight theme to be used in AndroidManifest.xml-->
-    <style name="Theme.AppTheme" parent="Base.Theme.AppTheme" />
+    <style name="Theme.Nyx" parent="Base.Theme.Nyx" />
     <!--Base custom theme which will be shared between both light and dark theme variants-->
-    <style name="Base.Theme.AppTheme" parent="Base.Theme.MaterialThemeBuilder">
+    <style name="Base.Theme.Nyx" parent="Base.Theme.NyxThemeBuilder">
         <!--Material color attributes (light theme) -->
         <!--colorPrimary colors map to components and elements, such as app bars and buttons. -->
         <!--colorSecondary colors are most often used as accents on components, such as FABs and -->
@@ -50,31 +49,31 @@
         <item name="colorOnSurface">@color/black_900</item>
         <item name="colorOnError">@color/white_50</item>
         <!--Material type attributes-->
-        <item name="textAppearanceHeadline1">@style/TextAppearance.AppTheme.Headline1</item>
-        <item name="textAppearanceHeadline2">@style/TextAppearance.AppTheme.Headline2</item>
-        <item name="textAppearanceHeadline3">@style/TextAppearance.AppTheme.Headline3</item>
-        <item name="textAppearanceHeadline4">@style/TextAppearance.AppTheme.Headline4</item>
-        <item name="textAppearanceHeadline5">@style/TextAppearance.AppTheme.Headline5</item>
-        <item name="textAppearanceHeadline6">@style/TextAppearance.AppTheme.Headline6</item>
-        <item name="textAppearanceSubtitle1">@style/TextAppearance.AppTheme.Subtitle1</item>
-        <item name="textAppearanceSubtitle2">@style/TextAppearance.AppTheme.Subtitle2</item>
-        <item name="textAppearanceBody1">@style/TextAppearance.AppTheme.Body1</item>
-        <item name="textAppearanceBody2">@style/TextAppearance.AppTheme.Body2</item>
-        <item name="textAppearanceButton">@style/TextAppearance.AppTheme.Button</item>
-        <item name="textAppearanceCaption">@style/TextAppearance.AppTheme.Caption</item>
-        <item name="textAppearanceOverline">@style/TextAppearance.AppTheme.Overline</item>
+        <item name="textAppearanceHeadline1">@style/TextAppearance.Nyx.Headline1</item>
+        <item name="textAppearanceHeadline2">@style/TextAppearance.Nyx.Headline2</item>
+        <item name="textAppearanceHeadline3">@style/TextAppearance.Nyx.Headline3</item>
+        <item name="textAppearanceHeadline4">@style/TextAppearance.Nyx.Headline4</item>
+        <item name="textAppearanceHeadline5">@style/TextAppearance.Nyx.Headline5</item>
+        <item name="textAppearanceHeadline6">@style/TextAppearance.Nyx.Headline6</item>
+        <item name="textAppearanceSubtitle1">@style/TextAppearance.Nyx.Subtitle1</item>
+        <item name="textAppearanceSubtitle2">@style/TextAppearance.Nyx.Subtitle2</item>
+        <item name="textAppearanceBody1">@style/TextAppearance.Nyx.Body1</item>
+        <item name="textAppearanceBody2">@style/TextAppearance.Nyx.Body2</item>
+        <item name="textAppearanceButton">@style/TextAppearance.Nyx.Button</item>
+        <item name="textAppearanceCaption">@style/TextAppearance.Nyx.Caption</item>
+        <item name="textAppearanceOverline">@style/TextAppearance.Nyx.Overline</item>
         <!--Material shape attributes-->
-        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.AppTheme.SmallComponent
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.Nyx.SmallComponent
         </item>
-        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.AppTheme.MediumComponent
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.Nyx.MediumComponent
         </item>
         <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.AppTheme.LargeComponent
         </item>
         <!--Component styles-->
         <item name="materialAlertDialogTheme">@style/ThemeOverlay.MaterialComponents.Dialog.Alert
         </item>
-        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.AppTheme.BottomSheetDialog</item>
-        <item name="navigationViewStyle">@style/Widget.AppTheme.NavigationView</item>
+        <item name="bottomSheetDialogTheme">@style/ThemeOverlay.Nyx.BottomSheetDialog</item>
+        <item name="navigationViewStyle">@style/Widget.Nyx.NavigationView</item>
         <item name="toolbarStyle">@style/Widget.MaterialComponents.Toolbar.PrimarySurface</item>
         <item name="floatingActionButtonStyle">@style/FabStyle</item>
     </style>
@@ -83,7 +82,7 @@
         <item name="tint">@color/design_default_color_surface</item>
     </style>
 
-    <style name="Base.Theme.MaterialThemeBuilder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="Base.Theme.NyxThemeBuilder" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor" tools:ignore="NewApi">?attr/colorSurface</item>
         <item name="android:windowLightStatusBar" tools:ignore="NewApi">true</item>
         <item name="android:navigationBarColor" tools:ignore="NewApi">
