@@ -24,12 +24,6 @@
 
 package `in`.technowolf.nyx.ui
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.databinding.FragmentHomeBinding
-import `in`.technowolf.nyx.ui.dashboard.*
-import `in`.technowolf.nyx.utils.ImageHelper
-import `in`.technowolf.nyx.utils.alert
-import `in`.technowolf.nyx.utils.viewBinding
 import android.app.Activity
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -48,7 +42,17 @@ import coil.imageLoader
 import coil.request.ImageRequest
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.FragmentHomeBinding
+import `in`.technowolf.nyx.ui.dashboard.BottomSheetAppbar
+import `in`.technowolf.nyx.ui.dashboard.DashboardViewModel
+import `in`.technowolf.nyx.ui.dashboard.EncryptDialogFragment
+import `in`.technowolf.nyx.ui.dashboard.EncryptedImagesAdapter
+import `in`.technowolf.nyx.ui.dashboard.ImageSourceBottomSheet
+import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.alert
+import `in`.technowolf.nyx.utils.viewBinding
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
 

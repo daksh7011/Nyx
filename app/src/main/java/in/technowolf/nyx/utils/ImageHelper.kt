@@ -37,7 +37,7 @@ import java.io.File
 
 class ImageHelper(private val context: Context) {
 
-    val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.AppName
+    val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.APPLICATION_ID
 
     private var imgPath: String = ""
     private var imageUri: Uri? = null

@@ -24,14 +24,6 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.databinding.DialogFragmentEncryptBinding
-import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.Extension.getImageName
-import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
-import `in`.technowolf.nyx.utils.Extension.saveImage
-import `in`.technowolf.nyx.utils.Extension.snackBar
-import `in`.technowolf.nyx.utils.viewBinding
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -40,9 +32,17 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import coil.load
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.DialogFragmentEncryptBinding
+import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Extension.getImageName
+import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
+import `in`.technowolf.nyx.utils.Extension.saveImage
+import `in`.technowolf.nyx.utils.Extension.snackBar
+import `in`.technowolf.nyx.utils.viewBinding
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class EncryptDialogFragment : DialogFragment() {
 
@@ -113,6 +113,7 @@ class EncryptDialogFragment : DialogFragment() {
                     if (areFieldsValidated()) encryptImage() else validateFields()
                     true
                 }
+
                 else -> true
             }
         }

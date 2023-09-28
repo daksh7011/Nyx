@@ -24,19 +24,6 @@
 
 package `in`.technowolf.nyx.ui.encryption
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.data.ImageDao
-import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
-import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.Extension.getImageName
-import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
-import `in`.technowolf.nyx.utils.Extension.gone
-import `in`.technowolf.nyx.utils.Extension.saveImage
-import `in`.technowolf.nyx.utils.Extension.snackBar
-import `in`.technowolf.nyx.utils.Extension.visible
-import `in`.technowolf.nyx.utils.ImageHelper
-import `in`.technowolf.nyx.utils.themeColor
-import `in`.technowolf.nyx.utils.viewBinding
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -58,6 +45,19 @@ import coil.size.ViewSizeResolver
 import com.google.android.material.transition.MaterialContainerTransform
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.data.ImageDao
+import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
+import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Extension.getImageName
+import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
+import `in`.technowolf.nyx.utils.Extension.gone
+import `in`.technowolf.nyx.utils.Extension.saveImage
+import `in`.technowolf.nyx.utils.Extension.snackBar
+import `in`.technowolf.nyx.utils.Extension.visible
+import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.themeColor
+import `in`.technowolf.nyx.utils.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,7 +79,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             drawingViewId = R.id.nav_host_fragment
             duration = 300.toLong()
             scrimColor = Color.TRANSPARENT
-            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
+            setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
 
     }
@@ -270,11 +270,13 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                     binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.nav_unsplash -> {
                     openUnsplashImagePicker()
                     binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
+
                 else -> return@setOnMenuItemClickListener false
             }
         }

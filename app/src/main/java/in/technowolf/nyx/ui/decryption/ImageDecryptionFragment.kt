@@ -24,6 +24,14 @@
 
 package `in`.technowolf.nyx.ui.decryption
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.graphics.drawable.BitmapDrawable
+import android.os.Bundle
+import android.view.View
+import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
+import androidx.fragment.app.Fragment
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentImageDescriptionBinding
 import `in`.technowolf.nyx.ui.dashboard.DashboardViewModel
@@ -33,15 +41,7 @@ import `in`.technowolf.nyx.utils.Extension.retrieveImage
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.viewBinding
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.graphics.drawable.BitmapDrawable
-import android.os.Bundle
-import android.view.View
-import androidx.core.content.ContextCompat
-import androidx.core.widget.doAfterTextChanged
-import androidx.fragment.app.Fragment
-import org.koin.android.viewmodel.ext.android.sharedViewModel
+import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
 
@@ -62,7 +62,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
     }
 
     private fun setupObservers() {
-        dashboardViewModel.decryptedText.observe(viewLifecycleOwner, { decryptedMessage ->
+        dashboardViewModel.decryptedText.observe(viewLifecycleOwner) { decryptedMessage ->
             if (decryptedMessage.isNullOrEmpty()) {
                 binding.root.snackBar(
                     "Wrong passphrase! Try again",
@@ -87,7 +87,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
                 }
             }
 
-        })
+        }
     }
 
     private fun setupEditText() {

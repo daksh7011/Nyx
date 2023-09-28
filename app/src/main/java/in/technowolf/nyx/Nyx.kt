@@ -30,6 +30,7 @@ import android.app.Application
 import android.graphics.Bitmap
 import coil.Coil
 import coil.ImageLoader
+import coil.disk.DiskCache
 import coil.util.CoilUtils
 import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
 import okhttp3.OkHttpClient
@@ -47,8 +48,8 @@ class Nyx : Application() {
 
         UnsplashPhotoPicker.init(
             this,
-            BuildConfig.accessKey,
-            BuildConfig.privateKey,
+            BuildConfig.GRADLE_ACCESS_KEY,
+            BuildConfig.GRADLE_PRIVATE_KEY,
             10
         )
 
@@ -59,9 +60,9 @@ class Nyx : Application() {
         val imageLoader = ImageLoader.Builder(applicationContext)
             .crossfade(true)
             .bitmapConfig(Bitmap.Config.ARGB_8888)
-            .okHttpClient {
-                OkHttpClient.Builder()
-                    .cache(CoilUtils.createDefaultCache(applicationContext))
+            .diskCache {
+                DiskCache.Builder()
+                    .directory(this.cacheDir.resolve("image_cache"))
                     .build()
             }
             .build()
