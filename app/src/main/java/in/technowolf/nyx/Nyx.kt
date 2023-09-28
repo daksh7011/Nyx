@@ -30,6 +30,7 @@ import android.app.Application
 import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
+import timber.log.Timber
 
 class Nyx : Application() {
     override fun onCreate() {
@@ -40,13 +41,13 @@ class Nyx : Application() {
             modules(listOf(databaseModule))
         }
 
-        //Planting timber instance
-        //Timber.plant()
+//        Planting timber instance
+        Timber.plant()
 
         UnsplashPhotoPicker.init(
             this,
-            BuildConfig.accessKey,
-            BuildConfig.privateKey,
+            BuildConfig.GRADLE_ACCESS_KEY,
+            BuildConfig.GRADLE_PRIVATE_KEY,
             10
         )
     }

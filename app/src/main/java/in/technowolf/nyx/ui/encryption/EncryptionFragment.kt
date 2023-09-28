@@ -52,7 +52,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import coil.Coil
-import coil.request.LoadRequest
+import coil.request.ImageRequest
 import coil.size.Precision
 import coil.size.Scale
 import coil.size.ViewSizeResolver
@@ -80,7 +80,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             drawingViewId = R.id.nav_host_fragment
             duration = 300.toLong()
             scrimColor = Color.TRANSPARENT
-            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
+            setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
 
     }
@@ -103,15 +103,15 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun observeEncryption() {
-        encryptionViewModel.encryptedMessage.observe(viewLifecycleOwner, Observer {
+        encryptionViewModel.encryptedMessage.observe(viewLifecycleOwner) {
             lifecycleScope.launch {
                 prepareImageEncryption(it)
             }
-        })
+        }
     }
 
     private fun observeEncryptedImages() {
-        encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
+        encryptionViewModel.encryptedImages.observe(viewLifecycleOwner) {
             val imageModel = ImageModel(getImageName(), getTimeStampForImage(), null)
             lifecycleScope.launch(Dispatchers.IO) {
                 imageDao.insertImage(imageModel.toImageEntity())
@@ -123,7 +123,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             ) {}
 
             clearInputs()
-        })
+        }
     }
 
     private fun prepareImageEncryption(encryptedMessage: String?) {
@@ -152,7 +152,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun setupSelectedImage(data: Intent?) {
         val imageLoader = Coil.imageLoader(requireContext())
-        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+        val request = ImageRequest.Builder(binding.ivImagePreview.context)
             .data(data?.data)
             .target {
                 binding.pbImageLoading.gone()
@@ -166,12 +166,12 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
-        imageLoader.execute(request)
+        imageLoader.enqueue(request)
     }
 
     private fun setupImageFromUnsplash(url: String) {
         val imageLoader = Coil.imageLoader(requireContext())
-        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+        val request = ImageRequest.Builder(binding.ivImagePreview.context)
             .data(url)
             .target {
                 binding.pbImageLoading.gone()
@@ -185,7 +185,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
-        imageLoader.execute(request)
+        imageLoader.enqueue(request)
     }
 
     private fun isInputValid(): Boolean {

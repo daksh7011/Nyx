@@ -40,9 +40,9 @@ object ImageHelper {
     const val IMAGE_PICKER_INTENT = 69
     const val UNSPLASH_IMAGE_PICKER_INTENT = 96
 
-    val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.AppName
+    val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.APPLICATION_ID
 
-    fun prepareImagePickerIntent(): Intent? {
+    fun prepareImagePickerIntent(): Intent {
         val imagePickerIntent =
             Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
         imagePickerIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, false)
