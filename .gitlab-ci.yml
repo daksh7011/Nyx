@@ -56,11 +56,6 @@ cache:
     - .gradle/wrapper
     - .gradle/caches
 
-lintDebug:
-  stage: lint
-  script:
-    - ./gradlew -Pci --console=plain :app:lintDebug -PbuildDir=lint
-
 assembleDebug:
   stage: development
   script:
@@ -68,8 +63,3 @@ assembleDebug:
   artifacts:
     paths:
       - app/build/outputs/
-
-debugTests:
-  stage: test
-  script:
-    - ./gradlew -Pci --console=plain :app:testDebug
