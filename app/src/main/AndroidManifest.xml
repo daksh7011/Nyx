@@ -23,8 +23,7 @@
   ~
   -->
 
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="in.technowolf.nyx">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name=".Nyx"
@@ -33,9 +32,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AppTheme"
+        android:theme="@style/Theme.Nyx"
         android:windowSoftInputMode="adjustResize">
-        <activity android:name=".ui.dashboard.DashboardActivity">
+        <activity android:name=".ui.dashboard.DashboardActivity"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

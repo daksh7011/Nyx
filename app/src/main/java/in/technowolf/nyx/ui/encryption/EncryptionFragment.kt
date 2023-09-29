@@ -1,7 +1,6 @@
 /*
  * MIT License
- *
- * Copyright (c) 2021 TechnoWolf FOSS
+ * Copyright (c) 2021.  TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -25,19 +24,6 @@
 
 package `in`.technowolf.nyx.ui.encryption
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.data.ImageDao
-import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
-import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.Extension.getImageName
-import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
-import `in`.technowolf.nyx.utils.Extension.gone
-import `in`.technowolf.nyx.utils.Extension.snackBar
-import `in`.technowolf.nyx.utils.Extension.visible
-import `in`.technowolf.nyx.utils.ImageHelper
-import `in`.technowolf.nyx.utils.ImageHelper.saveImage
-import `in`.technowolf.nyx.utils.themeColor
-import `in`.technowolf.nyx.utils.viewBinding
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
@@ -52,13 +38,26 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import coil.Coil
-import coil.request.LoadRequest
+import coil.request.ImageRequest
 import coil.size.Precision
 import coil.size.Scale
 import coil.size.ViewSizeResolver
 import com.google.android.material.transition.MaterialContainerTransform
 import com.unsplash.pickerandroid.photopicker.data.UnsplashPhoto
 import com.unsplash.pickerandroid.photopicker.presentation.UnsplashPickerActivity
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.data.ImageDao
+import `in`.technowolf.nyx.databinding.FragmentEncryptionBinding
+import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Extension.getImageName
+import `in`.technowolf.nyx.utils.Extension.getTimeStampForImage
+import `in`.technowolf.nyx.utils.Extension.gone
+import `in`.technowolf.nyx.utils.Extension.saveImage
+import `in`.technowolf.nyx.utils.Extension.snackBar
+import `in`.technowolf.nyx.utils.Extension.visible
+import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.themeColor
+import `in`.technowolf.nyx.utils.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -80,7 +79,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             drawingViewId = R.id.nav_host_fragment
             duration = 300.toLong()
             scrimColor = Color.TRANSPARENT
-            setAllContainerColors(requireContext().themeColor(R.attr.colorSurface))
+            setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
 
     }
@@ -112,7 +111,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun observeEncryptedImages() {
         encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            val imageModel = ImageModel(getImageName(), getTimeStampForImage(), null)
+            val imageModel = ImageModel(getImageName(), getTimeStampForImage())
             lifecycleScope.launch(Dispatchers.IO) {
                 imageDao.insertImage(imageModel.toImageEntity())
             }
@@ -152,7 +151,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun setupSelectedImage(data: Intent?) {
         val imageLoader = Coil.imageLoader(requireContext())
-        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+        val request = ImageRequest.Builder(binding.ivImagePreview.context)
             .data(data?.data)
             .target {
                 binding.pbImageLoading.gone()
@@ -166,12 +165,12 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
-        imageLoader.execute(request)
+        imageLoader.enqueue(request)
     }
 
     private fun setupImageFromUnsplash(url: String) {
         val imageLoader = Coil.imageLoader(requireContext())
-        val request = LoadRequest.Builder(binding.ivImagePreview.context)
+        val request = ImageRequest.Builder(binding.ivImagePreview.context)
             .data(url)
             .target {
                 binding.pbImageLoading.gone()
@@ -185,7 +184,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             .bitmapConfig(Bitmap.Config.ARGB_8888)
             .crossfade(true)
             .build()
-        imageLoader.execute(request)
+        imageLoader.enqueue(request)
     }
 
     private fun isInputValid(): Boolean {
@@ -240,10 +239,10 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private fun openImagePicker() {
         clearCurrentImage()
-        startActivityForResult(
-            ImageHelper.prepareImagePickerIntent(),
-            ImageHelper.IMAGE_PICKER_INTENT
-        )
+//        startActivityForResult(
+//            ImageHelper.prepareImagePickerIntent(),
+//            ImageHelper.IMAGE_PICKER_INTENT
+//        )
     }
 
     private fun openUnsplashImagePicker() {
@@ -271,11 +270,13 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                     binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
+
                 R.id.nav_unsplash -> {
                     openUnsplashImagePicker()
                     binding.pbImageLoading.visible()
                     return@setOnMenuItemClickListener true
                 }
+
                 else -> return@setOnMenuItemClickListener false
             }
         }

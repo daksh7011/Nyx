@@ -1,7 +1,6 @@
 <!--
   ~ MIT License
-  ~
-  ~ Copyright (c) 2021 TechnoWolf FOSS
+  ~ Copyright (c) 2021.  TechnoWolf FOSS
   ~
   ~ Permission is hereby granted, free of charge, to any person obtaining a copy
   ~ of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
   ~ copies of the Software, and to permit persons to whom the Software is
   ~ furnished to do so, subject to the following conditions:
   ~
-  ~ The above copyright notice and this permission notice shall be included in all
-  ~ copies or substantial portions of the Software.
+  ~  The above copyright notice and this permission notice shall be included in all
+  ~  copies or substantial portions of the Software.
   ~
   ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
   ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -50,4 +49,17 @@
     <string name="alert_decryption_message">Please enter passphrase below to decrypt the message from the image.</string>
     <string name="alert_decryption_title">Decrypt Message</string>
     <string name="error_enter_passphrase">Please enter passphrase for decryption.</string>
+
+    <string name="faq">FAQ</string>
+    <string name="select_decryption_image">Decrypt from Storage</string>
+    <string name="powered_by_open_source">Powered by Open-Source</string>
+    <string name="donate">Donate</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="unsplash">Unsplash</string>
+    <string name="password">Password</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="password_validation">Password is required to encrypt image.</string>
+    <string name="message_validation">Message is required!</string>
+
 </resources>

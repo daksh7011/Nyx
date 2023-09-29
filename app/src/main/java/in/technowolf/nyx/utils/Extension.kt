@@ -1,7 +1,6 @@
 /*
  * MIT License
- *
- * Copyright (c) 2021 TechnoWolf FOSS
+ * Copyright (c) 2021.  TechnoWolf FOSS
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -10,8 +9,8 @@
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
  *
- * The above copyright notice and this permission notice shall be included in all
- * copies or substantial portions of the Software.
+ *  The above copyright notice and this permission notice shall be included in all
+ *  copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -28,11 +27,17 @@ package `in`.technowolf.nyx.utils
 import android.content.Context
 import android.content.res.Configuration
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.view.View
 import androidx.annotation.StringRes
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.google.android.material.snackbar.Snackbar
+import java.io.File
+import java.io.FileInputStream
 import java.text.DateFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -109,5 +114,21 @@ object Extension {
         val strDate: String = dateFormat.format(date)
         val strTime: String = timeFormat.format(date)
         return String.format("%s at %s", strDate, strTime)
+    }
+
+    fun <T> MutableLiveData<T>.readOnly(): LiveData<T> = this
+
+    fun Context.saveImage(bitmap: Bitmap, imageName: String): String {
+        this.openFileOutput(imageName, Context.MODE_PRIVATE).use {
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
+        return this.filesDir.absolutePath
+    }
+
+    fun Context.retrieveImage(imageName: String): Bitmap =
+        BitmapFactory.decodeStream(FileInputStream(File(filesDir, imageName)))
+
+    fun Context.deleteImage(imageName: String): Boolean {
+        return File(filesDir, imageName).delete()
     }
 }
