@@ -1,19 +1,8 @@
 [versions]
-activityKtx = "1.7.2"
-airbnb-lottie = "6.1.0"
-androidx-junit = "1.1.5"
-androidx-lifecycleRuntimeKtx = "2.6.2"
-appcompatVersion = "1.6.1"
-cardview = "1.0.0"
-coil-kt-coil = "2.4.0"
-coreKtxVersion = "1.12.0"
-koinAndroid = "3.5.0"
 kotlin = "1.9.10"
 
 # KSP depends on specific Kotlin version, so it must be upgraded together with Kotlin (disabled in Renovate)
 # https://repo.maven.apache.org/maven2/com/google/devtools/ksp/symbol-processing-gradle-plugin/
-kotlinStdlibJdk7 = "1.9.10"
-kotlinStdlibJdk7Version = "1.4.21"
 kotlinSymbolProcessing = "1.9.10-1.0.13"
 
 # Compose compiler depends on specific Kotlin version, so it must be upgraded together with Kotlin (disabled in Renovate)
@@ -21,15 +10,9 @@ kotlinSymbolProcessing = "1.9.10-1.0.13"
 kotlinCompilerExtensionVersion = "1.5.3"
 
 compileSdk = "34"
-kotlinxCoroutinesCore = "1.7.3"
-legacySupportV4 = "1.0.0"
-lifecycleCommonJava8 = "2.6.2"
-lifecycleExtensions = "2.2.0"
-lifecycleRuntimeKtx = "2.6.2"
 minSdk = "26"
 
 navigation = "2.7.3"
-photopicker = "1.0.1"
 testLogger = "3.2.0"
 coroutines = "1.7.3"
 retrofit = "2.9.0"
@@ -61,8 +44,14 @@ spotless = "6.21.0"
 detekt = "1.23.1"
 androidGradlePlugin = "8.1.2"
 
-# Test versionsandroid-junit5-plugin-dsl
+# More libs
+photopicker = "1.0.1"
+airbnb-lottie = "6.1.0"
+card-view = "1.0.0"
 
+# Test versions
+
+androidx-junit = "1.1.5"
 junit = "5.9.0"
 androidJUnit5 = "1.9.3.0"
 kluent = "1.73"
@@ -73,24 +62,11 @@ coreTesting = "2.2.0"
 
 [libraries]
 android-lottie = { module = "com.airbnb.android:lottie", version.ref = "airbnb-lottie" }
-androidx-activity-ktx = { module = "androidx.activity:activity-ktx", version.ref = "activityKtx" }
-androidx-lifecycle-lifecycle-runtime-ktx2 = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycleRuntimeKtx" }
-androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompatVersion" }
-cardview = { module = "androidx.cardview:cardview", version.ref = "cardview" }
-coil-kt-coil = { module = "io.coil-kt:coil", version.ref = "coil-kt-coil" }
-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtxVersion" }
-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
+cardview = { module = "androidx.cardview:cardview", version.ref = "card-view" }
 
-koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndroid" }
 
 kotlin = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 coroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
-kotlin-stdlib-jdk7 = { module = "org.jetbrains.kotlin:kotlin-stdlib-jdk7", version.ref = "kotlinStdlibJdk7" }
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacySupportV4" }
-lifecycle-common-java8 = { module = "androidx.lifecycle:lifecycle-common-java8", version.ref = "lifecycleCommonJava8" }
-lifecycle-extensions = { module = "androidx.lifecycle:lifecycle-extensions", version.ref = "lifecycleExtensions" }
 photopicker = { module = "com.github.unsplash:unsplash-photopicker-android", version.ref = "photopicker" }
 retrofitCore = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 kotlinxSerializationConverter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "kotlinxSerializationConverter" }
@@ -127,6 +103,7 @@ detektFormatting = { module = "io.gitlab.arturbosch.detekt:detekt-formatting", v
 konsist = "com.lemonappdev:konsist:0.11.0"
 
 # Test dependencies
+androidJunit = { module = "androidx.test.ext:junit", version.ref = "androidx-junit" }
 junit = { module = "junit:junit", version.ref = "junit" }
 testCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 kluent = { module = "org.amshove.kluent:kluent-android", version.ref = "kluent" }

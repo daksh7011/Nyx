@@ -1,7 +1,9 @@
 rootProject.name = "nyx"
 
 include(
-    ":app"
+    ":app",
+    ":steganography",
+    ":utils",
 )
 
 pluginManagement {
