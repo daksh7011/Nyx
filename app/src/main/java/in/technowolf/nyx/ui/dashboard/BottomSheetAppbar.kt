@@ -24,14 +24,14 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.databinding.BottomsheetAppbarBinding
-import `in`.technowolf.nyx.utils.Extension.isDarkMode
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import `in`.technowolf.nyx.databinding.BottomsheetAppbarBinding
+import `in`.technowolf.nyx.utils.Extension.isDarkMode
 
 class BottomSheetAppbar : BottomSheetDialogFragment() {
 
@@ -46,7 +46,7 @@ class BottomSheetAppbar : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = BottomsheetAppbarBinding.inflate(inflater, container, false)
         return binding.root
@@ -65,8 +65,11 @@ class BottomSheetAppbar : BottomSheetDialogFragment() {
         binding.switchDarkMode.isChecked = requireContext().isDarkMode()
         binding.switchDarkMode.setOnCheckedChangeListener { buttonView, isChecked ->
             val mode =
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
+                if (isChecked) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
             AppCompatDelegate.setDefaultNightMode(mode)
         }
         binding.tvInfo.setOnClickListener { onAbout?.invoke() }
@@ -80,5 +83,4 @@ class BottomSheetAppbar : BottomSheetDialogFragment() {
     companion object {
         const val BOTTOM_SHEET_TAG = "BOTTOM_SHEET_TAG"
     }
-
 }

@@ -24,13 +24,13 @@
 
 package `in`.technowolf.nyx.ui.encryption
 
-import `in`.technowolf.nyx.core.MagicWand
-import `in`.technowolf.nyx.core.Steganography
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.technowolf.nyx.core.MagicWand
+import `in`.technowolf.nyx.core.Steganography
 import kotlinx.coroutines.launch
 
 class EncryptionViewModel : ViewModel() {
@@ -49,14 +49,10 @@ class EncryptionViewModel : ViewModel() {
     val encryptedImages: LiveData<List<Bitmap>> = _encryptedImages
 
     fun prepareEncryptedImage(encryptedMessage: String) {
-        if (imageForEncryption != null) {
-            viewModelScope.launch {
-                _encryptedImages.value =
-                    steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
-            }
-        } else {
-            throw IllegalStateException("Image to be encrypted is still null")
+        requireNotNull(imageForEncryption) { "Image to be encrypted is null" }
+        viewModelScope.launch {
+            _encryptedImages.value =
+                steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
         }
     }
-
 }

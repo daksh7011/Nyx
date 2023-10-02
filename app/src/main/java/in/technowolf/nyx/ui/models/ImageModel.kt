@@ -29,7 +29,7 @@ import `in`.technowolf.nyx.data.ImageEntity
 data class ImageModel(
     val name: String,
     val date: String,
-    val id: Int? = null
+    val id: Int? = null,
 ) {
     fun toImageEntity() = ImageEntity(name, date)
 }

@@ -1,7 +1,10 @@
 rootProject.name = "nyx"
 
 include(
-    ":app"
+    ":app",
+    ":steganography",
+    ":utils",
+    ":feature_base",
 )
 
 pluginManagement {

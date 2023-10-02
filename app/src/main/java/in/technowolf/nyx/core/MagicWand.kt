@@ -24,8 +24,8 @@
 
 package `in`.technowolf.nyx.core
 
-import `in`.technowolf.nyx.utils.Logger
 import android.util.Base64
+import `in`.technowolf.nyx.utils.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -33,7 +33,11 @@ import kotlinx.coroutines.withContext
 import java.nio.ByteBuffer
 import java.security.AlgorithmParameters
 import java.security.SecureRandom
-import javax.crypto.*
+import javax.crypto.BadPaddingException
+import javax.crypto.Cipher
+import javax.crypto.IllegalBlockSizeException
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
@@ -44,9 +48,7 @@ object MagicWand {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
     suspend fun encrypt(plainText: String, passPhrase: String): String? {
-
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-
             val random = SecureRandom()
             val bytes = ByteArray(20)
             random.nextBytes(bytes)
@@ -76,7 +78,7 @@ object MagicWand {
                 0,
                 buffer,
                 bytes.size + ivBytes.size,
-                encryptedTextBytes.size
+                encryptedTextBytes.size,
             )
 
             // Profit!
@@ -85,9 +87,7 @@ object MagicWand {
     }
 
     suspend fun decrypt(encryptedText: String?, passPhrase: String): String? {
-
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 
             // brush off the salt and initialization vector
@@ -110,7 +110,6 @@ object MagicWand {
             val secret = SecretKeySpec(secretKey.encoded, "AES")
             cipher.init(Cipher.DECRYPT_MODE, secret, IvParameterSpec(ivBytes))
 
-
             var decryptedTextBytes: ByteArray? = null
             try {
                 decryptedTextBytes = cipher.doFinal(encryptedTextBytes)
@@ -123,5 +122,4 @@ object MagicWand {
             decryptedTextBytes?.toString(Charsets.UTF_8)
         }
     }
-
 }

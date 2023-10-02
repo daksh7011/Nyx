@@ -22,25 +22,56 @@
  *
  */
 
-package `in`.technowolf.nyx.ui.di
+package `in`.technowolf.nyx.utils
 
-import `in`.technowolf.nyx.data.AppDatabase
-import `in`.technowolf.nyx.ui.dashboard.DashboardViewModel
-import androidx.room.Room
-import org.koin.androidx.viewmodel.dsl.viewModel
-import org.koin.dsl.module
+import timber.log.Timber
 
-val databaseModule = module {
-    single {
-        Room.databaseBuilder(
-            get(),
-            AppDatabase::class.java,
-            "Images"
-        ).build()
+object NLog {
+
+    private val isDebug: Boolean = BuildConfig.DEBUG
+    init {
+        if (isDebug) Timber.plant(Timber.DebugTree())
     }
-    single { get<AppDatabase>().imageDao() }
-}
 
-val viewModelModule = module {
-    viewModel { DashboardViewModel(get()) }
+    fun v(tag: String, message: String) {
+        if (isDebug) {
+            Timber.v(tag, message)
+        }
+    }
+
+    fun d(tag: String, message: String) {
+        if (isDebug) {
+            Timber.d(tag, message)
+        }
+    }
+
+    fun i(tag: String, message: String) {
+        if (isDebug) {
+            Timber.i(tag, message)
+        }
+    }
+
+    fun w(tag: String, message: String) {
+        if (isDebug) {
+            Timber.w(tag, message)
+        }
+    }
+
+    fun e(tag: String, message: String) {
+        if (isDebug) {
+            Timber.e(tag, message)
+        }
+    }
+
+    fun e(tag: String, message: String, throwable: Throwable) {
+        if (isDebug) {
+            Timber.e(tag, message, throwable)
+        }
+    }
+
+    fun wtf(tag: String, message: String) {
+        if (isDebug) {
+            Timber.wtf(tag, message)
+        }
+    }
 }

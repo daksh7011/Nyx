@@ -6,7 +6,6 @@ plugins {
     id("local.app")
 }
 
-
 val versionMajor = 0
 val versionMinor = 2
 val versionPatch = 0
@@ -21,18 +20,14 @@ android {
     compileSdk = libs.findVersion("compileSdk").get().toString().toInt()
 
     defaultConfig {
-        minSdk = libs.findVersion("minSdk").get().toString().toInt()
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    defaultConfig {
         applicationId = "in.technowolf.nyx"
+
+        minSdk = libs.findVersion("minSdk").get().toString().toInt()
 
         versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
 
-        val patch = if (versionPatch == 0) "" else ".${versionPatch}"
-        versionName = "${versionMajor}.${versionMinor}" + patch
+        val patch = if (versionPatch == 0) "" else ".$versionPatch"
+        versionName = "$versionMajor.$versionMinor" + patch
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -72,45 +67,28 @@ android {
     buildFeatures {
         viewBinding = true
         buildConfig = true
+        compose = true
     }
 
     @Suppress("UnstableApiUsage")
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
-
 }
 
 dependencies {
-    implementation(libs.kotlin.stdlib.jdk7)
-    implementation(libs.appcompat)
-    implementation(libs.core.ktx)
-    implementation(libs.legacy.support.v4)
     implementation(libs.material)
     implementation(libs.constraintLayout)
     implementation(libs.navigationFragment)
     implementation(libs.navigationUiKtx)
-    implementation(libs.lifecycle.extensions)
     implementation(libs.navigationFragment)
     implementation(libs.navigationUiKtx)
 
     implementation(libs.timber)
 
-    androidTestImplementation(libs.ext.junit)
-    androidTestImplementation(libs.espresso)
-
-    implementation(libs.kotlinx.coroutines.core)
     implementation(libs.coroutines)
 
     implementation(libs.cardview)
-
-    implementation(libs.viewmodelKtx)
-    implementation(libs.livedataKtx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.lifecycle.runtime.ktx2)
-    implementation(libs.lifecycle.common.java8)
-    implementation(libs.androidx.activity.ktx)
-    implementation(libs.fragmentKtx)
 
     implementation(libs.photopicker)
 
@@ -118,11 +96,14 @@ dependencies {
     ksp(libs.roomCompiler)
     implementation(libs.roomKtx)
 
-    implementation(libs.coil.kt.coil)
+    implementation(libs.coil)
 
     implementation(libs.android.lottie)
 
-    implementation(libs.koin.android)
+    implementation(libs.koin)
+
+    androidTestImplementation(libs.androidJunit)
+    androidTestImplementation(libs.espresso)
 }
 
 /**
@@ -148,4 +129,3 @@ fun ApplicationDefaultConfig.buildConfigFieldFromLocalProperty(localPropertyName
 }
 
 fun String.toSnakeCase() = this.split(Regex("(?=[A-Z])")).joinToString("_") { it.lowercase(Locale.getDefault()) }
-

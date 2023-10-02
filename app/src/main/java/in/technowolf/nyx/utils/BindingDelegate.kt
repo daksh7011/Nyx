@@ -36,14 +36,13 @@ import androidx.viewbinding.ViewBinding
 import kotlin.properties.ReadOnlyProperty
 import kotlin.reflect.KProperty
 
-
 /*
 * Reference: https://medium.com/@Zhuinden/simple-one-liner-viewbinding-in-fragments-and-activities-with-kotlin-961430c6c07c
 */
 
 class BindingDelegate<T : ViewBinding>(
     val fragment: Fragment,
-    val viewBindingFactory: (View) -> T
+    val viewBindingFactory: (View) -> T,
 ) : ReadOnlyProperty<Fragment, T> {
     private var binding: T? = null
 
@@ -61,6 +60,7 @@ class BindingDelegate<T : ViewBinding>(
         })
     }
 
+    @Suppress("detekt.UseCheckOrError")
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         val binding = binding
         if (binding != null) {
@@ -83,5 +83,5 @@ fun <T : ViewBinding> DialogFragment.viewBinding(viewBindingFactory: (View) -> T
     BindingDelegate(this, viewBindingFactory)
 
 inline fun <T : ViewBinding> AppCompatActivity.viewBinding(
-    crossinline bindingInflater: (LayoutInflater) -> T
+    crossinline bindingInflater: (LayoutInflater) -> T,
 ) = lazy(LazyThreadSafetyMode.NONE) { bindingInflater.invoke(layoutInflater) }

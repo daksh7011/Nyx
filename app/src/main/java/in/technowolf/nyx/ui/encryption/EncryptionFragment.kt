@@ -30,7 +30,6 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import android.widget.PopupMenu
 import androidx.fragment.app.Fragment
@@ -56,6 +55,7 @@ import `in`.technowolf.nyx.utils.Extension.saveImage
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.themeColor
 import `in`.technowolf.nyx.utils.viewBinding
 import kotlinx.coroutines.Dispatchers
@@ -63,6 +63,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
 
+@Suppress("detekt.TooManyFunctions")
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
     private val binding by viewBinding(FragmentEncryptionBinding::bind)
@@ -81,7 +82,6 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             scrimColor = Color.TRANSPARENT
             setAllContainerColors(requireContext().themeColor(com.google.android.material.R.attr.colorSurface))
         }
-
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -102,32 +102,41 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun observeEncryption() {
-        encryptionViewModel.encryptedMessage.observe(viewLifecycleOwner, Observer {
-            lifecycleScope.launch {
-                prepareImageEncryption(it)
-            }
-        })
+        encryptionViewModel.encryptedMessage.observe(
+            viewLifecycleOwner,
+            Observer {
+                lifecycleScope.launch {
+                    prepareImageEncryption(it)
+                }
+            },
+        )
     }
 
     private fun observeEncryptedImages() {
-        encryptionViewModel.encryptedImages.observe(viewLifecycleOwner, Observer {
-            val imageModel = ImageModel(getImageName(), getTimeStampForImage())
-            lifecycleScope.launch(Dispatchers.IO) {
-                imageDao.insertImage(imageModel.toImageEntity())
-            }
-            requireContext().saveImage(it.first(), imageModel.name)
-            binding.root.snackBar(
-                "Image was encrypted with your secret message",
-                anchor = binding.fabEncryptImage
-            ) {}
+        encryptionViewModel.encryptedImages.observe(
+            viewLifecycleOwner,
+            Observer {
+                val imageModel = ImageModel(getImageName(), getTimeStampForImage())
+                lifecycleScope.launch(Dispatchers.IO) {
+                    imageDao.insertImage(imageModel.toImageEntity())
+                }
+                requireContext().saveImage(it.first(), imageModel.name)
+                binding.root.snackBar(
+                    "Image was encrypted with your secret message",
+                    anchor = binding.fabEncryptImage,
+                ) {}
 
-            clearInputs()
-        })
+                clearInputs()
+            },
+        )
     }
 
     private fun prepareImageEncryption(encryptedMessage: String?) {
-        if (encryptedMessage != null) encryptImage(encryptedMessage)
-        else Log.w(javaClass.simpleName, "Encrypted Message is empty")
+        if (encryptedMessage != null) {
+            encryptImage(encryptedMessage)
+        } else {
+            Logger.w(javaClass.simpleName, "Encrypted Message is empty")
+        }
     }
 
     private fun encryptImage(encryptedMessage: String) {
@@ -188,16 +197,15 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun isInputValid(): Boolean {
-
-        if (binding.etEncryptionKey.text.toString().isEmpty()
-            || binding.etEncryptionKey.text.toString().isBlank()
+        if (binding.etEncryptionKey.text.toString().isEmpty() ||
+            binding.etEncryptionKey.text.toString().isBlank()
         ) {
             binding.tilEncryptionKey.error = "Encryption key is a required field."
             return false
         }
 
-        if (binding.etMessage.text.toString().isEmpty()
-            || binding.etMessage.text.toString().isBlank()
+        if (binding.etMessage.text.toString().isEmpty() ||
+            binding.etMessage.text.toString().isBlank()
         ) {
             binding.tilMessage.error = "Message is a required field."
             return false
@@ -218,7 +226,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
             if (encryptionViewModel.imageForEncryption == null) {
                 binding.root.snackBar(
                     resources.getString(R.string.select_image_warning),
-                    anchor = binding.fabEncryptImage
+                    anchor = binding.fabEncryptImage,
                 ) {}
             } else {
                 binding.apply {
@@ -227,7 +235,7 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
                             withContext(Dispatchers.IO) {
                                 encryptionViewModel.encryptText(
                                     etMessage.text.toString(),
-                                    etEncryptionKey.text.toString()
+                                    etEncryptionKey.text.toString(),
                                 )
                             }
                         }
@@ -250,8 +258,9 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
         startActivityForResult(
             UnsplashPickerActivity.getStartingIntent(
                 requireContext(),
-                false
-            ), ImageHelper.UNSPLASH_IMAGE_PICKER_INTENT
+                false,
+            ),
+            ImageHelper.UNSPLASH_IMAGE_PICKER_INTENT,
         )
     }
 

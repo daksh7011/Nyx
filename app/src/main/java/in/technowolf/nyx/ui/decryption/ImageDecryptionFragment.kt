@@ -66,7 +66,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
             if (decryptedMessage.isNullOrEmpty()) {
                 binding.root.snackBar(
                     "Wrong passphrase! Try again",
-                    anchor = binding.fabDecryptMessage
+                    anchor = binding.fabDecryptMessage,
                 ) {}
                 binding.tvDecryptedMessage.gone()
             } else {
@@ -75,7 +75,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
                         val clipboard: ClipboardManager? =
                             ContextCompat.getSystemService(
                                 requireContext(),
-                                ClipboardManager::class.java
+                                ClipboardManager::class.java,
                             )
                         val clipData = ClipData.newPlainText("Decrypted Message", decryptedMessage)
                         clipboard?.setPrimaryClip(clipData)
@@ -86,7 +86,6 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
                     tvDecryptedMessage.text = decryptedMessage
                 }
             }
-
         }
     }
 
@@ -102,7 +101,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
                 if (isFormValidated(etPassphrase.text.toString())) {
                     dashboardViewModel.decryptImage(
                         getBitmapFromLocal(),
-                        etPassphrase.text.toString()
+                        etPassphrase.text.toString(),
                     )
                 } else {
                     validateForm()
@@ -111,6 +110,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
         }
     }
 
+    @Suppress("detekt.MagicNumber")
     private fun setupImageView() {
         binding.apply {
             ivEncryptedImagePreview.shapeAppearanceModel =
@@ -133,5 +133,4 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
     private fun validateForm() {
         binding.tilPassphrase.error = "Passphrase is required."
     }
-
 }

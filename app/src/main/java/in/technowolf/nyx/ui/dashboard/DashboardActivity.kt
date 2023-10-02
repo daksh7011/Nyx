@@ -24,10 +24,6 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.R
-import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
-import `in`.technowolf.nyx.utils.alert
-import `in`.technowolf.nyx.utils.viewBinding
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -35,6 +31,10 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
+import `in`.technowolf.nyx.R
+import `in`.technowolf.nyx.databinding.ActivityDashboardBinding
+import `in`.technowolf.nyx.utils.alert
+import `in`.technowolf.nyx.utils.viewBinding
 
 class DashboardActivity : AppCompatActivity() {
 
@@ -61,7 +61,7 @@ class DashboardActivity : AppCompatActivity() {
         if (isValidInstallation(this)) {
             this.alert(
                 "Warning",
-                getString(R.string.install_source_warning)
+                getString(R.string.install_source_warning),
             ) {
                 cancelable = false
                 positiveButton("Yes") {}
@@ -80,6 +80,7 @@ class DashboardActivity : AppCompatActivity() {
         return installer != null && validInstallers.contains(installer)
     }
 
+    @Suppress("detekt.SwallowedException")
     private fun openPlayStore() {
         val uri: Uri = Uri.parse("market://details?id=$packageName")
         val goToMarket = Intent(Intent.ACTION_VIEW, uri)
@@ -87,8 +88,8 @@ class DashboardActivity : AppCompatActivity() {
         // to taken back to our application, we need to add following flags to intent.
         goToMarket.addFlags(
             Intent.FLAG_ACTIVITY_NO_HISTORY or
-                    Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
-                    Intent.FLAG_ACTIVITY_MULTIPLE_TASK
+                Intent.FLAG_ACTIVITY_NEW_DOCUMENT or
+                Intent.FLAG_ACTIVITY_MULTIPLE_TASK,
         )
         try {
             startActivity(goToMarket)
@@ -96,10 +97,9 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(
                 Intent(
                     Intent.ACTION_VIEW,
-                    Uri.parse("http://play.google.com/store/apps/details?id=$packageName")
-                )
+                    Uri.parse("http://play.google.com/store/apps/details?id=$packageName"),
+                ),
             )
         }
     }
-
 }

@@ -24,8 +24,6 @@
 
 package `in`.technowolf.nyx.utils
 
-import `in`.technowolf.nyx.databinding.DialogInfoBinding
-import `in`.technowolf.nyx.utils.Extension.setVisibility
 import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
@@ -35,12 +33,14 @@ import androidx.annotation.StringRes
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
+import `in`.technowolf.nyx.databinding.DialogInfoBinding
+import `in`.technowolf.nyx.utils.Extension.setVisibility
 
 inline fun AppCompatActivity.alert(
     title: CharSequence? = null,
     message: CharSequence? = null,
     shouldPassphrase: Boolean = false,
-    func: AlertDialogHelper.() -> Unit
+    func: AlertDialogHelper.() -> Unit,
 ): AlertDialog {
     return AlertDialogHelper(this, title, message, shouldPassphrase).apply {
         func()
@@ -51,7 +51,7 @@ inline fun AppCompatActivity.alert(
     titleResource: Int = 0,
     messageResource: Int = 0,
     shouldPassphrase: Boolean = false,
-    func: AlertDialogHelper.() -> Unit
+    func: AlertDialogHelper.() -> Unit,
 ): AlertDialog {
     val title = if (titleResource == 0) null else getString(titleResource)
     val message = if (messageResource == 0) null else getString(messageResource)
@@ -64,7 +64,7 @@ inline fun Fragment.alert(
     title: CharSequence? = null,
     message: CharSequence? = null,
     shouldPassphrase: Boolean = false,
-    func: AlertDialogHelper.() -> Unit
+    func: AlertDialogHelper.() -> Unit,
 ): AlertDialog {
     return AlertDialogHelper(requireContext(), title, message, shouldPassphrase).apply {
         func()
@@ -75,7 +75,7 @@ inline fun Fragment.alert(
     titleResource: Int = 0,
     messageResource: Int = 0,
     shouldPassphrase: Boolean = false,
-    func: AlertDialogHelper.() -> Unit
+    func: AlertDialogHelper.() -> Unit,
 ): AlertDialog {
     val title = if (titleResource == 0) null else getString(titleResource)
     val message = if (messageResource == 0) null else getString(messageResource)
@@ -89,10 +89,9 @@ class AlertDialogHelper(
     context: Context,
     title: CharSequence?,
     message: CharSequence?,
-    shouldPassphrase: Boolean = false
+    shouldPassphrase: Boolean = false,
 ) {
     private var binding: DialogInfoBinding = DialogInfoBinding.inflate(LayoutInflater.from(context))
-
 
     private val builder: AlertDialog.Builder = AlertDialog.Builder(context)
         .setView(binding.root)
@@ -163,5 +162,4 @@ class AlertDialogHelper(
             dialog?.dismiss()
         }
     }
-
 }

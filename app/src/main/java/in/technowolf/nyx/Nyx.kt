@@ -24,16 +24,14 @@
 
 package `in`.technowolf.nyx
 
-import `in`.technowolf.nyx.ui.di.databaseModule
-import `in`.technowolf.nyx.ui.di.viewModelModule
 import android.app.Application
 import android.graphics.Bitmap
 import coil.Coil
 import coil.ImageLoader
 import coil.disk.DiskCache
-import coil.util.CoilUtils
 import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
-import okhttp3.OkHttpClient
+import `in`.technowolf.nyx.ui.di.databaseModule
+import `in`.technowolf.nyx.ui.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -50,7 +48,7 @@ class Nyx : Application() {
             this,
             BuildConfig.GRADLE_ACCESS_KEY,
             BuildConfig.GRADLE_PRIVATE_KEY,
-            10
+            UNSPLASH_PAGE_SIZE,
         )
 
         /**
@@ -67,5 +65,9 @@ class Nyx : Application() {
             }
             .build()
         Coil.setImageLoader(imageLoader)
+    }
+
+    companion object {
+        private const val UNSPLASH_PAGE_SIZE = 10
     }
 }

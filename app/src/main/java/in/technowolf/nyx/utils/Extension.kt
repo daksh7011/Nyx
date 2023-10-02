@@ -40,13 +40,15 @@ import java.io.File
 import java.io.FileInputStream
 import java.text.DateFormat
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Locale
+import java.util.UUID
 
+@Suppress("detekt.TooManyFunctions")
 object Extension {
 
     infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
     infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
-
 
     infix fun Byte.and(that: Int): Int = this.toInt().and(that)
     infix fun Int.and(that: Byte): Int = this.and(that.toInt())
@@ -76,14 +78,14 @@ object Extension {
 
     fun Context.isDarkMode(): Boolean {
         return resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+            Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
     }
 
     inline fun View.snackBar(
         message: String,
         anchor: View? = null,
         length: Int = Snackbar.LENGTH_LONG,
-        f: Snackbar.() -> Unit
+        f: Snackbar.() -> Unit,
     ) {
         val snackBar = Snackbar.make(this, message, length)
         snackBar.f()
@@ -100,7 +102,7 @@ object Extension {
         @StringRes messageRes: Int,
         length: Int = Snackbar.LENGTH_LONG,
         anchor: View? = null,
-        f: Snackbar.() -> Unit
+        f: Snackbar.() -> Unit,
     ) {
         snackBar(resources.getString(messageRes), anchor, length, f)
     }
@@ -113,14 +115,14 @@ object Extension {
         val timeFormat: DateFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
         val strDate: String = dateFormat.format(date)
         val strTime: String = timeFormat.format(date)
-        return String.format("%s at %s", strDate, strTime)
+        return String.format(Locale.getDefault(), "%s at %s", strDate, strTime)
     }
 
     fun <T> MutableLiveData<T>.readOnly(): LiveData<T> = this
 
-    fun Context.saveImage(bitmap: Bitmap, imageName: String): String {
+    fun Context.saveImage(bitmap: Bitmap, imageName: String, quality: Int = 100): String {
         this.openFileOutput(imageName, Context.MODE_PRIVATE).use {
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, it)
+            bitmap.compress(Bitmap.CompressFormat.PNG, quality, it)
         }
         return this.filesDir.absolutePath
     }

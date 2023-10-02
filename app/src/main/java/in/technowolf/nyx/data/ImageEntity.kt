@@ -24,16 +24,16 @@
 
 package `in`.technowolf.nyx.data
 
-import `in`.technowolf.nyx.ui.models.ImageModel
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import `in`.technowolf.nyx.ui.models.ImageModel
 
 @Entity(tableName = "images")
 data class ImageEntity(
     @ColumnInfo(name = "image_name") val imageName: String,
     @ColumnInfo(name = "image_date") val imageDate: String,
-    @PrimaryKey(autoGenerate = true) val id: Int? = null
+    @PrimaryKey(autoGenerate = true) val id: Int? = null,
 ) {
     fun toImageModel() = ImageModel(imageName, imageDate, id ?: -1)
 }

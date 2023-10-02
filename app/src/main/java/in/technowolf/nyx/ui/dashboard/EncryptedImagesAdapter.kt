@@ -24,14 +24,14 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.databinding.EncryptedImageListItemBinding
-import `in`.technowolf.nyx.ui.models.ImageModel
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import `in`.technowolf.nyx.databinding.EncryptedImageListItemBinding
+import `in`.technowolf.nyx.ui.models.ImageModel
 import java.io.File
 
 class EncryptedImagesAdapter :
@@ -44,14 +44,15 @@ class EncryptedImagesAdapter :
             EncryptedImageListItemBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            )
+                false,
+            ),
         )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
 
+    @Suppress("detekt.MagicNumber")
     inner class ViewHolder(private val binding: EncryptedImageListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(imageModel: ImageModel) {
@@ -78,7 +79,6 @@ class EncryptedImagesAdapter :
 
             override fun areContentsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean =
                 oldItem == newItem
-
         }
     }
 }

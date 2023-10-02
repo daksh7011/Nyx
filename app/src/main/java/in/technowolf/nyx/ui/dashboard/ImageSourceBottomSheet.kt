@@ -24,12 +24,12 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
-import `in`.technowolf.nyx.databinding.BottomsheetImageSourceBinding
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import `in`.technowolf.nyx.databinding.BottomsheetImageSourceBinding
 
 class ImageSourceBottomSheet : BottomSheetDialogFragment() {
 
@@ -42,7 +42,7 @@ class ImageSourceBottomSheet : BottomSheetDialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         _binding = BottomsheetImageSourceBinding.inflate(inflater, container, false)
         return binding.root
@@ -67,5 +67,4 @@ class ImageSourceBottomSheet : BottomSheetDialogFragment() {
     companion object {
         const val TAG = "ImageSourceBottomSheet"
     }
-
 }
