@@ -6,7 +6,6 @@ plugins {
     id("local.app")
 }
 
-
 val versionMajor = 0
 val versionMinor = 2
 val versionPatch = 0
@@ -27,8 +26,8 @@ android {
 
         versionCode = versionMajor * 10000 + versionMinor * 1000 + versionPatch * 100 + versionBuild
 
-        val patch = if (versionPatch == 0) "" else ".${versionPatch}"
-        versionName = "${versionMajor}.${versionMinor}" + patch
+        val patch = if (versionPatch == 0) "" else ".$versionPatch"
+        versionName = "$versionMajor.$versionMinor" + patch
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -75,7 +74,6 @@ android {
     testOptions {
         unitTests.isReturnDefaultValues = true
     }
-
 }
 
 dependencies {
@@ -131,4 +129,3 @@ fun ApplicationDefaultConfig.buildConfigFieldFromLocalProperty(localPropertyName
 }
 
 fun String.toSnakeCase() = this.split(Regex("(?=[A-Z])")).joinToString("_") { it.lowercase(Locale.getDefault()) }
-

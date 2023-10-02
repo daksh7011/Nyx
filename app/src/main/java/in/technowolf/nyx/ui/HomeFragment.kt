@@ -55,7 +55,6 @@ import `in`.technowolf.nyx.utils.viewBinding
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
-
 @Suppress("detekt.TooManyFunctions")
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
@@ -156,7 +155,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                             dashboardViewModel.selectedImage = (it as BitmapDrawable).bitmap
                             encryptDialogFragment?.show(
                                 childFragmentManager,
-                                EncryptDialogFragment.TAG
+                                EncryptDialogFragment.TAG,
                             )
                         }
                         .build()
@@ -180,7 +179,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 dashboardViewModel.selectedImage = (it as BitmapDrawable).bitmap
                                 encryptDialogFragment?.show(
                                     childFragmentManager,
-                                    EncryptDialogFragment.TAG
+                                    EncryptDialogFragment.TAG,
                                 )
                             }
                             .build()
@@ -194,13 +193,12 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                                 dashboardViewModel.selectedImage = (it as BitmapDrawable).bitmap
                                 encryptDialogFragment?.show(
                                     childFragmentManager,
-                                    EncryptDialogFragment.TAG
+                                    EncryptDialogFragment.TAG,
                                 )
                             }
                             .build()
                         requireContext().imageLoader.enqueue(request)
                     }
-
                 }
             }
     }
@@ -226,7 +224,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                     val clipboard: ClipboardManager? =
                         ContextCompat.getSystemService(
                             requireContext(),
-                            ClipboardManager::class.java
+                            ClipboardManager::class.java,
                         )
                     val clip = ClipData.newPlainText("Decrypted Message", alertMessage)
                     clipboard?.setPrimaryClip(clip)
@@ -240,8 +238,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         Toast.makeText(
             requireContext(),
             "Will be updated in next version.",
-            Toast.LENGTH_SHORT
+            Toast.LENGTH_SHORT,
         ).show()
     }
-
 }

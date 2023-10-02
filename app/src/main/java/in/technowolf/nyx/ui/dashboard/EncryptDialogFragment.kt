@@ -45,7 +45,6 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
 @Suppress("detekt.TooManyFunctions")
-
 class EncryptDialogFragment : DialogFragment() {
 
     private val binding by viewBinding(DialogFragmentEncryptBinding::bind)
@@ -70,7 +69,7 @@ class EncryptDialogFragment : DialogFragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
-        savedInstanceState: Bundle?
+        savedInstanceState: Bundle?,
     ): View {
         return inflater.inflate(R.layout.dialog_fragment_encrypt, container, false)
     }
@@ -140,13 +139,13 @@ class EncryptDialogFragment : DialogFragment() {
     private fun encryptImage() {
         dashboardViewModel.prepareEncryptedImage(
             binding.etMessage.text.toString(),
-            binding.etPassword.text.toString()
+            binding.etPassword.text.toString(),
         )
     }
 
     private fun areFieldsValidated(): Boolean =
-        binding.etPassword.text.toString().isNotEmpty()
-                && binding.etMessage.text.toString().isNotEmpty()
+        binding.etPassword.text.toString().isNotEmpty() &&
+            binding.etMessage.text.toString().isNotEmpty()
 
     private fun validateFields() {
         binding.apply {
@@ -161,6 +160,6 @@ class EncryptDialogFragment : DialogFragment() {
 
     companion object {
         const val TAG = "EncryptDialogFragment"
-        private const val STATIC_DELAY =  750L
+        private const val STATIC_DELAY = 750L
     }
 }

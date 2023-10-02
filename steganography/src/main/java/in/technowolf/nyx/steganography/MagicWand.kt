@@ -49,9 +49,7 @@ object MagicWand {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + job)
 
     suspend fun encrypt(plainText: String, passPhrase: String): String? {
-
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-
             val random = SecureRandom()
             val bytes = ByteArray(20)
             random.nextBytes(bytes)
@@ -81,7 +79,7 @@ object MagicWand {
                 0,
                 buffer,
                 bytes.size + ivBytes.size,
-                encryptedTextBytes.size
+                encryptedTextBytes.size,
             )
 
             // Profit!
@@ -90,9 +88,7 @@ object MagicWand {
     }
 
     suspend fun decrypt(encryptedText: String?, passPhrase: String): String? {
-
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
-
             val cipher = Cipher.getInstance("AES/CBC/PKCS5Padding")
 
             // brush off the salt and initialization vector
@@ -115,7 +111,6 @@ object MagicWand {
             val secret = SecretKeySpec(secretKey.encoded, "AES")
             cipher.init(Cipher.DECRYPT_MODE, secret, IvParameterSpec(ivBytes))
 
-
             var decryptedTextBytes: ByteArray? = null
             try {
                 decryptedTextBytes = cipher.doFinal(encryptedTextBytes)
@@ -128,5 +123,4 @@ object MagicWand {
             decryptedTextBytes?.toString(Charsets.UTF_8)
         }
     }
-
 }

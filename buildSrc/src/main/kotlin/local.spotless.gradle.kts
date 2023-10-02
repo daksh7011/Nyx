@@ -6,7 +6,12 @@ spotless {
     kotlin {
         target("**/*.kt", "**/*.kts")
         targetExclude("**/buildSrc/build/**/*.*")
+
+        val disabledRules = mapOf(
+            "ktlint_standard_package-name" to "disabled", // disable this rule for using `in`.technowolf.nyx package name.
+        )
         ktlint()
+            .editorConfigOverride(disabledRules)
 
         indentWithSpaces()
         endWithNewline()

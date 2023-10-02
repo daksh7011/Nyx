@@ -42,13 +42,13 @@ class StateTimelineDebugger(private val className: String) {
         return message
     }
 
-    fun logAll(){
-        NLog.d(FEATURE_BASE,getMessage())
+    fun logAll() {
+        NLog.d(FEATURE_BASE, getMessage())
     }
 
-    fun logLast(){
+    fun logLast() {
         val lastStates = listOf(stateTimeline.last())
-        NLog.d(FEATURE_BASE,getMessage(lastStates))
+        NLog.d(FEATURE_BASE, getMessage(lastStates))
     }
 
     private fun getLogLine(previousState: BaseState, nextState: BaseState, propertyName: String): String {
@@ -75,7 +75,6 @@ class StateTimelineDebugger(private val className: String) {
         }
         return ""
     }
-
 
     private data class StateTransition(
         val previousState: BaseState,

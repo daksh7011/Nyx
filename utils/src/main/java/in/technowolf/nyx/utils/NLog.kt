@@ -30,7 +30,7 @@ object NLog {
 
     private val isDebug: Boolean = BuildConfig.DEBUG
     init {
-        if(isDebug) Timber.plant(Timber.DebugTree())
+        if (isDebug) Timber.plant(Timber.DebugTree())
     }
 
     fun v(tag: String, message: String) {

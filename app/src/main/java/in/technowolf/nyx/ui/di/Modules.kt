@@ -24,9 +24,9 @@
 
 package `in`.technowolf.nyx.ui.di
 
+import androidx.room.Room
 import `in`.technowolf.nyx.data.AppDatabase
 import `in`.technowolf.nyx.ui.dashboard.DashboardViewModel
-import androidx.room.Room
 import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
@@ -35,7 +35,7 @@ val databaseModule = module {
         Room.databaseBuilder(
             get(),
             AppDatabase::class.java,
-            "Images"
+            "Images",
         ).build()
     }
     single { get<AppDatabase>().imageDao() }

@@ -5,10 +5,10 @@ import androidx.fragment.app.Fragment
 import `in`.technowolf.nyx.utils.NLog
 import `in`.technowolf.nyx.utils.TagConstants.FEATURE_BASE
 
-class BaseFragment: Fragment() {
+class BaseFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        NLog.d(FEATURE_BASE,"onCreate ${javaClass.simpleName}")
+        NLog.d(FEATURE_BASE, "onCreate ${javaClass.simpleName}")
     }
 }

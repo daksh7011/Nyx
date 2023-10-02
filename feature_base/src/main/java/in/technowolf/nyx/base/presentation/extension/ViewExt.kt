@@ -2,24 +2,11 @@ package `in`.technowolf.nyx.base.presentation.extension
 
 import android.content.Context
 import android.os.SystemClock
-import android.view.KeyEvent
 import android.view.View
 import android.view.View.GONE
 import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
-import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.SearchView
-import androidx.core.widget.addTextChangedListener
-import androidx.lifecycle.LifecycleCoroutineScope
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.withContext
 
 fun View.setOnDebouncedClickListener(action: () -> Unit) {
     val actionDebouncer = ActionDebouncer(action)

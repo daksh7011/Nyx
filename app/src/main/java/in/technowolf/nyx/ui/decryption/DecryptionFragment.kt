@@ -24,6 +24,16 @@
 
 package `in`.technowolf.nyx.ui.decryption
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.os.Bundle
+import android.view.View
+import androidx.core.content.ContextCompat.getSystemService
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.data.ImageDao
 import `in`.technowolf.nyx.databinding.FragmentDecryptionBinding
@@ -36,20 +46,9 @@ import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.alert
 import `in`.technowolf.nyx.utils.viewBinding
-import android.content.ClipData
-import android.content.ClipboardManager
-import android.os.Bundle
-import android.view.View
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.Observer
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
-
 
 class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
 
@@ -76,9 +75,12 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     }
 
     private fun observeDecryptedText() {
-        decryptionViewModel.decryptedText.observe(viewLifecycleOwner, Observer {
-            setupDecryptionAlert(it)
-        })
+        decryptionViewModel.decryptedText.observe(
+            viewLifecycleOwner,
+            Observer {
+                setupDecryptionAlert(it)
+            },
+        )
     }
 
     private fun setupDecryptionAlert(decryptedText: String?) {
@@ -116,7 +118,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
             alert(
                 getString(R.string.alert_decryption_title),
                 getString(R.string.alert_decryption_message),
-                true
+                true,
             ) {
                 cancelable = false
                 positiveButton(getString(R.string.ok)) {
@@ -124,7 +126,7 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                         Logger.i("Starting decryption from image")
                         decryptionViewModel.decryptImage(
                             requireContext().retrieveImage(it.name),
-                            etPassphrase.text.toString()
+                            etPassphrase.text.toString(),
                         )
                     } else {
                         binding.root.snackBar(getString(R.string.error_enter_passphrase)) {}

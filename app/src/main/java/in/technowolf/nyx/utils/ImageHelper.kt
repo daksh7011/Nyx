@@ -24,7 +24,6 @@
 
 package `in`.technowolf.nyx.utils
 
-import `in`.technowolf.nyx.BuildConfig
 import android.Manifest
 import android.content.Context
 import android.content.Intent
@@ -33,6 +32,7 @@ import android.os.Environment
 import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
+import `in`.technowolf.nyx.BuildConfig
 import java.io.File
 @Suppress("detekt.UnusedPrivateProperty")
 class ImageHelper(private val context: Context) {
@@ -73,11 +73,11 @@ class ImageHelper(private val context: Context) {
         if (intentList.size > 0) {
             chooserIntent = Intent.createChooser(
                 intentList.removeAt(intentList.size - 1),
-                "Please Select an Image"
+                "Please Select an Image",
             )
             chooserIntent!!.putExtra(
                 Intent.EXTRA_INITIAL_INTENTS,
-                intentList.toTypedArray<Parcelable>()
+                intentList.toTypedArray<Parcelable>(),
             )
         }
 
@@ -85,7 +85,7 @@ class ImageHelper(private val context: Context) {
     }
 
     fun handleImageRequest(data: Intent?): String {
-        if (data?.data != null) {     //Photo from gallery
+        if (data?.data != null) { // Photo from gallery
             imageUri = data.data
             queryImageUrl = imageUri?.path!!
         } else {
@@ -100,14 +100,14 @@ class ImageHelper(private val context: Context) {
         folder.mkdirs()
 
         val file = File(folder, "Image_Tmp.jpg")
-        if (file.exists()){
+        if (file.exists()) {
             file.delete()
         }
         file.createNewFile()
         imageUri = FileProvider.getUriForFile(
             context,
             BuildConfig.APPLICATION_ID + ".fileProvider",
-            file
+            file,
         )
         imgPath = file.absolutePath
         return imageUri!!
@@ -116,7 +116,7 @@ class ImageHelper(private val context: Context) {
     private fun addIntentsToList(
         context: Context,
         list: MutableList<Intent>,
-        intent: Intent
+        intent: Intent,
     ): MutableList<Intent> {
         val resInfo = context.packageManager.queryIntentActivities(intent, 0)
         for (resolveInfo in resInfo) {
@@ -132,5 +132,4 @@ class ImageHelper(private val context: Context) {
         const val IMAGE_PICKER_INTENT = 69
         const val UNSPLASH_IMAGE_PICKER_INTENT = 96
     }
-
 }

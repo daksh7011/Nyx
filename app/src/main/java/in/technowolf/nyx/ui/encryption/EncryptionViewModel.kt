@@ -24,13 +24,13 @@
 
 package `in`.technowolf.nyx.ui.encryption
 
-import `in`.technowolf.nyx.core.MagicWand
-import `in`.technowolf.nyx.core.Steganography
 import android.graphics.Bitmap
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.technowolf.nyx.core.MagicWand
+import `in`.technowolf.nyx.core.Steganography
 import kotlinx.coroutines.launch
 
 class EncryptionViewModel : ViewModel() {
@@ -55,5 +55,4 @@ class EncryptionViewModel : ViewModel() {
                 steganography.encodeMessage(listOf(imageForEncryption!!), encryptedMessage)
         }
     }
-
 }

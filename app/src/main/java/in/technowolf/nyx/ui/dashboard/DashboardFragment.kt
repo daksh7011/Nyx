@@ -24,6 +24,11 @@
 
 package `in`.technowolf.nyx.ui.dashboard
 
+import android.os.Bundle
+import android.view.View
+import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.FragmentNavigatorExtras
+import androidx.navigation.fragment.findNavController
 import `in`.technowolf.nyx.R
 import `in`.technowolf.nyx.databinding.FragmentDashboardBinding
 import `in`.technowolf.nyx.utils.Extension.isDarkMode
@@ -31,11 +36,6 @@ import `in`.technowolf.nyx.utils.Extension.setStatusBarColor
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.viewBinding
-import android.os.Bundle
-import android.view.View
-import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.FragmentNavigatorExtras
-import androidx.navigation.fragment.findNavController
 
 class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
 
@@ -71,7 +71,7 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             val encryptionCardTransitionName = "BLAH"
             val extras = FragmentNavigatorExtras(it to encryptionCardTransitionName)
             val directions = DashboardFragmentDirections.actionToEncryptionFragment()
-            findNavController().navigate(directions,extras)
+            findNavController().navigate(directions, extras)
         }
     }
 
@@ -88,5 +88,4 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
             binding.root.snackBar("FAQ section will be implemented in future releases.") {}
         }
     }
-
 }

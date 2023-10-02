@@ -24,9 +24,6 @@
 
 package `in`.technowolf.nyx.ui.decryption
 
-import `in`.technowolf.nyx.databinding.CellDecryptionImageBinding
-import `in`.technowolf.nyx.ui.models.ImageModel
-import `in`.technowolf.nyx.utils.Logger
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -36,6 +33,9 @@ import coil.load
 import coil.size.Precision
 import coil.size.Scale
 import coil.size.ViewSizeResolver
+import `in`.technowolf.nyx.databinding.CellDecryptionImageBinding
+import `in`.technowolf.nyx.ui.models.ImageModel
+import `in`.technowolf.nyx.utils.Logger
 import kotlinx.coroutines.Dispatchers
 import java.io.File
 
@@ -49,8 +49,8 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
             CellDecryptionImageBinding.inflate(
                 LayoutInflater.from(parent.context),
                 parent,
-                false
-            )
+                false,
+            ),
         )
 
     override fun onBindViewHolder(holder: ImageViewHolder, position: Int) {
@@ -86,7 +86,6 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
                 Logger.e("Image loading failed!", e)
             }
         }
-
     }
 
     companion object {
@@ -96,8 +95,6 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
 
             override fun areContentsTheSame(oldItem: ImageModel, newItem: ImageModel): Boolean =
                 oldItem == newItem
-
         }
     }
-
 }

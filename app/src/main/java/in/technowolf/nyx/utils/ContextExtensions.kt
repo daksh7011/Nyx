@@ -44,10 +44,10 @@ import androidx.core.content.res.use
 @ColorInt
 @SuppressLint("Recycle")
 fun Context.themeColor(
-    @AttrRes themeAttrId: Int
+    @AttrRes themeAttrId: Int,
 ): Int {
     return obtainStyledAttributes(
-        intArrayOf(themeAttrId)
+        intArrayOf(themeAttrId),
     ).use {
         it.getColor(0, Color.MAGENTA)
     }
@@ -69,7 +69,7 @@ fun Context.themeInterpolator(@AttrRes attr: Int): Interpolator {
         this,
         obtainStyledAttributes(intArrayOf(attr)).use {
             it.getResourceId(0, android.R.interpolator.fast_out_slow_in)
-        }
+        },
     )
 }
 

@@ -45,7 +45,7 @@ fun Fragment.canNavigate(): Boolean {
         view?.setTag(R.id.tag_navigation_destination_id, destinationIdOfThisFragment)
         true
     } else {
-        NLog.d(FEATURE_BASE,"May not navigate: current destination is not the current fragment.")
+        NLog.d(FEATURE_BASE, "May not navigate: current destination is not the current fragment.")
         false
     }
 }

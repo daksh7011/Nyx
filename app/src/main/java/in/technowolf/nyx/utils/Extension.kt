@@ -50,7 +50,6 @@ object Extension {
     infix fun Byte.shl(that: Int): Int = this.toInt().shl(that)
     infix fun Byte.shr(that: Int): Int = this.toInt().shr(that)
 
-
     infix fun Byte.and(that: Int): Int = this.toInt().and(that)
     infix fun Int.and(that: Byte): Int = this.and(that.toInt())
 
@@ -79,14 +78,14 @@ object Extension {
 
     fun Context.isDarkMode(): Boolean {
         return resources.configuration.uiMode and
-                Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
+            Configuration.UI_MODE_NIGHT_MASK == UI_MODE_NIGHT_YES
     }
 
     inline fun View.snackBar(
         message: String,
         anchor: View? = null,
         length: Int = Snackbar.LENGTH_LONG,
-        f: Snackbar.() -> Unit
+        f: Snackbar.() -> Unit,
     ) {
         val snackBar = Snackbar.make(this, message, length)
         snackBar.f()
@@ -103,7 +102,7 @@ object Extension {
         @StringRes messageRes: Int,
         length: Int = Snackbar.LENGTH_LONG,
         anchor: View? = null,
-        f: Snackbar.() -> Unit
+        f: Snackbar.() -> Unit,
     ) {
         snackBar(resources.getString(messageRes), anchor, length, f)
     }

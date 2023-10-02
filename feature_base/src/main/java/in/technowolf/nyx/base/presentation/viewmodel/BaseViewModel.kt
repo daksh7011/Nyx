@@ -19,24 +19,24 @@ abstract class BaseViewModel<State : BaseState, Action : BaseAction<State>>(init
     val isDebug: Boolean get() = BuildConfig.DEBUG
 
     init {
-        if(isDebug){
+        if (isDebug) {
             stateTimelineDebugger = StateTimelineDebugger(this::class.java.simpleName)
         }
     }
 
-    private var state by Delegates.observable(initialState){property,previousValue, nextValue ->
-        if(previousValue == nextValue){
+    private var state by Delegates.observable(initialState) { property, previousValue, nextValue ->
+        if (previousValue == nextValue) {
             viewModelScope.launch {
                 _uiStateFlow.value = nextValue
             }
             stateTimelineDebugger?.apply {
-                addStateTransition(previousValue,nextValue)
+                addStateTransition(previousValue, nextValue)
                 logLast()
             }
         }
     }
 
-    protected fun sendAction(action: Action){
+    protected fun sendAction(action: Action) {
         stateTimelineDebugger?.addAction(action)
         state = action.reduce(state)
     }

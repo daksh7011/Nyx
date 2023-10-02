@@ -24,12 +24,12 @@
 
 package `in`.technowolf.nyx.core
 
+import android.graphics.Bitmap
+import android.graphics.Color
 import `in`.technowolf.nyx.utils.Extension.and
 import `in`.technowolf.nyx.utils.Extension.shl
 import `in`.technowolf.nyx.utils.Extension.shr
 import `in`.technowolf.nyx.utils.Logger
-import android.graphics.Bitmap
-import android.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -41,7 +41,7 @@ import kotlin.experimental.or
 @Suppress("detekt.MagicNumber")
 class Steganography(
     private val startMessageConstant: String = "@!#",
-    private val endMessageConstant: String = "#!@"
+    private val endMessageConstant: String = "#!@",
 ) {
 
     private val binary = intArrayOf(16, 8, 0)
@@ -61,8 +61,10 @@ class Steganography(
      * @return Encoded message image.
      */
     private suspend fun encodeMessage(
-        imageArray: IntArray, imageWidth: Int, imageHeight: Int,
-        encodingState: EncodingState
+        imageArray: IntArray,
+        imageWidth: Int,
+        imageHeight: Int,
+        encodingState: EncodingState,
     ): ByteArray {
         val channels = 3
         var shiftIndex = 4
@@ -76,15 +78,19 @@ class Steganography(
                     for (channelIndex in 0 until channels) {
                         if (!encodingState.isMessageEncoded) {
                             tmp =
-                                (imageArray[element] shr binary[channelIndex] and 0xFF and 0xFC or
-                                        (encodingState.byteArrayMessage[encodingState.currentMessageIndex]
-                                                shr toShift[shiftIndex++ % toShift.size] and 0x3)).toByte()
+                                (
+                                    imageArray[element] shr binary[channelIndex] and 0xFF and 0xFC or
+                                        (
+                                            encodingState.byteArrayMessage[encodingState.currentMessageIndex]
+                                                shr toShift[shiftIndex++ % toShift.size] and 0x3
+                                            )
+                                    ).toByte()
                             if (shiftIndex % toShift.size == 0) {
-                                //progress ongoing with increment
+                                // progress ongoing with increment
                                 encodingState.incrementMessageIndex()
                             }
                             if (encodingState.currentMessageIndex == encodingState.byteArrayMessage.size) {
-                                //done
+                                // done
                                 encodingState.isMessageEncoded = true
                             }
                         } else {
@@ -101,7 +107,7 @@ class Steganography(
 
     suspend fun encodeMessage(
         imageList: List<Bitmap>,
-        encryptedMessage: String
+        encryptedMessage: String,
     ): List<Bitmap> {
         var encryptedMessageWithConstant = encryptedMessage
         val result: MutableList<Bitmap> = ArrayList(imageList.size)
@@ -130,12 +136,14 @@ class Steganography(
                     var masterIndex = 0
                     for (j in 0 until height) for (i in 0 until width) {
                         destBitmap.setPixel(
-                            i, j, Color.argb(
+                            i,
+                            j,
+                            Color.argb(
                                 0xFF,
                                 oneDMod[masterIndex] shr 16 and 0xFF,
                                 oneDMod[masterIndex] shr 8 and 0xFF,
-                                oneDMod[masterIndex++] and 0xFF
-                            )
+                                oneDMod[masterIndex++] and 0xFF,
+                            ),
                         )
                     }
                     result.add(destBitmap)
@@ -153,8 +161,13 @@ class Steganography(
             for (bitmapImage in encodedImages) {
                 val pixelArray = IntArray(bitmapImage.width * bitmapImage.height)
                 bitmapImage.getPixels(
-                    pixelArray, 0, bitmapImage.width, 0, 0, bitmapImage.width,
-                    bitmapImage.height
+                    pixelArray,
+                    0,
+                    bitmapImage.width,
+                    0,
+                    0,
+                    bitmapImage.width,
+                    bitmapImage.height,
                 )
                 val imageByteArray: ByteArray = convertArray(pixelArray)
                 decodeMessage(imageByteArray, messageDecodingStatus)
@@ -173,7 +186,7 @@ class Steganography(
     @Suppress("detekt.LoopWithTooManyJumpStatements")
     private suspend fun decodeMessage(
         imageByteArray: ByteArray,
-        decodingState: DecodingState
+        decodingState: DecodingState,
     ) {
         val vector = Vector<Byte>()
         var shiftIndex = 4
@@ -181,8 +194,10 @@ class Steganography(
         withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
             for (i in imageByteArray.indices) {
                 initialArray =
-                    initialArray or (imageByteArray[i] shl toShift[shiftIndex % toShift.size]
-                            and andByte[shiftIndex++ % toShift.size]).toByte()
+                    initialArray or (
+                        imageByteArray[i] shl toShift[shiftIndex % toShift.size]
+                            and andByte[shiftIndex++ % toShift.size]
+                        ).toByte()
                 if (shiftIndex % toShift.size == 0) {
                     vector.addElement(initialArray)
                     val finalByteArray = byteArrayOf(vector.elementAt(vector.size - 1).toByte())
@@ -191,19 +206,19 @@ class Steganography(
                     if (decodingState.message != null) {
                         if (decodingState.message!!.endsWith(endMessageConstant)) {
                             Logger.i(javaClass.simpleName, "Decoding ended")
-                            //fix utf-8 decoding
+                            // fix utf-8 decoding
                             val temp = ByteArray(vector.size)
                             for (index in temp.indices) temp[index] = vector[index]
                             val string =
                                 String(temp, Charset.forName("UTF-8"))
                             decodingState.message = string.substring(0, string.length - 1)
-                            //end fix
+                            // end fix
                             decodingState.isEnded = true
                             break
                         } else {
                             decodingState.message = decodingState.message + str
-                            if (decodingState.message!!.length == startMessageConstant.length
-                                && startMessageConstant != decodingState.message
+                            if (decodingState.message!!.length == startMessageConstant.length &&
+                                startMessageConstant != decodingState.message
                             ) {
                                 decodingState.message = null
                                 decodingState.isEnded = true
@@ -218,7 +233,7 @@ class Steganography(
                 decodingState.message = decodingState.message!!
                     .substring(
                         startMessageConstant.length,
-                        decodingState.message!!.length - endMessageConstant.length
+                        decodingState.message!!.length - endMessageConstant.length,
                     )
             }
         }
@@ -276,5 +291,4 @@ class Steganography(
             currentMessageIndex++
         }
     }
-
 }
