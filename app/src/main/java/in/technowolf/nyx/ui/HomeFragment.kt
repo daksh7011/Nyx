@@ -56,6 +56,7 @@ import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 import java.io.File
 
 
+@Suppress("detekt.TooManyFunctions")
 class HomeFragment : Fragment(R.layout.fragment_home) {
 
     private val binding by viewBinding(FragmentHomeBinding::bind)
@@ -205,13 +206,13 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     }
 
     private fun setupObservers() {
-        dashboardViewModel.encryptedImages.observe(viewLifecycleOwner, {
+        dashboardViewModel.encryptedImages.observe(viewLifecycleOwner) {
             encryptedImagesAdapter.submitList(it)
-        })
-        dashboardViewModel.wasImageEncrypted.observe(viewLifecycleOwner, { wasEncrypted ->
+        }
+        dashboardViewModel.wasImageEncrypted.observe(viewLifecycleOwner) { wasEncrypted ->
             if (wasEncrypted) dashboardViewModel.getEncryptedImages()
-        })
-        dashboardViewModel.decryptedText.observe(viewLifecycleOwner, {
+        }
+        dashboardViewModel.decryptedText.observe(viewLifecycleOwner) {
             val alertMessage: String
             var positiveButtonText = ""
             if (it.isNullOrEmpty()) {
@@ -232,7 +233,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
                 }
                 negativeButton("Close")
             }.show()
-        })
+        }
     }
 
     private fun showTbdToast() {

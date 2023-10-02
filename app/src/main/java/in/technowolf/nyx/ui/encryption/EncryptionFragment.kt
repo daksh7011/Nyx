@@ -56,12 +56,15 @@ import `in`.technowolf.nyx.utils.Extension.saveImage
 import `in`.technowolf.nyx.utils.Extension.snackBar
 import `in`.technowolf.nyx.utils.Extension.visible
 import `in`.technowolf.nyx.utils.ImageHelper
+import `in`.technowolf.nyx.utils.Logger
 import `in`.technowolf.nyx.utils.themeColor
 import `in`.technowolf.nyx.utils.viewBinding
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.android.ext.android.inject
+
+@Suppress("detekt.TooManyFunctions")
 
 class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
 
@@ -126,8 +129,11 @@ class EncryptionFragment : Fragment(R.layout.fragment_encryption) {
     }
 
     private fun prepareImageEncryption(encryptedMessage: String?) {
-        if (encryptedMessage != null) encryptImage(encryptedMessage)
-        else Log.w(javaClass.simpleName, "Encrypted Message is empty")
+        if (encryptedMessage != null) {
+            encryptImage(encryptedMessage)
+        } else {
+            Logger.w(javaClass.simpleName, "Encrypted Message is empty")
+        }
     }
 
     private fun encryptImage(encryptedMessage: String) {

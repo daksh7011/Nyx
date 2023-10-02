@@ -38,6 +38,7 @@ import java.nio.charset.Charset
 import java.util.*
 import kotlin.experimental.or
 
+@Suppress("detekt.MagicNumber")
 class Steganography(
     private val startMessageConstant: String = "@!#",
     private val endMessageConstant: String = "#!@"
@@ -138,7 +139,9 @@ class Steganography(
                         )
                     }
                     result.add(destBitmap)
-                } else result.add(image.copy(image.config, false))
+                } else {
+                    result.add(image.copy(image.config, false))
+                }
             }
             result
         }
@@ -167,6 +170,7 @@ class Steganography(
      * @param imageByteArray The byte array image.
      * @param decodingState The decoded message.
      */
+    @Suppress("detekt.LoopWithTooManyJumpStatements")
     private suspend fun decodeMessage(
         imageByteArray: ByteArray,
         decodingState: DecodingState
@@ -220,6 +224,7 @@ class Steganography(
         }
     }
 
+    @Suppress("detekt.ExplicitGarbageCollectionCall")
     private fun byteArrayToIntArray(b: ByteArray): IntArray {
         Logger.v(javaClass.simpleName, b.size.toString())
         val size = b.size / 3

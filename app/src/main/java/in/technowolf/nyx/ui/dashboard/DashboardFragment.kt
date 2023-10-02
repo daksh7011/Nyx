@@ -50,7 +50,9 @@ class DashboardFragment : Fragment(R.layout.fragment_dashboard) {
     private fun init() {
         if (requireContext().isDarkMode()) {
             setStatusBarColor(R.color.black_800)
-        } else setStatusBarColor(R.color.colorPrimaryLight)
+        } else {
+            setStatusBarColor(R.color.colorPrimaryLight)
+        }
         setupEncrypt()
         setupDecrypt()
         setupInfo()

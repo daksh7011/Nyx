@@ -111,6 +111,7 @@ class ImageDecryptionFragment : Fragment(R.layout.fragment_image_description) {
         }
     }
 
+    @Suppress("detekt.MagicNumber")
     private fun setupImageView() {
         binding.apply {
             ivEncryptedImagePreview.shapeAppearanceModel =

@@ -61,6 +61,7 @@ class BindingDelegate<T : ViewBinding>(
         })
     }
 
+    @Suppress("detekt.UseCheckOrError")
     override fun getValue(thisRef: Fragment, property: KProperty<*>): T {
         val binding = binding
         if (binding != null) {

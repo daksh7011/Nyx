@@ -52,6 +52,7 @@ class EncryptedImagesAdapter :
         holder.bind(getItem(position))
     }
 
+    @Suppress("detekt.MagicNumber")
     inner class ViewHolder(private val binding: EncryptedImageListItemBinding) :
         RecyclerView.ViewHolder(binding.root) {
         fun bind(imageModel: ImageModel) {

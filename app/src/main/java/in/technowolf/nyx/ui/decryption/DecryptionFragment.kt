@@ -102,10 +102,10 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
     }
 
     private fun setupOnImageDeleteAction() {
-        imageGalleryAdapter.onDelete = { it: ImageModel ->
-            lifecycleScope.launch(Dispatchers.IO) { imageDao.delete(it.name) }
-            requireContext().deleteImage(it.name)
-            decryptionViewModel.imageList.remove(it)
+        imageGalleryAdapter.onDelete = { imageModel: ImageModel ->
+            lifecycleScope.launch(Dispatchers.IO) { imageDao.delete(imageModel.name) }
+            requireContext().deleteImage(imageModel.name)
+            decryptionViewModel.imageList.remove(imageModel)
             imageGalleryAdapter.submitList(decryptionViewModel.imageList)
             imageGalleryAdapter.notifyDataSetChanged()
         }
@@ -126,7 +126,9 @@ class DecryptionFragment : Fragment(R.layout.fragment_decryption) {
                             requireContext().retrieveImage(it.name),
                             etPassphrase.text.toString()
                         )
-                    } else binding.root.snackBar(getString(R.string.error_enter_passphrase)) {}
+                    } else {
+                        binding.root.snackBar(getString(R.string.error_enter_passphrase)) {}
+                    }
                 }
                 negativeButton(getString(R.string.cancel))
             }.show()

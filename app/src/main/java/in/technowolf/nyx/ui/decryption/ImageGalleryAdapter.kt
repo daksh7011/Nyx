@@ -72,6 +72,7 @@ class ImageGalleryAdapter : ListAdapter<ImageModel, ImageGalleryAdapter.ImageVie
             }
         }
 
+        @Suppress("detekt.TooGenericExceptionCaught")
         private fun setupImage(imageName: String) {
             try {
                 binding.ivDecryptionImage.load(File(binding.root.context.filesDir, imageName)) {

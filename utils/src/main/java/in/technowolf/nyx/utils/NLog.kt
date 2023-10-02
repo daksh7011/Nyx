@@ -22,14 +22,56 @@
  *
  */
 
-package `in`.technowolf.nyx.ui.models
+package `in`.technowolf.nyx.utils
 
-import `in`.technowolf.nyx.data.ImageEntity
+import timber.log.Timber
 
-data class ImageModel(
-    val name: String,
-    val date: String,
-    val id: Int? = null
-) {
-    fun toImageEntity() = ImageEntity(name, date)
+object NLog {
+
+    private val isDebug: Boolean = BuildConfig.DEBUG
+    init {
+        if(isDebug) Timber.plant(Timber.DebugTree())
+    }
+
+    fun v(tag: String, message: String) {
+        if (isDebug) {
+            Timber.v(tag, message)
+        }
+    }
+
+    fun d(tag: String, message: String) {
+        if (isDebug) {
+            Timber.d(tag, message)
+        }
+    }
+
+    fun i(tag: String, message: String) {
+        if (isDebug) {
+            Timber.i(tag, message)
+        }
+    }
+
+    fun w(tag: String, message: String) {
+        if (isDebug) {
+            Timber.w(tag, message)
+        }
+    }
+
+    fun e(tag: String, message: String) {
+        if (isDebug) {
+            Timber.e(tag, message)
+        }
+    }
+
+    fun e(tag: String, message: String, throwable: Throwable) {
+        if (isDebug) {
+            Timber.e(tag, message, throwable)
+        }
+    }
+
+    fun wtf(tag: String, message: String) {
+        if (isDebug) {
+            Timber.wtf(tag, message)
+        }
+    }
 }

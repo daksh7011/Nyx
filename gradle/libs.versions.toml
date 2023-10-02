@@ -87,6 +87,7 @@ material = { module = "com.google.android.material:material", version.ref = "mat
 lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 playCore = { module = "com.google.android.play:core", version.ref = "playCore" }
+coreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" }
 fragmentKtx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 viewmodelKtx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 livedataKtx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "lifecycle" }

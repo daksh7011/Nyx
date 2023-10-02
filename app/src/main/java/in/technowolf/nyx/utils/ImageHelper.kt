@@ -34,7 +34,7 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import androidx.core.content.FileProvider
 import java.io.File
-
+@Suppress("detekt.UnusedPrivateProperty")
 class ImageHelper(private val context: Context) {
 
     val relativeLocation = Environment.DIRECTORY_PICTURES + File.separator + BuildConfig.APPLICATION_ID
@@ -100,8 +100,9 @@ class ImageHelper(private val context: Context) {
         folder.mkdirs()
 
         val file = File(folder, "Image_Tmp.jpg")
-        if (file.exists())
+        if (file.exists()){
             file.delete()
+        }
         file.createNewFile()
         imageUri = FileProvider.getUriForFile(
             context,

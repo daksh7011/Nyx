@@ -50,7 +50,7 @@ class Nyx : Application() {
             this,
             BuildConfig.GRADLE_ACCESS_KEY,
             BuildConfig.GRADLE_PRIVATE_KEY,
-            10
+            UNSPLASH_PAGE_SIZE
         )
 
         /**
@@ -67,5 +67,9 @@ class Nyx : Application() {
             }
             .build()
         Coil.setImageLoader(imageLoader)
+    }
+
+    companion object{
+        private const val UNSPLASH_PAGE_SIZE = 10
     }
 }

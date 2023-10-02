@@ -22,52 +22,14 @@
  *
  */
 
-package `in`.technowolf.nyx.utils
+package `in`.technowolf.nyx.ui.models
 
-import android.util.Log
+import `in`.technowolf.nyx.data.ImageEntity
 
-object NLog {
-
-    private val isDebug: Boolean = BuildConfig.DEBUG
-    fun v(tag: String, message: String) {
-        if (isDebug) {
-            Log.v(tag, message)
-        }
-    }
-
-    fun d(tag: String, message: String) {
-        if (isDebug) {
-            Log.d(tag, message)
-        }
-    }
-
-    fun i(tag: String, message: String) {
-        if (isDebug) {
-            Log.i(tag, message)
-        }
-    }
-
-    fun w(tag: String, message: String) {
-        if (isDebug) {
-            Log.w(tag, message)
-        }
-    }
-
-    fun e(tag: String, message: String) {
-        if (isDebug) {
-            Log.e(tag, message)
-        }
-    }
-
-    fun e(tag: String, message: String, throwable: Throwable) {
-        if (isDebug) {
-            Log.e(tag, message, throwable)
-        }
-    }
-
-    fun wtf(tag: String, message: String) {
-        if (isDebug) {
-            Log.wtf(tag, message)
-        }
-    }
+data class ImageModel(
+    val name: String,
+    val date: String,
+    val id: Int? = null
+) {
+    fun toImageEntity() = ImageEntity(name, date)
 }

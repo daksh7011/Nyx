@@ -28,17 +28,19 @@ import android.graphics.Bitmap
 import android.graphics.Color
 import `in`.technowolf.nyx.utils.NLog
 import `in`.technowolf.nyx.utils.TagConstants
+import `in`.technowolf.nyx.utils.TagConstants.STEGANOGRAPHY
+import `in`.technowolf.nyx.utils.and
 import `in`.technowolf.nyx.utils.shl
 import `in`.technowolf.nyx.utils.shr
-import `in`.technowolf.nyx.utils.and
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
 import java.nio.charset.Charset
-import java.util.*
+import java.util.Vector
 import kotlin.experimental.or
 
+@Suppress("detekt.MagicNumber")
 class Steganography(
     private val startMessageConstant: String = "@!#",
     private val endMessageConstant: String = "#!@"
@@ -113,7 +115,7 @@ class Steganography(
         messageEncodingStatus.byteArrayMessage = byteArrayMessage
         messageEncodingStatus.currentMessageIndex = 0
         messageEncodingStatus.isMessageEncoded = false
-        NLog.i(TagConstants.STEGANOGRAPHY, "Message length " + byteArrayMessage.size)
+        NLog.i(STEGANOGRAPHY, "Message length " + byteArrayMessage.size)
         return withContext(coroutineScope.coroutineContext + Dispatchers.IO) {
             for (image in imageList) {
                 if (!messageEncodingStatus.isMessageEncoded) {
@@ -139,7 +141,9 @@ class Steganography(
                         )
                     }
                     result.add(destBitmap)
-                } else result.add(image.copy(image.config, false))
+                } else {
+                    result.add(image.copy(image.config, false))
+                }
             }
             result
         }
@@ -168,6 +172,7 @@ class Steganography(
      * @param imageByteArray The byte array image.
      * @param decodingState The decoded message.
      */
+    @Suppress("detekt.LoopWithTooManyJumpStatements")
     private suspend fun decodeMessage(
         imageByteArray: ByteArray,
         decodingState: DecodingState
@@ -187,7 +192,7 @@ class Steganography(
 
                     if (decodingState.message != null) {
                         if (decodingState.message!!.endsWith(endMessageConstant)) {
-                            NLog.i(TagConstants.STEGANOGRAPHY, "Decoding ended")
+                            NLog.i(STEGANOGRAPHY, "Decoding ended")
                             //fix utf-8 decoding
                             val temp = ByteArray(vector.size)
                             for (index in temp.indices) temp[index] = vector[index]
@@ -221,13 +226,14 @@ class Steganography(
         }
     }
 
+    @Suppress("detekt.ExplicitGarbageCollectionCall")
     private fun byteArrayToIntArray(b: ByteArray): IntArray {
-        NLog.i(TagConstants.STEGANOGRAPHY, b.size.toString())
+        NLog.i(STEGANOGRAPHY, b.size.toString())
         val size = b.size / 3
-        NLog.i(TagConstants.STEGANOGRAPHY, size.toString())
+        NLog.i(STEGANOGRAPHY, size.toString())
         System.runFinalization()
         System.gc()
-        NLog.i(TagConstants.STEGANOGRAPHY, Runtime.getRuntime().freeMemory().toString())
+        NLog.i(STEGANOGRAPHY, Runtime.getRuntime().freeMemory().toString())
         val result = IntArray(size)
         var byteOffset = 0
         var index = 0

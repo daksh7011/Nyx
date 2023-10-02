@@ -80,6 +80,7 @@ class DashboardActivity : AppCompatActivity() {
         return installer != null && validInstallers.contains(installer)
     }
 
+    @Suppress("detekt.SwallowedException")
     private fun openPlayStore() {
         val uri: Uri = Uri.parse("market://details?id=$packageName")
         val goToMarket = Intent(Intent.ACTION_VIEW, uri)

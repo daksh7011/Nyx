@@ -44,6 +44,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.koin.androidx.viewmodel.ext.android.sharedViewModel
 
+@Suppress("detekt.TooManyFunctions")
+
 class EncryptDialogFragment : DialogFragment() {
 
     private val binding by viewBinding(DialogFragmentEncryptBinding::bind)
@@ -88,17 +90,17 @@ class EncryptDialogFragment : DialogFragment() {
     }
 
     private fun setupObservers() {
-        dashboardViewModel.processedImages.observe(viewLifecycleOwner, {
+        dashboardViewModel.processedImages.observe(viewLifecycleOwner) {
             val imageModel = ImageModel(getImageName(), getTimeStampForImage())
             dashboardViewModel.saveImageEntity(imageModel)
             requireContext().saveImage(it.first(), imageModel.name)
             binding.root.snackBar("Image was encrypted with your secret message") {}
             lifecycleScope.launch {
-                delay(750)
+                delay(STATIC_DELAY)
                 dashboardViewModel.imageEncrypted(true)
                 dismiss()
             }
-        })
+        }
     }
 
     private fun setupEditTexts() {
@@ -125,6 +127,7 @@ class EncryptDialogFragment : DialogFragment() {
         }
     }
 
+    @Suppress("detekt.MagicNumber")
     private fun setupImageView() {
         binding.ivImagePreview.load(dashboardViewModel.selectedImage)
         binding.ivImagePreview.shapeAppearanceModel =
@@ -158,5 +161,6 @@ class EncryptDialogFragment : DialogFragment() {
 
     companion object {
         const val TAG = "EncryptDialogFragment"
+        private const val STATIC_DELAY =  750L
     }
 }

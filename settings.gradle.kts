@@ -4,6 +4,7 @@ include(
     ":app",
     ":steganography",
     ":utils",
+    ":feature_base"
 )
 
 pluginManagement {

@@ -65,8 +65,11 @@ class BottomSheetAppbar : BottomSheetDialogFragment() {
         binding.switchDarkMode.isChecked = requireContext().isDarkMode()
         binding.switchDarkMode.setOnCheckedChangeListener { buttonView, isChecked ->
             val mode =
-                if (isChecked) AppCompatDelegate.MODE_NIGHT_YES
-                else AppCompatDelegate.MODE_NIGHT_NO
+                if (isChecked) {
+                    AppCompatDelegate.MODE_NIGHT_YES
+                } else {
+                    AppCompatDelegate.MODE_NIGHT_NO
+                }
             AppCompatDelegate.setDefaultNightMode(mode)
         }
         binding.tvInfo.setOnClickListener { onAbout?.invoke() }
