@@ -1,0 +1,65 @@
+image: ubuntu:22.04
+
+stages:
+  - lint
+  - test
+  - development
+  - release
+
+variables:
+  ANDROID_COMPILE_SDK: "33"
+  ANDROID_BUILD_TOOLS: "33.0.2"
+  SDK_TOOLS: "9477386" # from https://developer.android.com/studio/#command-tools
+
+before_script:
+  # install required packages
+  - apt-get update --yes
+  - apt-get install wget gnupg gnupg2 ca-certificates curl unzip --yes
+
+  # install liberica jdk 17 https://bell-sw.com/libericajdk/
+  - wget -q -O - https://download.bell-sw.com/pki/GPG-KEY-bellsoft | apt-key add -
+  - echo "deb [arch=amd64] https://apt.bell-sw.com/ stable main" | tee /etc/apt/sources.list.d/bellsoft.list
+  - apt-get --quiet update --yes
+  - apt-get install bellsoft-java17-lite --yes
+  - java -version
+
+  # download and unzip android sdk
+  - wget --quiet --output-document=android-sdk.zip https://dl.google.com/android/repository/commandlinetools-linux-${SDK_TOOLS}_latest.zip
+  - echo A | unzip -q android-sdk.zip -d android-sdk-linux
+  - rm android-sdk.zip
+
+  # export gradle home path
+  - export GRADLE_USER_HOME=$PWD/.gradle
+
+  # export android sdk path
+  - export ANDROID_SDK_ROOT=$PWD/android-sdk-linux
+
+  # export android sdk executables paths
+  - export PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/
+  - export PATH=$PATH:$ANDROID_SDK_ROOT/platform-tools/
+  - export PATH=$PATH:$ANDROID_SDK_ROOT/emulator/
+
+  # hack with moving cmdline-tools to cmdline-tools/latest, no idea how to install directly
+  - mkdir $ANDROID_SDK_ROOT/cmdline-tools/latest
+  - mv $ANDROID_SDK_ROOT/cmdline-tools/{lib,bin,source.properties,NOTICE.txt} $ANDROID_SDK_ROOT/cmdline-tools/latest
+
+  # update and install common android sdk components
+  - sdkmanager --sdk_root=${ANDROID_SDK_ROOT} --update
+  - echo y | sdkmanager --sdk_root=${ANDROID_SDK_ROOT} "platforms;android-${ANDROID_COMPILE_SDK}" "build-tools;${ANDROID_BUILD_TOOLS}"
+
+  - chmod +x ./gradlew
+
+# Define a global cache
+cache:
+  key: gradle-cache-key
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+assembleDebug:
+  stage: development
+  script:
+    - ./gradlew assembleDebug
+  artifacts:
+    paths:
+      - app/build/outputs/

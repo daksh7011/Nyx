@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+  ~ MIT License
+  ~ Copyright (c) 2021.  TechnoWolf FOSS
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~  The above copyright notice and this permission notice shall be included in all
+  ~  copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  ~
+  -->
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_nav_graph"
+    app:startDestination="@id/homeFragment">
+
+    <fragment
+        android:id="@+id/dashboardFragment"
+        android:name="in.technowolf.nyx.ui.dashboard.DashboardFragment"
+        android:label="fragment_dashboard"
+        tools:layout="@layout/fragment_dashboard" />
+
+    <fragment
+        android:id="@+id/encryptionFragment"
+        android:name="in.technowolf.nyx.ui.encryption.EncryptionFragment"
+        android:label="Encryption"
+        tools:layout="@layout/fragment_encryption" />
+    <fragment
+        android:id="@+id/decryptionFragment"
+        android:name="in.technowolf.nyx.ui.decryption.DecryptionFragment"
+        android:label="Decryption"
+        tools:layout="@layout/fragment_decryption" />
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="in.technowolf.nyx.ui.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/encryptDialogFragment"
+        android:name="in.technowolf.nyx.ui.dashboard.EncryptDialogFragment"
+        tools:layout="@layout/dialog_fragment_encrypt" />
+
+    <fragment
+        android:id="@+id/imageDecryptionFragment"
+        android:name="in.technowolf.nyx.ui.decryption.ImageDecryptionFragment"
+        android:label="fragment_image_description"
+        tools:layout="@layout/fragment_image_description" />
+
+    <action
+        android:id="@+id/actionToEncryptionFragment"
+        app:destination="@id/encryptionFragment" />
+
+    <action
+        android:id="@+id/actionToDecryptionFragment"
+        app:destination="@id/decryptionFragment" />
+
+    <action
+        android:id="@+id/actionToHomeFragment"
+        app:destination="@+id/homeFragment" />
+
+    <action
+        android:id="@+id/actionToEncryptDialogFragment"
+        app:destination="@id/encryptDialogFragment" />
+
+    <action
+        android:id="@+id/actionToImageDecryptionFragment"
+        app:destination="@+id/imageDecryptionFragment" />
+
+</navigation>

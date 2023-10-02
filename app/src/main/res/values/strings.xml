@@ -1,3 +1,65 @@
+<!--
+  ~ MIT License
+  ~ Copyright (c) 2021.  TechnoWolf FOSS
+  ~
+  ~ Permission is hereby granted, free of charge, to any person obtaining a copy
+  ~ of this software and associated documentation files (the "Software"), to deal
+  ~ in the Software without restriction, including without limitation the rights
+  ~ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  ~ copies of the Software, and to permit persons to whom the Software is
+  ~ furnished to do so, subject to the following conditions:
+  ~
+  ~  The above copyright notice and this permission notice shall be included in all
+  ~  copies or substantial portions of the Software.
+  ~
+  ~ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  ~ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  ~ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  ~ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  ~ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  ~ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  ~ SOFTWARE.
+  ~
+  -->
+
 <resources>
     <string name="app_name">Nyx</string>
+    <string name="project_nyx">Project Nyx</string>
+    <string name="encrypt">Encrypt</string>
+    <string name="decrypt">Decrypt</string>
+    <string name="about">About</string>
+
+    <string name="encryption_key">Encryption Key</string>
+    <string name="your_message">Your Message</string>
+    <string name="encrypt_image">Encrypt Image</string>
+    <string name="select_image">Select Image</string>
+    <string name="select_image_warning">Image did not load, Please wait or try selecting image again</string>
+    <string name="select_from_device">Select from Device</string>
+    <string name="select_from_unsplash">Select from Unsplash</string>
+    <string name="delete">Delete</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="passphrase">Passphrase</string>
+    <string name="oops_no_images_found">Oops! No Images found!</string>
+    <string name="install_source_warning">This app was not installed from Play Store.
+        Do you trust the source from which you download and install this apk from?
+        Tempered application often contain Malware and compromise your privacy/security.
+        In order to keep yourself safe, Please download the application from play store.
+    </string>
+    <string name="alert_decryption_message">Please enter passphrase below to decrypt the message from the image.</string>
+    <string name="alert_decryption_title">Decrypt Message</string>
+    <string name="error_enter_passphrase">Please enter passphrase for decryption.</string>
+
+    <string name="faq">FAQ</string>
+    <string name="select_decryption_image">Decrypt from Storage</string>
+    <string name="powered_by_open_source">Powered by Open-Source</string>
+    <string name="donate">Donate</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
+    <string name="unsplash">Unsplash</string>
+    <string name="password">Password</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="password_validation">Password is required to encrypt image.</string>
+    <string name="message_validation">Message is required!</string>
+
 </resources>
