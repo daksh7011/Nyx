@@ -28,6 +28,8 @@
     <br>
 </div>
 
+[![build debug](https://github.com/daksh7011/Nyx/actions/workflows/check.yml/badge.svg?branch=develop)](https://github.com/daksh7011/Nyx/actions/workflows/check.yml)
+
 # Overview
 
 Nyx lets you hide your secrets in images with secret password, Only your friends, family or a person
