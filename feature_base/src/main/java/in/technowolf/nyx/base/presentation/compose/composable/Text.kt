@@ -8,23 +8,23 @@ import androidx.compose.ui.Modifier
 @Composable
 fun TextTitleLarge(
     text: String,
-    modifier: Modifier = Modifier
-){
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
         modifier = modifier,
-        style = MaterialTheme.typography.titleLarge
+        style = MaterialTheme.typography.titleLarge,
     )
 }
 
 @Composable
 fun TextTitleMedium(
     text: String,
-    modifier: Modifier = Modifier
-){
+    modifier: Modifier = Modifier,
+) {
     Text(
         text = text,
         modifier = modifier,
-        style = MaterialTheme.typography.titleMedium
+        style = MaterialTheme.typography.titleMedium,
     )
 }

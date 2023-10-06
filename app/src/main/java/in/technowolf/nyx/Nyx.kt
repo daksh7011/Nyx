@@ -37,7 +37,6 @@ import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
 import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
-import org.koin.dsl.module
 
 class Nyx : Application() {
     override fun onCreate() {
@@ -68,12 +67,12 @@ class Nyx : Application() {
         Coil.setImageLoader(imageLoader)
     }
 
-    private fun initializeKoin(){
+    private fun initializeKoin() {
         GlobalContext.startKoin {
             androidLogger()
             androidContext(this@Nyx)
 
-            modules(listOf(databaseModule, viewModelModule)) //old code
+            modules(listOf(databaseModule, viewModelModule)) // old code
 
             modules(featureEncryptionModules)
         }
