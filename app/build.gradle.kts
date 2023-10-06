@@ -77,6 +77,9 @@ android {
 }
 
 dependencies {
+
+    implementation(projects.featureEncryption)
+
     implementation(libs.material)
     implementation(libs.constraintLayout)
     implementation(libs.navigationFragment)

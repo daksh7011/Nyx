@@ -5,6 +5,8 @@ include(
     ":steganography",
     ":utils",
     ":feature_base",
+    ":feature_encryption",
+    ":feature_decryption",
 )
 
 pluginManagement {

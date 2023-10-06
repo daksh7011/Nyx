@@ -30,19 +30,20 @@ import coil.Coil
 import coil.ImageLoader
 import coil.disk.DiskCache
 import com.unsplash.pickerandroid.photopicker.UnsplashPhotoPicker
+import `in`.technowolf.nyx.encryption.featureEncryptionModules
 import `in`.technowolf.nyx.ui.di.databaseModule
 import `in`.technowolf.nyx.ui.di.viewModelModule
 import org.koin.android.ext.koin.androidContext
+import org.koin.android.ext.koin.androidLogger
+import org.koin.core.context.GlobalContext
 import org.koin.core.context.startKoin
+import org.koin.dsl.module
 
 class Nyx : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        startKoin {
-            androidContext(this@Nyx)
-            modules(listOf(databaseModule, viewModelModule))
-        }
+        initializeKoin()
 
         UnsplashPhotoPicker.init(
             this,
@@ -65,6 +66,17 @@ class Nyx : Application() {
             }
             .build()
         Coil.setImageLoader(imageLoader)
+    }
+
+    private fun initializeKoin(){
+        GlobalContext.startKoin {
+            androidLogger()
+            androidContext(this@Nyx)
+
+            modules(listOf(databaseModule, viewModelModule)) //old code
+
+            modules(featureEncryptionModules)
+        }
     }
 
     companion object {
