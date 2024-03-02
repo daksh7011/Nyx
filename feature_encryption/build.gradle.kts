@@ -9,4 +9,5 @@ android {
 dependencies {
     api(libs.kotlin)
     api(libs.koin)
+    api(libs.bundles.compose)
 }

@@ -25,6 +25,7 @@ dependencies {
     api(libs.bundles.lifecycle)
     api(libs.bundles.room)
     api(libs.bundles.compose)
+    api(libs.composeRuntime)
     api(projects.utils)
 
     testImplementation(libs.bundles.test)

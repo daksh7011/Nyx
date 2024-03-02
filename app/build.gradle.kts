@@ -124,7 +124,7 @@ fun ApplicationDefaultConfig.buildConfigFieldFromGradleProperty(gradlePropertyNa
  * Takes value from local project property and sets it as Android build config property
  */
 fun ApplicationDefaultConfig.buildConfigFieldFromLocalProperty(localPropertyName: String) {
-    val propertyValue: String? = gradleLocalProperties(rootDir).getProperty(localPropertyName)
+    val propertyValue: String? = gradleLocalProperties(rootDir, providers).getProperty(localPropertyName)
     checkNotNull(propertyValue) { "Local property $localPropertyName is null" }
 
     val androidResourceName = "LOCAL_${localPropertyName.toSnakeCase()}".uppercase(Locale.getDefault())
