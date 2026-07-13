@@ -34,7 +34,11 @@
 - kotlinx ImmutableCollections for ALL collections in state/domain surfaces (ImmutableList/Set/Map).
 - Injected `Clock` only — direct `kotlin.time.Clock.System`/`kotlinx.datetime` system access banned
   outside `SystemClock`.
-- No feature-to-feature api dependencies. `DomainEventBus` = only cross-feature channel.
+- No feature-to-feature api dependencies, with ONE narrow documented exception: a feature's
+  `:basic` may depend on ANOTHER feature's `:api` module SOLELY to reference that feature's
+  `@Serializable` route for navigation (route-only) — allowed: `vault.basic→encrypt.api`,
+  `vault.basic→decrypt.api`, `settings.basic→theme.api`. Still NO `basic→basic` deps;
+  `DomainEventBus` remains the only cross-feature DATA channel.
 - Repository writes return `AppResult`, reads return `Flow`. Use cases = single-purpose classes
   with `operator fun invoke`, `factoryOf`-registered.
 - Composables are dumb: no filtering/sorting/mapping/pluralization in UI — VM state exposes
@@ -203,9 +207,11 @@ Features X ∈ {navigation, splash, theme, vault, encrypt, decrypt, settings}.
 
 Any plan producing/consuming these MUST use these exact names/types. Structural templates
 (BaseViewModel, ViewState, UiState, FeatureProvider chain, FeatureHost, NavController
-extensions) are ported from pawdex source at
+extensions) are ported from BOTH pawdex AND the same-author, wasm-targeting Baro
+(`~/IdeaProjects/Baro`); pawdex source at
 `/tmp/claude-1000/-home-slothie-StudioProjects-Nyx/446ab22c-565d-4c13-a434-33c246daab52/scratchpad/pawdex`
-— same shape, Nyx packages, `Nx`/`Nyx` prefixes where pawdex uses `Pd`.
+— same shape, Nyx packages, `Nx`/`Nyx` prefixes where pawdex uses `Pd`. **Where pawdex and Baro
+differ on wasm behavior, Baro wins** (Baro ships wasmJs; pawdex does not).
 
 ### :steganography (`com.slothiesmooth.nyx.steganography`)
 
@@ -369,17 +375,51 @@ sealed interface UiState {
 }
 interface UiEvent
 // navigation/NavControllerExtensions.kt: pushDestination, popDestination, setDestination,
-// replaceDestination, restoreDestination — pawdex semantics
+// restoreDestination (Baro/wasm-safe set). NO shared replaceDestination — popUpTo(Any) is
+// ambiguous on wasm; FeatureHostContext inlines replace as popUpTo(currentDestination?.route: String).
+
+// util/ByteArrayExtensions.kt — expect/actual, encoded bytes -> Compose ImageBitmap (previews/tiles):
+expect fun ByteArray.toImageBitmap(): ImageBitmap
+//   androidMain: BitmapFactory.decodeByteArray(this, 0, size).asImageBitmap()
+//   skikoMain (intermediate source set = iosMain + jvmMain + wasmJsMain, dependsOn(commonMain)):
+//     org.jetbrains.skia.Image.makeFromEncoded(this).toComposeImageBitmap()  // skiko ships with CMP
+// Requires a skikoMain intermediate source set in :shared:presentation — mirrors the
+// DefaultImageCodec skikoMain in :client.
 ```
 
 ### :feature:common:client:api (`com.slothiesmooth.nyx.feature.common.api`)
 
-Port pawdex verbatim: `interface Feature`, `interface FeatureProvider { @Composable fun
-provideContent(content: @Composable () -> Unit); fun provideNavigation(context: FeatureContext,
-builder: NavGraphBuilder) }`, `abstract class BaseFeatureProvider` (Action SharedFlow,
-`onSendAction`/`onReceiveAction`), `FeatureHost(debug, features, navController, startDestination)`,
-`interface FeatureContext { pushDestination/popDestination/setDestination/replaceDestination/
-restoreDestination(route: Any); }`.
+Port **Baro signatures** (all take `FeatureContext`; wasm-safe): `interface Feature`,
+`interface FeatureProvider : Feature { @Composable fun provideContent(context: FeatureContext,
+content: @Composable (() -> Unit)); fun provideNavigation(context: FeatureContext, builder:
+NavGraphBuilder) }`. `abstract class BaseFeatureProvider : FeatureProvider` IMPLEMENTS
+`provideContent` — a `LaunchedEffect(context)` collects an `Action` `MutableSharedFlow`
+(`extraBufferCapacity = Int.MAX_VALUE`) into `onReceiveAction(action, context)` — then calls the
+abstract template `@Composable fun onProvideContent(context: FeatureContext, content: @Composable
+() -> Unit)`. Concrete providers override `onProvideContent` / `open fun onProvideNavigation(context,
+builder)`, NEVER `provideContent` / `provideNavigation`. Action plumbing: `protected fun
+onSendAction(action: Action)` (tryEmit), `protected open suspend fun onReceiveAction(action: Action,
+context: FeatureContext)`, nested `interface Action`. `FeatureHost(...)` walks the provider chain
+(each provider wraps the next via `provideContent(context) { FeatureHost(...) }`) then a `NavHost`
+calls every `provideNavigation(context, builder)`; `FeatureHostContext(debug, features,
+navController) : FeatureContext` is the concrete context. `FeatureContext` (wasm-safe destination
+tracking):
+
+```kotlin
+@Stable interface FeatureContext {
+    fun getCurrentDestinationChanges(): Flow<Int>   // navController.currentBackStackEntryFlow
+                                                     //   .mapNotNull { it.destination.id }.distinctUntilChanged()
+    fun getCurrentDestination(): Int?               // navController.currentBackStackEntry?.destination?.id
+    fun getDestinationId(route: Any): Int           // STUBBED to 0 — no consumer; route::class.serializer()
+                                                     //   .generateHashCode() is ambiguous on wasm + needs InternalSerializationApi
+    fun pushDestination(route: Any)
+    fun popDestination()
+    fun setDestination(route: Any)
+    fun replaceDestination(route: Any)              // FeatureHostContext inlines it: navigate(route) {
+                                                     //   popUpTo(currentDestination?.route: String){inclusive=true}; launchSingleTop=true }
+    fun restoreDestination(route: Any)
+}
+```
 
 ### :feature:common:client:koin (`com.slothiesmooth.nyx.feature.common.koin`)
 
@@ -421,6 +461,7 @@ interface DecryptFeature : Feature
 // feature.settings.api
 interface SettingsFeature : Feature
 @Serializable data object SettingsRoute
+@Serializable data object SettingsLicensesRoute
 ```
 
 ### Feature basic modules — key domain types
@@ -447,6 +488,8 @@ class SaveToVaultUseCase(
     private val vaultSource: VaultSource, private val fileStore: VaultFileStore,
     private val idGenerator: IdGenerator, private val clock: Clock, private val eventBus: DomainEventBus,
 ) { suspend operator fun invoke(pngBytes: ByteArray, name: String): AppResult<StegoImageId> }
+// name: blank ("") -> auto-generate "nyx-${id.take(8)}.png"; non-blank -> used verbatim (override).
+//   EncryptViewModel passes "" (always auto-generates).
 
 // feature.decrypt.basic.domain
 sealed interface DecryptOutcome {
@@ -563,3 +606,27 @@ CREATE INDEX idx_stego_image_active ON stego_image(is_archived, deleted_at);
 5. Spec §6 camera — FileKit `openCameraPicker`, not hand-rolled CameraX/AVFoundation.
 6. Pawdex paparazzi alpha04 → alpha05 (alpha04 cannot run on Gradle 9.4.1).
 7. Logging — Kermit 2.1.0 (spec left open).
+8. FeatureProvider chain (Baro, wasm): `provideContent`/`provideNavigation`/`onReceiveAction`
+   take `FeatureContext` — `provideContent(context, content)`, NOT pawdex's context-less
+   `provideContent(content)`. `BaseFeatureProvider` implements `provideContent` (a
+   `LaunchedEffect(context)` collects the `Action` flow into `onReceiveAction(action, context)`)
+   and delegates to the abstract `onProvideContent(context, content)`; concrete providers override
+   `onProvideContent`/`onProvideNavigation`, never the base `provideContent`/`provideNavigation`.
+9. `FeatureContext` destination tracking (Baro, wasm-safe): `getDestinationId(route)` is STUBBED
+   to `0` (no consumer) — `route::class.serializer().generateHashCode()` is ambiguous on wasm and
+   needs `@InternalSerializationApi`; current-destination is tracked via the nav library's
+   `NavDestination.id` (Int) through `getCurrentDestination()`/`getCurrentDestinationChanges()`.
+   The shared `replaceDestination` NavController extension is dropped (popUpTo(Any) ambiguous on
+   wasm) and inlined in `FeatureHostContext` as `popUpTo(currentDestination?.route: String)`.
+10. Cross-feature api deps: narrow ROUTE-ONLY exception to the no-feature-to-feature rule —
+    `vault.basic→encrypt.api`, `vault.basic→decrypt.api`, `settings.basic→theme.api` (reference a
+    sibling's `@Serializable` route for navigation only). No `basic→basic`; `DomainEventBus` stays
+    the only cross-feature data channel. Baro's `:basic` modules likewise depend on sibling `:api`
+    modules (dashboard.basic → auth/alerts/explore/log/hosts.api); Nyx narrows this to route-only.
+11. `:shared:presentation` gains a `skikoMain` intermediate source set for the expect/actual
+    `ByteArray.toImageBitmap()` (androidMain BitmapFactory; skikoMain = iosMain+jvmMain+wasmJsMain
+    via skiko) — mirrors the `:client` `DefaultImageCodec` skikoMain. Nyx-internal (Baro has no
+    image codec / skikoMain of its own); grounded in Nyx's existing `:client` skiko decision.
+12. `SaveToVaultUseCase(pngBytes, name)`: blank `name` → auto-generate `"nyx-${id.take(8)}.png"`;
+    non-blank → override. `EncryptViewModel` passes `""`. Added `@Serializable data object
+    SettingsLicensesRoute` to `feature.settings.api`.

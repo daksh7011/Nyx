@@ -2094,3 +2094,1588 @@ private fun NxCardPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette
 
 - [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
 - [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxCard with elevated and flat variants"`.
+
+---
+
+### Task 11: NxTopBar
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxTopBar.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxTopBarPreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxText` (Task 5), `NxIconButton`/`NxIconButtonStyle`/`NxIconKind` (Task 6).
+- Produces (pinned by plan 06 §"Pinned molecule/template signatures"): `@Composable fun NxTopBar(title: String, modifier: Modifier = Modifier, subtitle: String? = null, onBack: (() -> Unit)? = null, trailing: @Composable RowScope.() -> Unit = {})`.
+
+Anatomy note: ported from Baro `BaroTopBar` (back affordance → title → trailing actions row). Nyx drops Baro's theme/scale/glance controllers (those are app-level in Nyx, injected by feature screens as `trailing` content) and adds the pinned `subtitle` line under the title. The back affordance uses `NxIconKind.ChevronLeft` (the icon set has no dedicated arrow; ChevronLeft is the back glyph).
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxTopBar.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+/**
+ * A screen top bar: an optional [onBack] back affordance, a [title] with an optional [subtitle]
+ * underneath, and a right-aligned [trailing] actions slot. Stateless — every affordance is supplied
+ * by the caller.
+ */
+@Composable
+fun NxTopBar(
+    title: String,
+    modifier: Modifier = Modifier,
+    subtitle: String? = null,
+    onBack: (() -> Unit)? = null,
+    trailing: @Composable RowScope.() -> Unit = {},
+) {
+    val colors = NxTokens.colors
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = NxSpacing.s4, vertical = NxSpacing.s3),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(NxSpacing.s2),
+    ) {
+        if (onBack != null) {
+            NxIconButton(
+                kind = NxIconKind.ChevronLeft,
+                onClick = onBack,
+                style = NxIconButtonStyle.Ghost,
+                contentDescription = "Back",
+            )
+        }
+        Column(modifier = Modifier.weight(1f)) {
+            NxText(text = title, style = NxTextStyle.Title, color = colors.fg, maxLines = 1)
+            if (subtitle != null) {
+                NxText(text = subtitle, style = NxTextStyle.Caption, color = colors.fgMuted, maxLines = 1)
+            }
+        }
+        trailing()
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxTopBarPreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxTopBarSample() {
+    Column(verticalArrangement = Arrangement.spacedBy(NxSpacing.s4)) {
+        NxTopBar(title = "Vault")
+        NxTopBar(
+            title = "Encrypt",
+            subtitle = "Step 2 of 3",
+            onBack = {},
+            trailing = {
+                NxIconButton(
+                    kind = NxIconKind.Share,
+                    onClick = {},
+                    style = NxIconButtonStyle.Ghost,
+                    contentDescription = "Share",
+                )
+            },
+        )
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxTopBarPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxTopBarSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxTopBar with back, subtitle, and trailing actions"`.
+
+---
+
+### Task 12: NxBottomNav (+ NxBottomNavItem)
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/models/NxBottomNavItem.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/organisms/NxBottomNav.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/organisms/NxBottomNavPreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxIcon`/`NxIconKind` (Task 6), `NxText` (Task 5), `kotlinx.collections.immutable.ImmutableList`.
+- Produces (pinned by plan 05 Task 3):
+  - `@Immutable data class NxBottomNavItem(val icon: NxIconKind, val label: String)` in `models/`
+  - `@Composable fun NxBottomNav(items: ImmutableList<NxBottomNavItem>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier)` in `organisms/`
+
+> **Reconciliation with plan 05:** plan 05 Task 3 (Steps 1-3) was authored to build these three files itself, on the assumption plan 04 stopped at `NxCard`. They are delivered here instead. The code below is byte-identical to plan 05 Task 3 Steps 1-3, so if both plans run in sequence plan 05's re-creation is a harmless identical overwrite — but the intent is that **plan 05 Task 3 skips NxBottomNav (built here)** and only reconciles NxEmptyState (see Task 16 note). `NxBottomNavItem` (the design-library item type) is distinct from `feature.navigation.api.NavItem`; the navigation feature maps `NavItem → NxBottomNavItem` (plan 05 Task 8), keeping the design library free of any feature dependency. Anatomy ported from Baro `BaroBottomNav`, swapping the canvas-drawn glyphs for `NxIcon`.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxBottomNavItem.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.models
+
+import androidx.compose.runtime.Immutable
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+
+/** One bottom-navigation destination: an [icon] over its [label]. Selection lives in the caller. */
+@Immutable
+data class NxBottomNavItem(
+    val icon: NxIconKind,
+    val label: String,
+)
+```
+
+> Note: `NxIconKind` is declared in Task 6's `NxIconSet.kt` under package `...designlibrary.atoms`. If plan 05's pinned import (`...designlibrary.tokens.NxIconKind`) is treated as authoritative instead, move the `enum class NxIconKind` declaration into a `tokens/` file in Task 6 and update the imports in Tasks 6, 12, 16 accordingly — pick one location and keep every reference consistent (see the "Cross-plan note" at the end of this plan).
+
+- [ ] **Step 2: Write `NxBottomNav.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.organisms
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.material3.ripple
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+import kotlinx.collections.immutable.ImmutableList
+
+private val BarHeight: Dp = 64.dp
+private val NavIconSize: Dp = 22.dp
+private val HairlineWidth: Dp = 1.dp
+private val SelectedStripeWidth: Dp = 2.dp
+
+/**
+ * The bottom navigation bar: full-width, evenly-weighted [items], each an [NxIcon] over its label.
+ * The item at [selectedIndex] is tinted `brand` and carries a top accent stripe; tapping fires
+ * [onSelect]. Stateless — selection and routing live in the caller. Fills under the system gesture bar.
+ */
+@Composable
+fun NxBottomNav(
+    items: ImmutableList<NxBottomNavItem>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = NxTokens.colors
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(colors.bgElev1)
+            .drawBehind {
+                drawLine(
+                    color = colors.divider,
+                    start = Offset(x = 0f, y = 0f),
+                    end = Offset(x = size.width, y = 0f),
+                    strokeWidth = HairlineWidth.toPx(),
+                )
+            },
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(BarHeight),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            items.forEachIndexed { index, item ->
+                NxBottomNavCell(
+                    item = item,
+                    selected = index == selectedIndex,
+                    onClick = { onSelect(index) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        Spacer(Modifier.fillMaxWidth().windowInsetsBottomHeight(WindowInsets.navigationBars))
+    }
+}
+
+@Composable
+private fun NxBottomNavCell(
+    item: NxBottomNavItem,
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = NxTokens.colors
+    val tint = if (selected) colors.brand else colors.fgMuted
+    val interactionSource = remember { MutableInteractionSource() }
+    val stripe = if (selected) {
+        Modifier.drawBehind {
+            drawLine(
+                color = colors.brand,
+                start = Offset(x = 0f, y = 0f),
+                end = Offset(x = size.width, y = 0f),
+                strokeWidth = SelectedStripeWidth.toPx(),
+            )
+        }
+    } else {
+        Modifier
+    }
+    Column(
+        modifier = modifier
+            .clickable(interactionSource = interactionSource, indication = ripple(), onClick = onClick)
+            .then(stripe)
+            .padding(vertical = NxSpacing.s2),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(NxSpacing.s1),
+    ) {
+        NxIcon(kind = item.icon, tint = tint, contentDescription = item.label, size = NavIconSize)
+        NxText(text = item.label, style = NxTextStyle.Kicker, color = tint, maxLines = 1)
+    }
+}
+```
+
+- [ ] **Step 3: Write `NxBottomNavPreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.organisms
+
+import androidx.compose.runtime.Composable
+import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxBottomNavSample() {
+    NxBottomNav(
+        items = persistentListOf(
+            NxBottomNavItem(NxIconKind.Vault, "Vault"),
+            NxBottomNavItem(NxIconKind.Lock, "Encrypt"),
+            NxBottomNavItem(NxIconKind.Unlock, "Decrypt"),
+            NxBottomNavItem(NxIconKind.Settings, "Settings"),
+        ),
+        selectedIndex = 0,
+        onSelect = {},
+    )
+}
+
+@AllThemePreview
+@Composable
+private fun NxBottomNavPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxBottomNavSample() }
+}
+```
+
+> The preview import above uses `...tokens.NxIconKind` to stay byte-identical to plan 05. If Task 6 keeps `NxIconKind` in `atoms` (as written), change this single import to `...atoms.NxIconKind`. Resolve once, per the cross-plan note.
+
+- [ ] **Step 4: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 5: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxBottomNav organism with NxBottomNavItem"`.
+
+---
+
+### Task 13: NxFab
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxFab.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxFabPreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxShadow` (Tasks 3-4), `NxIcon`/`NxIconKind` (Task 6).
+- Produces (pinned by plan 06): `@Composable fun NxFab(icon: NxIconKind, onClick: () -> Unit, modifier: Modifier = Modifier, contentDescription: String? = null)`.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxFab.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxShadow
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+private val FabSize: Dp = 56.dp
+private val FabIconSize: Dp = 24.dp
+
+/** A circular floating action button: a brand-filled disk carrying a single [icon]. */
+@Composable
+fun NxFab(
+    icon: NxIconKind,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    contentDescription: String? = null,
+) {
+    val colors = NxTokens.colors
+    val shape = CircleShape
+    Surface(
+        onClick = onClick,
+        shape = shape,
+        color = colors.brand,
+        contentColor = colors.brandFg,
+        modifier = modifier.then(NxShadow.md(shape)).size(FabSize),
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            NxIcon(kind = icon, tint = colors.brandFg, size = FabIconSize, contentDescription = contentDescription)
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxFabPreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxFabSample() {
+    Row(
+        modifier = Modifier.padding(NxSpacing.s4),
+        horizontalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+    ) {
+        NxFab(icon = NxIconKind.Plus, onClick = {}, contentDescription = "Encrypt a message")
+        NxFab(icon = NxIconKind.Camera, onClick = {}, contentDescription = "Capture")
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxFabPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxFabSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxFab floating action button"`.
+
+---
+
+### Task 14: NxImageTile
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxImageTile.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxImageTilePreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxRadius` (Tasks 3-4), `NxIcon`/`NxIconKind` (Task 6).
+- Produces (pinned by plan 06): `@Composable fun NxImageTile(image: ImageBitmap?, modifier: Modifier = Modifier, selected: Boolean = false, contentDescription: String? = null, onClick: (() -> Unit)? = null)`.
+
+Contract note (plan 06 §): the tile takes an **already-decoded `ImageBitmap?`**, never raw bytes — decoding is logic and lives in the VM, so the tile stays dumb. When `image` is null it renders a placeholder glyph. The tile is intrinsically square (`aspectRatio(1f)` baked in) so it drops straight into a fixed-column grid cell; callers that already pass `Modifier.aspectRatio(1f)` are unaffected (identical ratio).
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxImageTile.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxRadius
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+private const val TileAspectRatio = 1f
+private val TileBorderWidth: Dp = 2.dp
+private val TilePlaceholderIconSize: Dp = 32.dp
+
+/**
+ * A square image tile rendering an already-decoded [image] (or a placeholder glyph when null),
+ * clipped to a rounded shape. A [selected] tile gains a brand-tinted border; a non-null [onClick]
+ * makes the whole tile a tap target.
+ */
+@Composable
+fun NxImageTile(
+    image: ImageBitmap?,
+    modifier: Modifier = Modifier,
+    selected: Boolean = false,
+    contentDescription: String? = null,
+    onClick: (() -> Unit)? = null,
+) {
+    val colors = NxTokens.colors
+    val shape = RoundedCornerShape(NxRadius.md)
+    val border = if (selected) BorderStroke(TileBorderWidth, colors.brand) else null
+    val tileModifier = modifier.aspectRatio(TileAspectRatio)
+    if (onClick != null) {
+        Surface(onClick = onClick, shape = shape, color = colors.bgElev2, border = border, modifier = tileModifier) {
+            NxImageTileContent(image = image, contentDescription = contentDescription, placeholderTint = colors.fgFaint)
+        }
+    } else {
+        Surface(shape = shape, color = colors.bgElev2, border = border, modifier = tileModifier) {
+            NxImageTileContent(image = image, contentDescription = contentDescription, placeholderTint = colors.fgFaint)
+        }
+    }
+}
+
+@Composable
+private fun NxImageTileContent(
+    image: ImageBitmap?,
+    contentDescription: String?,
+    placeholderTint: Color,
+) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        if (image != null) {
+            Image(
+                bitmap = image,
+                contentDescription = contentDescription,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            NxIcon(
+                kind = NxIconKind.Image,
+                tint = placeholderTint,
+                size = TilePlaceholderIconSize,
+                contentDescription = contentDescription,
+            )
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxImageTilePreview.kt`** (a null `image` on both tiles exercises the placeholder path and needs no bundled bitmap — the golden captures placeholder + selection states):
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+private val TilePreviewWidth: Dp = 120.dp
+
+@Composable
+fun NxImageTileSample() {
+    Row(
+        modifier = Modifier.padding(NxSpacing.s4),
+        horizontalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+    ) {
+        NxImageTile(image = null, selected = true, contentDescription = "Selected cover", onClick = {}, modifier = Modifier.width(TilePreviewWidth))
+        NxImageTile(image = null, selected = false, contentDescription = "Cover image", modifier = Modifier.width(TilePreviewWidth))
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxImageTilePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxImageTileSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxImageTile with placeholder and selection states"`.
+
+---
+
+### Task 15: NxSectionHeader
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxSectionHeader.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxSectionHeaderPreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxText` (Task 5).
+- Produces (pinned by plan 06): `@Composable fun NxSectionHeader(title: String, modifier: Modifier = Modifier, actionText: String? = null, onAction: (() -> Unit)? = null)`.
+
+Anatomy note: ported from Baro `BaroSectionHeader` — a weighted title with an optional right-aligned action. Baro's `eyebrow` kicker is dropped (not in the pinned signature); the trailing slot becomes a pinned `actionText`/`onAction` pair rendered as a brand-tinted tappable label.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxSectionHeader.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+/**
+ * A list/section header: a weighted [title] with an optional right-aligned action rendered as a
+ * brand-tinted tappable label ([actionText] + [onAction], e.g. "See all").
+ */
+@Composable
+fun NxSectionHeader(
+    title: String,
+    modifier: Modifier = Modifier,
+    actionText: String? = null,
+    onAction: (() -> Unit)? = null,
+) {
+    val colors = NxTokens.colors
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(NxSpacing.s2),
+    ) {
+        NxText(text = title, style = NxTextStyle.Subhead, color = colors.fg, modifier = Modifier.weight(1f))
+        if (actionText != null && onAction != null) {
+            NxText(
+                text = actionText,
+                style = NxTextStyle.BodyStrong,
+                color = colors.brand,
+                modifier = Modifier.clickable(onClick = onAction),
+            )
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxSectionHeaderPreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxSectionHeaderSample() {
+    Column(
+        modifier = Modifier.padding(NxSpacing.s4),
+        verticalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+    ) {
+        NxSectionHeader(title = "Archived")
+        NxSectionHeader(title = "Recent", actionText = "See all", onAction = {})
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxSectionHeaderPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxSectionHeaderSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxSectionHeader with optional action"`.
+
+---
+
+### Task 16: NxEmptyState
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxEmptyState.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxEmptyStatePreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxText` (Task 5), `NxIcon`/`NxIconKind` (Task 6), `NxButton` (Task 7).
+- Produces (pinned by plan 06 §"Pinned molecule/template signatures", which mandates "plan 04 Tasks 11-20 must expose exactly these"): `@Composable fun NxEmptyState(icon: NxIconKind, title: String, body: String, modifier: Modifier = Modifier, ctaText: String? = null, onCta: (() -> Unit)? = null)`.
+
+> **Reconciliation with plan 05 (parameter-name conflict — must resolve):** plan 05 Task 3 also builds `NxEmptyState`, but with the CTA parameter named **`ctaLabel`**; plan 06 pins it as **`ctaText`**. A single Kotlin parameter cannot answer to both named-argument call sites. This plan takes plan 06's name (`ctaText`) because plan 06 explicitly declares plan 04 Tasks 11-20 as the source of truth for these signatures. Consequence: **plan 05 Task 3 Steps 4-5 (NxEmptyState) are superseded by this task** (skip them), and plan 05's one CTA call site — `BasicSettingsProvider` (plan 05 Task 9 Step 4), `NxEmptyState(... ctaLabel = "Change theme" ...)` — must be updated to `ctaText = "Change theme"`. Every other plan-05 `NxEmptyState` call passes only `icon`/`title`/`body` and is unaffected. Naming is also internally consistent this way: `ctaText`/`onCta` mirrors `NxSectionHeader`'s `actionText`/`onAction`.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxEmptyState.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+private val EmptyIconSize: Dp = 40.dp
+private val EmptyMaxWidth: Dp = 320.dp
+
+/**
+ * Centered empty / placeholder state: a large [icon], a [title], supporting [body], and an optional
+ * call-to-action ([ctaText] + [onCta]). Used for the "coming soon" shell stubs and every empty list.
+ */
+@Composable
+fun NxEmptyState(
+    icon: NxIconKind,
+    title: String,
+    body: String,
+    modifier: Modifier = Modifier,
+    ctaText: String? = null,
+    onCta: (() -> Unit)? = null,
+) {
+    val colors = NxTokens.colors
+    Column(
+        modifier = modifier.fillMaxSize().padding(NxSpacing.s5),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(NxSpacing.s3, Alignment.CenterVertically),
+    ) {
+        NxIcon(kind = icon, tint = colors.fgMuted, size = EmptyIconSize)
+        NxText(text = title, style = NxTextStyle.Heading, textAlign = TextAlign.Center)
+        NxText(
+            text = body,
+            style = NxTextStyle.Body,
+            color = colors.fgSubtle,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = EmptyMaxWidth),
+        )
+        if (ctaText != null && onCta != null) {
+            NxButton(text = ctaText, onClick = onCta)
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxEmptyStatePreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.runtime.Composable
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxEmptyStateSample() {
+    NxEmptyState(
+        icon = NxIconKind.Vault,
+        title = "Your vault is empty",
+        body = "Hidden messages you save will appear here.",
+        ctaText = "Encrypt a message",
+        onCta = {},
+    )
+}
+
+@AllThemePreview
+@Composable
+private fun NxEmptyStatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxEmptyStateSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxEmptyState with optional call-to-action"`.
+
+---
+
+### Task 17: NxProgressOverlay
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxProgressOverlay.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxProgressOverlayPreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxText` (Task 5), M3 `CircularProgressIndicator`.
+- Produces (pinned by plan 06): `@Composable fun NxProgressOverlay(label: String, modifier: Modifier = Modifier)`.
+
+Color note: the scrim is `colors.bg` at a named `ScrimAlpha` (deriving alpha from a token color is token-pure — no raw ARGB); the spinner is tinted `colors.brand`. Callers pass `Modifier.fillMaxSize()` to blanket the screen.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxProgressOverlay.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+private const val ScrimAlpha = 0.72f
+
+/**
+ * A blocking progress scrim: a translucent [background] over the content it covers, centered on a
+ * brand spinner and a [label]. Size is caller-driven (typically `Modifier.fillMaxSize()`).
+ */
+@Composable
+fun NxProgressOverlay(
+    label: String,
+    modifier: Modifier = Modifier,
+) {
+    val colors = NxTokens.colors
+    Box(
+        modifier = modifier.background(colors.bg.copy(alpha = ScrimAlpha)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+        ) {
+            CircularProgressIndicator(color = colors.brand)
+            NxText(text = label, style = NxTextStyle.Caption, color = colors.fgMuted)
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxProgressOverlayPreview.kt`** (a fixed-height box gives the overlay bounds to fill in the golden):
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.molecules
+
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+private val OverlayPreviewHeight: Dp = 240.dp
+
+@Composable
+fun NxProgressOverlaySample() {
+    Box(modifier = Modifier.fillMaxWidth().height(OverlayPreviewHeight)) {
+        NxProgressOverlay(label = "Encrypting", modifier = Modifier.fillMaxSize())
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxProgressOverlayPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxProgressOverlaySample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxProgressOverlay blocking scrim"`.
+
+---
+
+### Task 18: NxDetailTemplate
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxDetailTemplate.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxDetailTemplatePreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing` (Tasks 3-4), `NxTopBar` (Task 11).
+- Produces (pinned by plan 06): `@Composable fun NxDetailTemplate(title: String, onBack: () -> Unit, modifier: Modifier = Modifier, trailing: @Composable RowScope.() -> Unit = {}, content: @Composable ColumnScope.() -> Unit)`.
+
+Template composition: `NxTopBar` (with `onBack` + `trailing`) over a vertically scrolling, padded content column. Composes only already-built pieces (Task 11 top bar); the `content` block supplies feature-specific children in a `ColumnScope`.
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxDetailTemplate.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.molecules.NxTopBar
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+/**
+ * A detail screen scaffold: an [NxTopBar] (with a back affordance and an optional [trailing] actions
+ * slot) over a scrolling, padded [content] column.
+ */
+@Composable
+fun NxDetailTemplate(
+    title: String,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    trailing: @Composable RowScope.() -> Unit = {},
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = NxTokens.colors
+    Column(modifier = modifier.fillMaxSize().background(colors.bg)) {
+        NxTopBar(title = title, onBack = onBack, trailing = trailing)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(NxSpacing.s4),
+            verticalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+            content = content,
+        )
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxDetailTemplatePreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.runtime.Composable
+import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
+import com.slothiesmooth.nyx.designlibrary.atoms.NxButtonStyle
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxDetailTemplateSample() {
+    NxDetailTemplate(
+        title = "vacation-2026.png",
+        onBack = {},
+        trailing = {
+            NxIconButton(kind = NxIconKind.Share, onClick = {}, style = NxIconButtonStyle.Ghost, contentDescription = "Share")
+        },
+    ) {
+        NxText(text = "Saved 2 hours ago", style = NxTextStyle.Caption, color = NxTokens.colors.fgMuted)
+        NxButton(text = "Decrypt this", onClick = {}, block = true, leadingIcon = NxIconKind.Unlock)
+        NxButton(text = "Archive", onClick = {}, style = NxButtonStyle.Soft, block = true, leadingIcon = NxIconKind.Archive)
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxDetailTemplatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxDetailTemplateSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxDetailTemplate scaffold"`.
+
+---
+
+### Task 19: NxFormTemplate
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxFormTemplate.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxFormTemplatePreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing` (Tasks 3-4), `NxButton` (Task 7), `NxTopBar` (Task 11).
+- Produces: `@Composable fun NxFormTemplate(title: String, onBack: () -> Unit, primaryLabel: String, onPrimary: () -> Unit, modifier: Modifier = Modifier, primaryEnabled: Boolean = true, content: @Composable ColumnScope.() -> Unit)`.
+
+Signature note: 00-INDEX lists `NxFormTemplate` with no parameter list and plan 06 does not call it directly (it uses `NxWizardTemplate` for the encrypt flow and `NxDetailTemplate` elsewhere), so this signature is defined here. It mirrors `NxDetailTemplate` (top bar + scrolling content) and adds a pinned full-width primary action at the bottom — the standard single-submit form shape. It composes only Task 7 (`NxButton`) and Task 11 (`NxTopBar`).
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxFormTemplate.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
+import com.slothiesmooth.nyx.designlibrary.molecules.NxTopBar
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+
+/**
+ * A single-submit form scaffold: an [NxTopBar] over a scrolling, padded [content] column of fields,
+ * with a pinned full-width primary action ([primaryLabel] + [onPrimary], gated by [primaryEnabled])
+ * anchored at the bottom.
+ */
+@Composable
+fun NxFormTemplate(
+    title: String,
+    onBack: () -> Unit,
+    primaryLabel: String,
+    onPrimary: () -> Unit,
+    modifier: Modifier = Modifier,
+    primaryEnabled: Boolean = true,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = NxTokens.colors
+    Column(modifier = modifier.fillMaxSize().background(colors.bg)) {
+        NxTopBar(title = title, onBack = onBack)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(NxSpacing.s4),
+            verticalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+            content = content,
+        )
+        Column(modifier = Modifier.fillMaxWidth().padding(NxSpacing.s4)) {
+            NxButton(text = primaryLabel, onClick = onPrimary, block = true, enabled = primaryEnabled)
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxFormTemplatePreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxField
+import com.slothiesmooth.nyx.designlibrary.atoms.NxPasswordField
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxFormTemplateSample() {
+    NxFormTemplate(
+        title = "Encrypt",
+        onBack = {},
+        primaryLabel = "Encrypt message",
+        onPrimary = {},
+    ) {
+        NxField(value = "vacation-2026.png", onValueChange = {}, label = "Image name", modifier = Modifier.fillMaxWidth())
+        NxPasswordField(value = "hunter2hunter2", onValueChange = {}, label = "Password", modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxFormTemplatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxFormTemplateSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxFormTemplate with pinned primary action"`.
+
+---
+
+### Task 20: NxWizardTemplate
+
+**Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxWizardTemplate.kt`
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/templates/NxWizardTemplatePreview.kt`
+
+**Interfaces:**
+- Consumes: `NxTokens`, `NxSpacing`, `NxTextStyle` (Tasks 3-4), `NxText` (Task 5), `NxTopBar` (Task 11), `kotlinx.collections.immutable.ImmutableList`.
+- Produces (pinned by plan 06): `@Composable fun NxWizardTemplate(stepLabels: ImmutableList<String>, currentStep: Int, title: String, modifier: Modifier = Modifier, onBack: (() -> Unit)? = null, content: @Composable ColumnScope.() -> Unit)`.
+
+Template composition: `NxTopBar` over a numbered step-indicator row (each step a circular badge + label; badges/labels at or before `currentStep` tint `brand`/`fg`, later steps `bgElev2`/`fgMuted`) over a scrolling, padded `content` column. `stepLabels` is an `ImmutableList` per the collections rule. Composes only Task 5 (`NxText`) and Task 11 (`NxTopBar`).
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxWizardTemplate.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.molecules.NxTopBar
+import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+import kotlinx.collections.immutable.ImmutableList
+
+private val StepBadgeSize: Dp = 24.dp
+
+/**
+ * A multi-step wizard scaffold: an [NxTopBar] over a numbered step indicator (driven by [stepLabels]
+ * and [currentStep]) over a scrolling, padded [content] column for the active step's body.
+ */
+@Composable
+fun NxWizardTemplate(
+    stepLabels: ImmutableList<String>,
+    currentStep: Int,
+    title: String,
+    modifier: Modifier = Modifier,
+    onBack: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    val colors = NxTokens.colors
+    Column(modifier = modifier.fillMaxSize().background(colors.bg)) {
+        NxTopBar(title = title, onBack = onBack)
+        NxWizardSteps(stepLabels = stepLabels, currentStep = currentStep)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(NxSpacing.s4),
+            verticalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+            content = content,
+        )
+    }
+}
+
+@Composable
+private fun NxWizardSteps(
+    stepLabels: ImmutableList<String>,
+    currentStep: Int,
+) {
+    val colors = NxTokens.colors
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = NxSpacing.s4, vertical = NxSpacing.s3),
+        horizontalArrangement = Arrangement.spacedBy(NxSpacing.s3),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        stepLabels.forEachIndexed { index, label ->
+            val active = index <= currentStep
+            val badgeColor = if (active) colors.brand else colors.bgElev2
+            val badgeTextColor = if (active) colors.brandFg else colors.fgMuted
+            val labelColor = if (active) colors.fg else colors.fgMuted
+            Row(
+                modifier = Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(NxSpacing.s2),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(shape = CircleShape, color = badgeColor, modifier = Modifier.size(StepBadgeSize)) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        NxText(text = (index + 1).toString(), style = NxTextStyle.Caption, color = badgeTextColor)
+                    }
+                }
+                NxText(text = label, style = NxTextStyle.Caption, color = labelColor, maxLines = 1)
+            }
+        }
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxWizardTemplatePreview.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.templates
+
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import com.slothiesmooth.nyx.designlibrary.atoms.NxField
+import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
+import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
+
+@Composable
+fun NxWizardTemplateSample() {
+    NxWizardTemplate(
+        stepLabels = persistentListOf("Image", "Message", "Done"),
+        currentStep = 1,
+        title = "Encrypt",
+        onBack = {},
+    ) {
+        NxText(text = "Write the secret you want to hide.", style = NxTextStyle.Body, color = NxTokens.colors.fgMuted)
+        NxField(value = "", onValueChange = {}, label = "Message", placeholder = "The secret to hide", multiline = true, modifier = Modifier.fillMaxWidth())
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxWizardTemplatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxWizardTemplateSample() }
+}
+```
+
+- [ ] **Step 3: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 4: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxWizardTemplate with numbered step indicator"`.
+
+---
+
+## Snapshot module — Paparazzi goldens
+
+Tasks 21-22 stand up `:shared:design-library:snapshot` (a plain `com.android.library` JVM-test module) and record the golden set. It reuses every public `NxXSample()` from Tasks 5-20 — the samples are the single source of truth shared by the IDE `@AllThemePreview` probes and these snapshots, so a component and its golden can never drift. Goldens are recorded on Linux (this dev machine), which matches the ubuntu CI runner's font rendering (00-INDEX Paparazzi note).
+
+---
+
+### Task 21: Snapshot module wiring + `nxPaparazzi()` factory
+
+**Files:**
+- Modify: `settings.gradle.kts` (verify `include(":shared:design-library:snapshot")`)
+- Modify: `gradle/libs.versions.toml` (verify/add the `com.android.library` plugin alias)
+- Create: `shared/design-library/snapshot/build.gradle.kts`
+- Create: `shared/design-library/snapshot/src/test/kotlin/com/slothiesmooth/nyx/designlibrary/snapshot/NxPaparazzi.kt`
+
+**Interfaces:**
+- Consumes: `:shared:design-library` (Tasks 1-20), Paparazzi 2.0.0-alpha05 + junit4 (added in Task 1), version catalog.
+- Produces: a configured snapshot module exposing `fun nxPaparazzi(): Paparazzi` (`DeviceConfig.PIXEL_5` + `SessionParams.RenderingMode.SHRINK`).
+
+**Steps:**
+
+- [ ] **Step 1: Reconcile the catalog plugin alias.** The snapshot module is a plain Android library (NOT the KMP-library plugin), so it needs the `com.android.library` plugin. Verify `gradle/libs.versions.toml` has it (plan 01 owns this file — if plan 01 already declares an alias for `com.android.library`, use that name throughout this task). Add if missing:
+
+```toml
+[plugins]
+# ... existing (agp version.ref already defined by plan 01) ...
+android-library = { id = "com.android.library", version.ref = "agp" }
+```
+
+- [ ] **Step 2: Verify module registration.** Run:
+
+```bash
+grep -n "design-library:snapshot" settings.gradle.kts
+```
+
+Expected: `include(":shared:design-library:snapshot")` (added by plan 01 / Task 1 Step 2). If missing, add it.
+
+- [ ] **Step 3: Write `shared/design-library/snapshot/build.gradle.kts`.** Plain `com.android.library` (no `org.jetbrains.kotlin.android` — AGP 9's built-in Kotlin compiles the sources, per 00-INDEX). The JetBrains compose plugin supplies the `compose.*` dependency accessors and the Kotlin compose-compiler plugin compiles the `@Composable` test lambdas (if plan 01 exposes a convention plugin that produces this identical effective config for a paparazzi module, applying it instead is fine):
+
+```kotlin
+plugins {
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.compose.multiplatform)
+    alias(libs.plugins.paparazzi)
+}
+
+android {
+    namespace = "com.slothiesmooth.nyx.designlibrary.snapshot"
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    defaultConfig {
+        minSdk = libs.versions.android.minSdk.get().toInt()
+    }
+}
+
+dependencies {
+    implementation(project(":shared:design-library"))
+    implementation(compose.runtime)
+    implementation(compose.foundation)
+    implementation(compose.material3)
+    implementation(compose.ui)
+    testImplementation(libs.junit4)
+}
+```
+
+- [ ] **Step 4: Write `NxPaparazzi.kt`** (the shared factory — one place pins the device + rendering mode for every snapshot class):
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.snapshot
+
+import app.cash.paparazzi.DeviceConfig
+import app.cash.paparazzi.Paparazzi
+import com.android.ide.common.rendering.api.SessionParams
+
+/**
+ * Shared Paparazzi factory: renders on a Pixel 5 and SHRINKs the frame to each sample's own bounds.
+ * Recorded on Linux (dev machine) to match the ubuntu CI runner's font rendering.
+ */
+fun nxPaparazzi(): Paparazzi = Paparazzi(
+    deviceConfig = DeviceConfig.PIXEL_5,
+    renderingMode = SessionParams.RenderingMode.SHRINK,
+    showSystemUi = false,
+)
+```
+
+- [ ] **Step 5: Verify the module configures and the factory compiles.** Run:
+
+```bash
+./gradlew :shared:design-library:snapshot:compileDebugUnitTestKotlin
+./gradlew :shared:design-library:snapshot:tasks --all | grep -i paparazzi
+```
+
+Expected: `BUILD SUCCESSFUL` on the first command (the test source set — currently just `NxPaparazzi.kt` — compiles against `:shared:design-library` and Paparazzi), and the second lists `recordPaparazziDebug` / `verifyPaparazziDebug` (confirming the plugin applied). If `compileDebugUnitTestKotlin` is not the task name on this AGP build, discover it with `./gradlew :shared:design-library:snapshot:tasks --all | grep -i "UnitTestKotlin"`.
+
+- [ ] **Step 6: Commit.**
+
+```bash
+git add settings.gradle.kts gradle/libs.versions.toml shared/design-library/snapshot/build.gradle.kts shared/design-library/snapshot/src
+git commit -m "feat(design-library): Paparazzi snapshot module and nxPaparazzi factory"
+```
+
+---
+
+### Task 22: Parameterized snapshot classes + record goldens (final task)
+
+**Files:**
+- Create: `shared/design-library/snapshot/src/test/kotlin/com/slothiesmooth/nyx/designlibrary/snapshot/NxAtomsSnapshotTest.kt`
+- Create: `shared/design-library/snapshot/src/test/kotlin/com/slothiesmooth/nyx/designlibrary/snapshot/NxMoleculesSnapshotTest.kt`
+- Create: `shared/design-library/snapshot/src/test/kotlin/com/slothiesmooth/nyx/designlibrary/snapshot/NxOrganismsSnapshotTest.kt`
+- Create: `shared/design-library/snapshot/src/test/kotlin/com/slothiesmooth/nyx/designlibrary/snapshot/NxTemplatesSnapshotTest.kt`
+- Create (recorded, binary): `shared/design-library/snapshot/src/test/snapshots/**` (goldens — one PNG per sample × palette)
+
+**Interfaces:**
+- Consumes: `nxPaparazzi()` (Task 21), `NxPalette`/`NxTheme` (Task 4), every public `NxXSample()` (Tasks 5-20).
+- Produces: recorded goldens plus a green `verifyPaparazziDebug`.
+
+One `@RunWith(Parameterized::class)` class per atomic layer (atoms / molecules / organisms / templates), each parameterized over `NxPalette.entries` and rendering every sample in its layer through `NxTheme(palette)`. The JUnit parameter name (`{0}` → the palette) and the `@Test` method name together make each golden file unique (e.g. `NxAtomsSnapshotTest_buttons[Umbra].png`).
+
+**Steps:**
+
+- [ ] **Step 1: Write `NxAtomsSnapshotTest.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.snapshot
+
+import androidx.compose.runtime.Composable
+import app.cash.paparazzi.Paparazzi
+import com.slothiesmooth.nyx.designlibrary.atoms.NxButtonSample
+import com.slothiesmooth.nyx.designlibrary.atoms.NxChipSample
+import com.slothiesmooth.nyx.designlibrary.atoms.NxFieldSample
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonSample
+import com.slothiesmooth.nyx.designlibrary.atoms.NxIconSetSample
+import com.slothiesmooth.nyx.designlibrary.atoms.NxTextSample
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
+@RunWith(Parameterized::class)
+class NxAtomsSnapshotTest(private val palette: NxPalette) {
+
+    @get:Rule
+    val paparazzi: Paparazzi = nxPaparazzi()
+
+    @Test fun text() = snapshot { NxTextSample() }
+
+    @Test fun icons() = snapshot { NxIconSetSample() }
+
+    @Test fun iconButtons() = snapshot { NxIconButtonSample() }
+
+    @Test fun buttons() = snapshot { NxButtonSample() }
+
+    @Test fun fields() = snapshot { NxFieldSample() }
+
+    @Test fun chips() = snapshot { NxChipSample() }
+
+    private fun snapshot(content: @Composable () -> Unit) {
+        paparazzi.snapshot { NxTheme(palette = palette) { content() } }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun palettes(): List<NxPalette> = NxPalette.entries
+    }
+}
+```
+
+- [ ] **Step 2: Write `NxMoleculesSnapshotTest.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.snapshot
+
+import androidx.compose.runtime.Composable
+import app.cash.paparazzi.Paparazzi
+import com.slothiesmooth.nyx.designlibrary.molecules.NxCardSample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxEmptyStateSample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxFabSample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxImageTileSample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxProgressOverlaySample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxSectionHeaderSample
+import com.slothiesmooth.nyx.designlibrary.molecules.NxTopBarSample
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
+@RunWith(Parameterized::class)
+class NxMoleculesSnapshotTest(private val palette: NxPalette) {
+
+    @get:Rule
+    val paparazzi: Paparazzi = nxPaparazzi()
+
+    @Test fun card() = snapshot { NxCardSample() }
+
+    @Test fun topBar() = snapshot { NxTopBarSample() }
+
+    @Test fun fab() = snapshot { NxFabSample() }
+
+    @Test fun imageTile() = snapshot { NxImageTileSample() }
+
+    @Test fun sectionHeader() = snapshot { NxSectionHeaderSample() }
+
+    @Test fun emptyState() = snapshot { NxEmptyStateSample() }
+
+    @Test fun progressOverlay() = snapshot { NxProgressOverlaySample() }
+
+    private fun snapshot(content: @Composable () -> Unit) {
+        paparazzi.snapshot { NxTheme(palette = palette) { content() } }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun palettes(): List<NxPalette> = NxPalette.entries
+    }
+}
+```
+
+- [ ] **Step 3: Write `NxOrganismsSnapshotTest.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.snapshot
+
+import androidx.compose.runtime.Composable
+import app.cash.paparazzi.Paparazzi
+import com.slothiesmooth.nyx.designlibrary.organisms.NxBottomNavSample
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
+@RunWith(Parameterized::class)
+class NxOrganismsSnapshotTest(private val palette: NxPalette) {
+
+    @get:Rule
+    val paparazzi: Paparazzi = nxPaparazzi()
+
+    @Test fun bottomNav() = snapshot { NxBottomNavSample() }
+
+    private fun snapshot(content: @Composable () -> Unit) {
+        paparazzi.snapshot { NxTheme(palette = palette) { content() } }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun palettes(): List<NxPalette> = NxPalette.entries
+    }
+}
+```
+
+- [ ] **Step 4: Write `NxTemplatesSnapshotTest.kt`:**
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.snapshot
+
+import androidx.compose.runtime.Composable
+import app.cash.paparazzi.Paparazzi
+import com.slothiesmooth.nyx.designlibrary.templates.NxDetailTemplateSample
+import com.slothiesmooth.nyx.designlibrary.templates.NxFormTemplateSample
+import com.slothiesmooth.nyx.designlibrary.templates.NxWizardTemplateSample
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
+
+@RunWith(Parameterized::class)
+class NxTemplatesSnapshotTest(private val palette: NxPalette) {
+
+    @get:Rule
+    val paparazzi: Paparazzi = nxPaparazzi()
+
+    @Test fun detail() = snapshot { NxDetailTemplateSample() }
+
+    @Test fun form() = snapshot { NxFormTemplateSample() }
+
+    @Test fun wizard() = snapshot { NxWizardTemplateSample() }
+
+    private fun snapshot(content: @Composable () -> Unit) {
+        paparazzi.snapshot { NxTheme(palette = palette) { content() } }
+    }
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "{0}")
+        fun palettes(): List<NxPalette> = NxPalette.entries
+    }
+}
+```
+
+- [ ] **Step 5: Record the goldens.** Run:
+
+```bash
+./gradlew :shared:design-library:snapshot:recordPaparazziDebug
+```
+
+Expected: `BUILD SUCCESSFUL`; PNGs written under `shared/design-library/snapshot/src/test/snapshots/` — one per `@Test` method × palette (17 samples × 5 palettes = 85 goldens: 6 atoms + 7 molecules + 1 organism + 3 templates). Eyeball a handful (e.g. the `Umbra` and `Moonlight` button/topBar goldens) to confirm fonts, tokens, and layout rendered as expected before locking them in.
+
+- [ ] **Step 6: Commit the goldens.**
+
+```bash
+git add shared/design-library/snapshot/src/test/snapshots
+git commit -m "test(design-library): record Paparazzi goldens for all Nx components across five palettes"
+```
+
+- [ ] **Step 7: Verify against the recorded goldens.** Run:
+
+```bash
+./gradlew :shared:design-library:snapshot:verifyPaparazziDebug
+```
+
+Expected: `BUILD SUCCESSFUL` — every rendered frame matches its committed golden (this is the exact task ubuntu CI runs; Linux-recorded goldens match the CI runner's fonts).
+
+---
+
+## Cross-plan note (for the executor — reconciles plans 05/06 against this completed plan 04)
+
+This plan now delivers all 16 components (Tasks 5-20) plus the snapshot module (Tasks 21-22). Two items overlap with downstream plans as originally written; resolve them once when executing:
+
+1. **`NxBottomNav` + `NxEmptyState` are delivered here (Tasks 12, 16), not in plan 05 Task 3.** Plan 05 was written assuming plan 04 stopped at `NxCard`. When executing plan 05, **skip its Task 3** (both components exist after this plan) and keep only plan 05's downstream wiring (the `NavItem → NxBottomNavItem` mapping in its Task 8, and the feature stubs in its Task 9).
+2. **`NxEmptyState` CTA parameter is `ctaText` (not `ctaLabel`).** Chosen to satisfy plan 06's explicit mandate that plan 04 Tasks 11-20 expose those exact signatures. Update plan 05's single `ctaLabel = "Change theme"` call in `BasicSettingsProvider` to `ctaText = "Change theme"`.
+3. **`NxIconKind` package.** Task 6 (unchanged by this completion) declares `enum class NxIconKind` in `...designlibrary.atoms`; plans 05/06 import it from `...designlibrary.tokens`. Pick one home and make every reference agree. Recommended: move the enum to a `tokens/NxIconKind.kt` file (it is a pure token enum with no atom dependency, and 00-INDEX lists it in the tokens section) and update imports in Tasks 6, 11-16, 18, 20 here plus the plan 05/06 consumers. This plan's new tasks import from `atoms` to stay compilable against Task 6 as currently written; flip them together with Task 6 if you relocate the enum.
