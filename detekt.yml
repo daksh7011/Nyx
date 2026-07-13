@@ -628,7 +628,7 @@ style:
   UnusedPrivateMember:
     active: true
     allowedNames: '(_|ignored|expected|serialVersionUID)'
-    ignoreAnnotated: [ 'Composable', 'Preview', 'AllThemePreview' ]
+    ignoreAnnotated: [ 'Preview', 'AllThemePreview' ]
   UseAnyOrNoneInsteadOfFind:
     active: true
   UseArrayLiteralsInAnnotations:
