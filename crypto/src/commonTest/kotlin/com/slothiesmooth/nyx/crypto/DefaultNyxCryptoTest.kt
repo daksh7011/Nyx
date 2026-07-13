@@ -52,4 +52,44 @@ class DefaultNyxCryptoTest {
         val raw = Base64.Default.decode(crypto.encrypt("", "correct horse"))
         assertTrue(raw.size >= MIN_BLOB_SIZE_BYTES, "expected >= $MIN_BLOB_SIZE_BYTES, got ${raw.size}")
     }
+
+    @Test
+    fun `round trips an empty plaintext`() = runTest {
+        val crypto = DefaultNyxCrypto()
+        val blob = crypto.encrypt("", "correct horse")
+        assertEquals(DecryptResult.Success(""), crypto.decrypt(blob, "correct horse"))
+    }
+
+    @Test
+    fun `round trips a unicode plaintext`() = runTest {
+        val crypto = DefaultNyxCrypto()
+        val secret = "rendezvous 🦊🔒 07:30 — café"
+        val blob = crypto.encrypt(secret, "correct horse")
+        assertEquals(DecryptResult.Success(secret), crypto.decrypt(blob, "correct horse"))
+    }
+
+    @Test
+    fun `treats an empty password as a valid user choice`() = runTest {
+        // Documented behavior: empty passwords are the user's responsibility, not rejected here.
+        val crypto = DefaultNyxCrypto()
+        val blob = crypto.encrypt("secret", "")
+        assertEquals(DecryptResult.Success("secret"), crypto.decrypt(blob, ""))
+        assertEquals(DecryptResult.WrongPasswordOrTampered, crypto.decrypt(blob, "not empty"))
+    }
+
+    @Test
+    fun `fails cleanly on a non-Base64 blob`() = runTest {
+        val crypto = DefaultNyxCrypto()
+        val result = crypto.decrypt("this is not base64 @@@", "correct horse")
+        assertEquals(REASON_MALFORMED_BASE64, assertIs<DecryptResult.Failure>(result).reason)
+    }
+
+    @Test
+    fun `fails cleanly on a blob that is too short`() = runTest {
+        val crypto = DefaultNyxCrypto()
+        // Valid Base64 but only 10 bytes -> below the 44-byte minimum.
+        val shortBlob = Base64.Default.encode(ByteArray(10))
+        val result = crypto.decrypt(shortBlob, "correct horse")
+        assertEquals(REASON_TOO_SHORT, assertIs<DecryptResult.Failure>(result).reason)
+    }
 }
