@@ -18,6 +18,15 @@ class SteganographyTest {
         assertEquals(56L, exceeded.requiredBits)
         assertEquals(24L, exceeded.availableBits)
     }
+
+    @Test
+    fun `round trips a payload through a single cover`() = runTest {
+        val stego = Steganography()
+        val cover = solidImage(width = 64, height = 64, argb = 0xFF3366AA.toInt())
+        val secret = "Hello, Nyx!"
+        val result = assertIs<StegoEncodeResult.Success>(stego.encode(listOf(cover), secret))
+        assertEquals(secret, stego.decode(result.images))
+    }
 }
 
 private fun solidImage(width: Int, height: Int, argb: Int): PixelImage =

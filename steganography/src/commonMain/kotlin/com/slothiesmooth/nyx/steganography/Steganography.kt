@@ -81,4 +81,77 @@ class Steganography(
         GREEN_SLOT -> GREEN_SHIFT
         else -> BLUE_SHIFT
     }
+
+    suspend fun decode(images: List<PixelImage>): String? {
+        coroutineContext.ensureActive()
+        return extractFrameBytes(images)?.decodeToString()
+    }
+
+    private fun extractFrameBytes(images: List<PixelImage>): ByteArray? {
+        val startBytes = startMarker.encodeToByteArray()
+        val endBytes = endMarker.encodeToByteArray()
+        val decoded = ArrayList<Byte>()
+        val totalChannels = channelCount(images)
+        var partialByte = 0
+        var chunkCount = 0
+        var channel = 0L
+        var frame: ByteArray? = null
+        while (channel < totalChannels && frame == null) {
+            partialByte = (partialByte shl BITS_PER_CHANNEL) or chunkAtChannel(images, channel)
+            chunkCount++
+            if (chunkCount == CHUNKS_PER_BYTE) {
+                decoded.add(partialByte.toByte())
+                partialByte = 0
+                chunkCount = 0
+                if (markerBroken(decoded, startBytes)) return null
+                frame = completedFrame(decoded, startBytes, endBytes)
+            }
+            channel++
+        }
+        return frame
+    }
+
+    private fun markerBroken(decoded: List<Byte>, startBytes: ByteArray): Boolean =
+        decoded.size == startBytes.size && !startsWithBytes(decoded, startBytes)
+
+    private fun completedFrame(
+        decoded: List<Byte>,
+        startBytes: ByteArray,
+        endBytes: ByteArray,
+    ): ByteArray? {
+        val minFrameSize = startBytes.size + endBytes.size
+        return if (decoded.size >= minFrameSize && endsWithBytes(decoded, endBytes)) {
+            decoded.subList(startBytes.size, decoded.size - endBytes.size).toByteArray()
+        } else {
+            null
+        }
+    }
+
+    private fun chunkAtChannel(images: List<PixelImage>, globalChannel: Long): Int {
+        var remaining = globalChannel
+        for (image in images) {
+            val channels = image.width.toLong() * image.height.toLong() * CHANNELS_PER_PIXEL
+            if (remaining < channels) {
+                val pixelIndex = (remaining / CHANNELS_PER_PIXEL).toInt()
+                val colorSlot = (remaining % CHANNELS_PER_PIXEL).toInt()
+                return readChunk(image.pixels[pixelIndex], colorSlot)
+            }
+            remaining -= channels
+        }
+        return 0
+    }
+
+    private fun readChunk(pixel: Int, colorSlot: Int): Int =
+        (pixel ushr channelShift(colorSlot)) and CHUNK_MASK
+
+    private fun startsWithBytes(data: List<Byte>, prefix: ByteArray): Boolean {
+        if (data.size < prefix.size) return false
+        return prefix.indices.all { data[it] == prefix[it] }
+    }
+
+    private fun endsWithBytes(data: List<Byte>, suffix: ByteArray): Boolean {
+        if (data.size < suffix.size) return false
+        val offset = data.size - suffix.size
+        return suffix.indices.all { data[offset + it] == suffix[it] }
+    }
 }
