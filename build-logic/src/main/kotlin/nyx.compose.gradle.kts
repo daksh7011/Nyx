@@ -15,7 +15,10 @@ dependencies {
     "commonMainImplementation"(libs.findLibrary("compose-material3").get())
     "commonMainImplementation"(libs.findLibrary("compose-ui").get())
     "commonMainImplementation"(libs.findLibrary("compose-components-resources").get())
-    "commonMainImplementation"(libs.findLibrary("compose-components-ui-tooling-preview").get())
+    // androidx.compose.ui.tooling.preview.* (Preview/PreviewParameter*). The
+    // org.jetbrains.compose.ui.tooling.preview.* variants (components-ui-tooling-preview) are
+    // deprecated in CMP 1.11.
+    "commonMainImplementation"(libs.findLibrary("compose-ui-tooling-preview").get())
 }
 
 compose.resources {

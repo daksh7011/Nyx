@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 
 @Composable
 fun NxFabSample() {

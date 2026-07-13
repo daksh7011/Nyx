@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
 
 private val OverlayPreviewHeight: Dp = 240.dp
 
