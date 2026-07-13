@@ -14,17 +14,6 @@ formatting:
     active: true
     maxLineLength: 180
 
-style:
-  active: true
-  MaxLineLength:
-    active: true
-    maxLineLength: 180
-  MagicNumber:
-    active: true
-    ignoreNumbers: ['-1', '0', '1', '2']
-    ignoreEnums: true
-    ignoreAnnotation: true
-
 comments:
   active: true
   AbsentOrWrongFileLicense:
