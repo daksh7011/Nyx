@@ -9,6 +9,6 @@ kotlin {
 }
 
 dependencies {
-    implementation(compose.runtime)
+    implementation(libs.compose.runtime)
     implementation(compose.desktop.currentOs)
 }
