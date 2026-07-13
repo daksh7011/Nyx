@@ -13,3 +13,33 @@ sqldelight {
         }
     }
 }
+
+kotlin {
+    sourceSets {
+        all {
+            languageSettings {
+                optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
+            }
+        }
+        commonMain.dependencies {
+            api(projects.shared.data)
+            implementation(libs.sqldelight.runtime)
+            implementation(libs.sqldelight.coroutines.extensions)
+            implementation(libs.sqldelight.async.extensions)
+            implementation(libs.kotlinx.coroutines.core)
+        }
+        androidMain.dependencies {
+            implementation(libs.sqldelight.android.driver)
+        }
+        iosMain.dependencies {
+            implementation(libs.sqldelight.native.driver)
+        }
+        jvmMain.dependencies {
+            implementation(libs.sqldelight.sqlite.driver)
+        }
+        // wasmJsMain: no SqlDelight driver in v1 (web vault is in-memory).
+        commonTest.dependencies {
+            implementation(projects.shared.testSupport)
+        }
+    }
+}
