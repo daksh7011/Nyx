@@ -1,31 +1,25 @@
 rootProject.name = "nyx"
 
-include(
-    ":app",
-    ":steganography",
-    ":utils",
-    ":feature_base",
-)
-
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
-        gradlePluginPortal()
         google()
         mavenCentral()
+        gradlePluginPortal()
     }
+}
+
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
 }
 
 dependencyResolutionManagement {
     repositories {
         google()
-        // Added for testing local Konsist artifacts
-        mavenLocal()
         mavenCentral()
-        maven("https://jitpack.io")
     }
 }
 
-// Generate type safe accessors when referring to other projects eg.
-// Before: implementation(project(":feature_album"))
-// After: implementation(projects.featureAlbum)
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+// Module includes are added incrementally in Tasks 10-13.
