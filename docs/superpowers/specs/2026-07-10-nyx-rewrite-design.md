@@ -68,7 +68,7 @@ Module-graph rules (pawdex hard rules, kept):
 ## 3. Build system
 
 - **Versions (pawdex parity):** Gradle 9.4.1, AGP 9.2.0, Kotlin 2.3.21, Compose Multiplatform
-  1.10.3, JVM target 21, compileSdk/targetSdk 36, minSdk 24, Koin 4.2.1, SqlDelight 2.3.2
+  1.10.3, JVM target 21, compileSdk/targetSdk 36, minSdk 31 (Android 12), Koin 4.2.1, SqlDelight 2.3.2
   (generateAsync, sqlite-3-38), Ktor 3.4.3 (catalog presence; no networking feature at launch),
   Coil 3.4.0, kotlinx: coroutines 1.10.2 / serialization 1.11.0 / datetime 0.7.1 /
   collections-immutable 0.4.0, JetBrains navigation-compose 2.9.2 + lifecycle 2.10.0,

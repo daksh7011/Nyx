@@ -22,7 +22,7 @@
 ## Global constraints (verbatim, apply to every task in every plan)
 
 - Kotlin 2.3.21, AGP 9.2.0, Gradle 9.4.1, Compose Multiplatform 1.10.3, JVM target 21,
-  compileSdk 36, targetSdk 36, minSdk 24.
+  compileSdk 36, targetSdk 36, minSdk 31 (Android 12).
 - KMP targets on every KMP module: `androidTarget` (via `com.android.kotlin.multiplatform.library`,
   configured as `kotlin { android {} }`), `iosX64`, `iosArm64`, `iosSimulatorArm64`, `jvm`,
   `wasmJs`. `applyDefaultHierarchyTemplate()`. iOS compiles only on macOS — never gate Linux

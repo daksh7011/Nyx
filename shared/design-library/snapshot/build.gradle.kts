@@ -5,10 +5,16 @@ plugins {
 
 android {
     namespace = "com.slothiesmooth.nyx.designlibrary.snapshot"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
-        minSdk = 24
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
 
     compileOptions {

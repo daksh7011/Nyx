@@ -7,8 +7,10 @@ plugins {
     id("com.android.kotlin.multiplatform.library")
 }
 
-val nyxAndroidCompileSdk = 36
-val nyxAndroidMinSdk = 24
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
+val nyxAndroidCompileSdk = libs.findVersion("android-compileSdk").get().requiredVersion.toInt()
+val nyxAndroidMinSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
 val nyxJvmToolchain = 21
 
 fun defaultAndroidNamespace(projectPath: String): String {
@@ -19,8 +21,6 @@ fun defaultAndroidNamespace(projectPath: String): String {
         .map { it.replace("-", "") }
     return "com.slothiesmooth.nyx." + segments.joinToString(".")
 }
-
-val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 kotlin {
     android {
@@ -37,7 +37,13 @@ kotlin {
     iosSimulatorArm64()
 
     wasmJs {
-        browser()
+        browser {
+            testTask {
+                useKarma {
+                    useChromeHeadless()
+                }
+            }
+        }
     }
 
     applyDefaultHierarchyTemplate()

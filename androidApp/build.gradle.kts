@@ -6,12 +6,21 @@ plugins {
 
 android {
     namespace = "com.slothiesmooth.nyx"
-    compileSdk = 36
+    compileSdk =
+        libs.versions.android.compileSdk
+            .get()
+            .toInt()
 
     defaultConfig {
         applicationId = "com.slothiesmooth.nyx"
-        minSdk = 24
-        targetSdk = 36
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
+        targetSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
         versionCode = 1
         versionName = "1.0.0"
     }
