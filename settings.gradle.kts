@@ -49,4 +49,8 @@ include(
     ":feature:decrypt:client:basic",
     ":feature:settings:client:api",
     ":feature:settings:client:basic",
+    ":androidApp",
+    ":desktopApp",
+    ":webApp",
+    ":shared:design-library:snapshot",
 )
