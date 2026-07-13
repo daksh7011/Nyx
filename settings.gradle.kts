@@ -32,6 +32,7 @@ include(
     ":shared:presentation",
     ":shared:compose-test-support",
     ":shared:design-library",
+    ":client",
     ":feature:common:client:api",
     ":feature:common:client:koin",
     ":feature:navigation:client:api",
