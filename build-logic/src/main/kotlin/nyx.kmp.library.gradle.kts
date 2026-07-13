@@ -32,7 +32,9 @@ kotlin {
 
     jvm()
 
-    iosX64()
+    // iosX64 (Intel-Mac iOS simulator) is intentionally omitted: Compose Multiplatform 1.11.1
+    // and filekit 0.14.2 no longer publish an iosX64 variant, so its compilation cannot resolve
+    // those artifacts. Apple Silicon simulators use iosSimulatorArm64; real devices use iosArm64.
     iosArm64()
     iosSimulatorArm64()
 
