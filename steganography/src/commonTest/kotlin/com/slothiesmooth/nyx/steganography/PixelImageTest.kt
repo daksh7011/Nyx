@@ -6,7 +6,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class PixelImageTest {
-
     @Test
     fun `holds its dimensions and pixel data`() {
         val pixels = intArrayOf(0xFF112233.toInt(), 0xFF445566.toInt(), 1, 2)
