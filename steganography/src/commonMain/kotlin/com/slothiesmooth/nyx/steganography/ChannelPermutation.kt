@@ -18,11 +18,11 @@ internal class ChannelPermutation(private val channelCount: Long) {
     /** Maps index k in [0, channelCount) to a scattered channel in [0, channelCount), bijectively. */
     fun map(index: Long): Long {
         require(index in 0 until channelCount)
-        var x = index
+        var walked = index
         do {
-            x = feistel(x)
-        } while (x >= channelCount) // cycle-walk: stay inside the real range
-        return x
+            walked = feistel(walked)
+        } while (walked >= channelCount) // cycle-walk: stay inside the real range
+        return walked
     }
 
     private fun feistel(value: Long): Long {
@@ -38,11 +38,11 @@ internal class ChannelPermutation(private val channelCount: Long) {
 
     // Any deterministic function keeps Feistel a bijection; this one mixes well and is cross-platform.
     private fun roundFunction(half: Long, round: Int): Long {
-        var h = half
-        h = (h + round.toLong() * ROUND_CONST) and halfMask
-        h = (h * MIX_ODD_MULTIPLIER) and halfMask
-        h = (h xor (h ushr MIX_SHIFT)) and halfMask
-        return h
+        var mixed = half
+        mixed = (mixed + round.toLong() * ROUND_CONST) and halfMask
+        mixed = (mixed * MIX_ODD_MULTIPLIER) and halfMask
+        mixed = (mixed xor (mixed ushr MIX_SHIFT)) and halfMask
+        return mixed
     }
 
     private companion object {
