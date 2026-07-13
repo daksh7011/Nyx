@@ -40,7 +40,7 @@ data class NxColors(
 )
 
 /** Default dark. Deep night indigo with a violet brand — Nyx, goddess of night. */
-val NxColorsUmbra = NxColors(
+val NxColorsMidnight = NxColors(
     bg = Color(0xFF14121F),
     bgElev1 = Color(0xFF1B1929),
     bgElev2 = Color(0xFF232033),
@@ -72,7 +72,7 @@ val NxColorsUmbra = NxColors(
 )
 
 /** Pure-black OLED dark. */
-val NxColorsEclipse = NxColors(
+val NxColorsEspresso = NxColors(
     bg = Color(0xFF000000),
     bgElev1 = Color(0xFF0C0C14),
     bgElev2 = Color(0xFF16161F),
@@ -104,7 +104,7 @@ val NxColorsEclipse = NxColors(
 )
 
 /** Dark violet. */
-val NxColorsDusk = NxColors(
+val NxColorsNardo = NxColors(
     bg = Color(0xFF1D1430),
     bgElev1 = Color(0xFF251A3D),
     bgElev2 = Color(0xFF2E2149),
@@ -136,7 +136,7 @@ val NxColorsDusk = NxColors(
 )
 
 /** Default light. Cool moonlit grays with a deep violet brand. */
-val NxColorsMoonlight = NxColors(
+val NxColorsCreame = NxColors(
     bg = Color(0xFFF4F4F8),
     bgElev1 = Color(0xFFFAFAFD),
     bgElev2 = Color(0xFFFFFFFF),
@@ -168,7 +168,7 @@ val NxColorsMoonlight = NxColors(
 )
 
 /** Warm light. Cream first-light tones with a plum brand. */
-val NxColorsDawn = NxColors(
+val NxColorsMist = NxColors(
     bg = Color(0xFFFAF5EC),
     bgElev1 = Color(0xFFFDFAF3),
     bgElev2 = Color(0xFFFFFFFF),

@@ -1,23 +1,23 @@
 package com.slothiesmooth.nyx.designlibrary.tokens
 
 enum class NxPalette(val displayName: String, val dark: Boolean) {
-    Umbra("Umbra", true),
-    Eclipse("Eclipse", true),
-    Dusk("Dusk", true),
-    Moonlight("Moonlight", false),
-    Dawn("Dawn", false);
+    Midnight("Midnight", true),
+    Espresso("Espresso", true),
+    Nardo("Nardo", true),
+    Creame("Creame", false),
+    Mist("Mist", false);
 
     val colors: NxColors
         get() = when (this) {
-            Umbra -> NxColorsUmbra
-            Eclipse -> NxColorsEclipse
-            Dusk -> NxColorsDusk
-            Moonlight -> NxColorsMoonlight
-            Dawn -> NxColorsDawn
+            Midnight -> NxColorsMidnight
+            Espresso -> NxColorsEspresso
+            Nardo -> NxColorsNardo
+            Creame -> NxColorsCreame
+            Mist -> NxColorsMist
         }
 
     companion object {
-        val DefaultDark = Umbra
-        val DefaultLight = Moonlight
+        val DefaultDark = Midnight
+        val DefaultLight = Creame
     }
 }
