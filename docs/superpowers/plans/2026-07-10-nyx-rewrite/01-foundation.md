@@ -234,7 +234,9 @@ Separately, the new `:steganography` module maps by default to the directory `st
 
   # Kotlin
   kotlin.code.style=official
-  kotlin.daemon.jvmargs=-Xmx4g
+  # Kotlin/Wasm test compilation OOMs under parallel module builds on the default daemon heap
+  # (proven in the same-author Baro project). Give the Kotlin daemon the large heap.
+  kotlin.daemon.jvmargs=-Xmx8g
 
   # Kotlin Multiplatform / native
   kotlin.native.ignoreDisabledTargets=true
