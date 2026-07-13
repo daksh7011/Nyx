@@ -1535,13 +1535,14 @@ compile.
 
 **Interfaces:**
 - Consumes: `androidx.navigation.NavController` (JetBrains navigation-compose), Task 7 `UiState`.
-- Produces (00-INDEX contract): `NavController.pushDestination/popDestination/setDestination/replaceDestination/restoreDestination(route: Any)`;
+- Produces (00-INDEX contract): `NavController.pushDestination/popDestination/setDestination/restoreDestination(route: Any)`;
   `@Composable fun ViewStateHandler(...)`.
 
-Note on `getDestinationId`: the 00-INDEX contract lists five extensions (push/pop/set/replace/
-restore). The pawdex/Baro reference contains push/pop/set/restore but NOT a `generateHashCode`-
-based `getDestinationId` (the task says "port what exists"), so it is omitted. `replaceDestination`
-is added per the contract with replace-current-inclusive semantics.
+Note on `getDestinationId`: the 00-INDEX contract lists four extensions (push/pop/set/restore).
+The pawdex/Baro reference contains push/pop/set/restore but NOT a `generateHashCode`-based
+`getDestinationId` (the task says "port what exists"), so it is omitted. There is NO shared
+`replaceDestination` — per 00-INDEX, `popUpTo(Any)` is ambiguous on wasm, so `FeatureHostContext`
+(plan 05) inlines replace as `popUpTo(currentDestination?.route: String)`.
 
 **Steps:**
 
@@ -1587,22 +1588,6 @@ fun NavController.setDestination(route: Any) {
             graph.startDestinationRoute?.let { graphRoute ->
                 popUpTo(graphRoute) { inclusive = false }
             }
-        },
-    )
-}
-
-/**
- * Replaces the current destination with [route]: pops the current entry (inclusive) then navigates,
- * as a single top instance, so the replaced screen is not left on the back stack.
- */
-fun NavController.replaceDestination(route: Any) {
-    navigate(
-        route,
-        navOptions {
-            currentBackStackEntry?.destination?.route?.let { currentRoute ->
-                popUpTo(currentRoute) { inclusive = true }
-            }
-            launchSingleTop = true
         },
     )
 }

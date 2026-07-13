@@ -378,13 +378,14 @@ interface UiEvent
 // restoreDestination (Baro/wasm-safe set). NO shared replaceDestination — popUpTo(Any) is
 // ambiguous on wasm; FeatureHostContext inlines replace as popUpTo(currentDestination?.route: String).
 
-// util/ByteArrayExtensions.kt — expect/actual, encoded bytes -> Compose ImageBitmap (previews/tiles):
+// image/ImageBitmapDecode.kt (package ...shared.presentation.image) — expect/actual, encoded bytes
+// -> Compose ImageBitmap (previews/tiles):
 expect fun ByteArray.toImageBitmap(): ImageBitmap
-//   androidMain: BitmapFactory.decodeByteArray(this, 0, size).asImageBitmap()
-//   skikoMain (intermediate source set = iosMain + jvmMain + wasmJsMain, dependsOn(commonMain)):
+//   androidMain (image/ImageBitmapDecode.android.kt): BitmapFactory.decodeByteArray(this, 0, size).asImageBitmap()
+//   skikoMain (image/ImageBitmapDecode.skiko.kt; intermediate source set = iosMain + jvmMain + wasmJsMain, dependsOn(commonMain)):
 //     org.jetbrains.skia.Image.makeFromEncoded(this).toComposeImageBitmap()  // skiko ships with CMP
-// Requires a skikoMain intermediate source set in :shared:presentation — mirrors the
-// DefaultImageCodec skikoMain in :client.
+// The skikoMain intermediate source set in :shared:presentation is ADDED BY plan 06 Task 1 (NOT plan 03) —
+// mirrors the DefaultImageCodec skikoMain in :client.
 ```
 
 ### :feature:common:client:api (`com.slothiesmooth.nyx.feature.common.api`)
@@ -407,16 +408,14 @@ tracking):
 
 ```kotlin
 @Stable interface FeatureContext {
-    fun getCurrentDestinationChanges(): Flow<Int>   // navController.currentBackStackEntryFlow
-                                                     //   .mapNotNull { it.destination.id }.distinctUntilChanged()
-    fun getCurrentDestination(): Int?               // navController.currentBackStackEntry?.destination?.id
-    fun getDestinationId(route: Any): Int           // STUBBED to 0 — no consumer; route::class.serializer()
-                                                     //   .generateHashCode() is ambiguous on wasm + needs InternalSerializationApi
+    fun getCurrentDestinationChanges(): Flow<String?>  // navController.currentBackStackEntryFlow
+                                                        //   .map { it.destination.route }.distinctUntilChanged()
+    fun getCurrentDestination(): String?               // navController.currentBackStackEntry?.destination?.route
     fun pushDestination(route: Any)
     fun popDestination()
     fun setDestination(route: Any)
-    fun replaceDestination(route: Any)              // FeatureHostContext inlines it: navigate(route) {
-                                                     //   popUpTo(currentDestination?.route: String){inclusive=true}; launchSingleTop=true }
+    fun replaceDestination(route: Any)                 // FeatureHostContext inlines it: navigate(route) {
+                                                        //   popUpTo(currentDestination?.route: String){inclusive=true}; launchSingleTop=true }
     fun restoreDestination(route: Any)
 }
 ```
@@ -537,7 +536,7 @@ object NxTokens { val colors: NxColors @Composable get; val type: NxType @Compos
 fun NxColors.toMaterial3ColorScheme(dark: Boolean): ColorScheme    // tokens/NxMaterial3Bridge.kt
 // tokens/AllThemePreview.kt: @AllThemePreview multipreview (5 palettes)
 // tokens/NxPaletteProvider.kt: PreviewParameterProvider<NxPalette>
-enum class NxIconKind { /* Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image,
+enum class NxIconKind { /* Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image,   // tokens/NxIconKind.kt
     Camera, Share, Trash, Archive, Restore, Copy, Check, Close, Settings, Palette, Info, Warning, Vault */ }
 ```
 
@@ -545,7 +544,7 @@ Components (each `NxX.kt` + sibling `NxXPreview.kt` with public `NxXSample()` + 
 `@AllThemePreview` fun): NxText, NxButton(style: NxButtonStyle{Primary,Soft,Ghost,Danger},
 size: NxButtonSize{Regular,Small}, block, leadingIcon), NxIcon/NxIconButton, NxField,
 NxPasswordField(visibility toggle), NxChip, NxCard(variant{Elevated,Flat}), NxTopBar(title, sub,
-leading, trailing), NxBottomNav(items), NxFab, NxEmptyState(icon, title, body, cta),
+leading, trailing), NxBottomNav(items), NxFab, NxEmptyState(icon, title, body, ctaText, onCta),
 NxProgressOverlay(label), NxSectionHeader, NxImageTile(bytes/painter, selected),
 NxDetailTemplate(topBar, content), NxFormTemplate, NxWizardTemplate(steps, currentStep).
 
@@ -612,21 +611,27 @@ CREATE INDEX idx_stego_image_active ON stego_image(is_archived, deleted_at);
    `LaunchedEffect(context)` collects the `Action` flow into `onReceiveAction(action, context)`)
    and delegates to the abstract `onProvideContent(context, content)`; concrete providers override
    `onProvideContent`/`onProvideNavigation`, never the base `provideContent`/`provideNavigation`.
-9. `FeatureContext` destination tracking (Baro, wasm-safe): `getDestinationId(route)` is STUBBED
-   to `0` (no consumer) — `route::class.serializer().generateHashCode()` is ambiguous on wasm and
-   needs `@InternalSerializationApi`; current-destination is tracked via the nav library's
-   `NavDestination.id` (Int) through `getCurrentDestination()`/`getCurrentDestinationChanges()`.
-   The shared `replaceDestination` NavController extension is dropped (popUpTo(Any) ambiguous on
-   wasm) and inlined in `FeatureHostContext` as `popUpTo(currentDestination?.route: String)`.
+9. `FeatureContext` destination tracking (Baro, wasm-safe): `getDestinationId(route): Int` is
+   DROPPED (no consumer, and `route::class.serializer().generateHashCode()` is ambiguous on wasm +
+   needs `@InternalSerializationApi`); current-destination is tracked by route NAME (String) via
+   `getCurrentDestination(): String?` (`currentBackStackEntry?.destination?.route`) and
+   `getCurrentDestinationChanges(): Flow<String?>` (`currentBackStackEntryFlow.map { it.destination.route }
+   .distinctUntilChanged()`) — String, not `NavDestination.id` (Int), so tab selection stays
+   wasm-safe (implemented in plan 05 Task 1). The shared `replaceDestination` NavController extension
+   is dropped (popUpTo(Any) ambiguous on wasm) and inlined in `FeatureHostContext` as
+   `popUpTo(currentDestination?.route: String)`.
 10. Cross-feature api deps: narrow ROUTE-ONLY exception to the no-feature-to-feature rule —
     `vault.basic→encrypt.api`, `vault.basic→decrypt.api`, `settings.basic→theme.api` (reference a
     sibling's `@Serializable` route for navigation only). No `basic→basic`; `DomainEventBus` stays
     the only cross-feature data channel. Baro's `:basic` modules likewise depend on sibling `:api`
     modules (dashboard.basic → auth/alerts/explore/log/hosts.api); Nyx narrows this to route-only.
 11. `:shared:presentation` gains a `skikoMain` intermediate source set for the expect/actual
-    `ByteArray.toImageBitmap()` (androidMain BitmapFactory; skikoMain = iosMain+jvmMain+wasmJsMain
-    via skiko) — mirrors the `:client` `DefaultImageCodec` skikoMain. Nyx-internal (Baro has no
-    image codec / skikoMain of its own); grounded in Nyx's existing `:client` skiko decision.
+    `ByteArray.toImageBitmap()` (declared in `image/ImageBitmapDecode.kt`, package
+    `...shared.presentation.image`; androidMain BitmapFactory in `ImageBitmapDecode.android.kt`,
+    skikoMain = iosMain+jvmMain+wasmJsMain via skiko in `ImageBitmapDecode.skiko.kt`) — mirrors the
+    `:client` `DefaultImageCodec` skikoMain. The source set and both actuals are added by plan 06
+    Task 1 (NOT plan 03). Nyx-internal (Baro has no image codec / skikoMain of its own); grounded
+    in Nyx's existing `:client` skiko decision.
 12. `SaveToVaultUseCase(pngBytes, name)`: blank `name` → auto-generate `"nyx-${id.take(8)}.png"`;
     non-blank → override. `EncryptViewModel` passes `""`. Added `@Serializable data object
     SettingsLicensesRoute` to `feature.settings.api`.

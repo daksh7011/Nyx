@@ -1092,6 +1092,7 @@ private fun NxTextPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette
 ### Task 6: NxIconSet, NxIcon, NxIconButton (21 icons, PathParser approach)
 
 **Files:**
+- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/tokens/NxIconKind.kt`
 - Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/atoms/NxVectorBuilder.kt`
 - Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/atoms/NxIconSet.kt`
 - Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/atoms/NxIconButton.kt`
@@ -1101,7 +1102,7 @@ private fun NxTextPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette
 **Interfaces:**
 - Consumes: `NxTokens`, `NxTheme` (Task 4), `NxText` (Task 5, previews only).
 - Produces (00-INDEX contract — exact enum values, exact order):
-  - `enum class NxIconKind { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image, Camera, Share, Trash, Archive, Restore, Copy, Check, Close, Settings, Palette, Info, Warning, Vault }`
+  - `enum class NxIconKind { Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image, Camera, Share, Trash, Archive, Restore, Copy, Check, Close, Settings, Palette, Info, Warning, Vault }` in `tokens/NxIconKind.kt` (package `...designlibrary.tokens` — 00-INDEX pins this file/package; plans 05/06 import it from `tokens`)
   - `@Composable fun NxIcon(kind: NxIconKind, modifier: Modifier = Modifier, tint: Color = LocalContentColor.current, contentDescription: String? = null, size: Dp = 20.dp)`
   - `enum class NxIconButtonStyle { Outline, Ghost, Filled }`
   - `@Composable fun NxIconButton(kind: NxIconKind, onClick: () -> Unit, modifier: Modifier = Modifier, style: NxIconButtonStyle = NxIconButtonStyle.Outline, contentDescription: String? = null)`
@@ -1110,7 +1111,18 @@ Icon provenance: generic glyphs (chevrons, plus, close, check, camera, archive, 
 
 **Steps:**
 
-- [ ] **Step 1: Write `NxVectorBuilder.kt`** (pawdex `PathParser.kt` ported — builds ImageVectors from SVG path data via `addPathNodes`; stroke color is a black template tinted by `Icon`):
+- [ ] **Step 1: Write `NxIconKind.kt`** (the icon-kind token enum — 00-INDEX pins it to the `tokens/` package; every atom, molecule, and template references `NxIconKind` from `tokens`, as do plans 05/06):
+
+```kotlin
+package com.slothiesmooth.nyx.designlibrary.tokens
+
+enum class NxIconKind {
+    Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image, Camera, Share,
+    Trash, Archive, Restore, Copy, Check, Close, Settings, Palette, Info, Warning, Vault
+}
+```
+
+- [ ] **Step 2: Write `NxVectorBuilder.kt`** (pawdex `PathParser.kt` ported — builds ImageVectors from SVG path data via `addPathNodes`; stroke color is a black template tinted by `Icon`):
 
 ```kotlin
 package com.slothiesmooth.nyx.designlibrary.atoms
@@ -1154,7 +1166,7 @@ internal object NxVectorBuilder {
 }
 ```
 
-- [ ] **Step 2: Write `NxIconSet.kt`** (complete — every path string final):
+- [ ] **Step 3: Write `NxIconSet.kt`** (complete — every path string final):
 
 ```kotlin
 package com.slothiesmooth.nyx.designlibrary.atoms
@@ -1168,11 +1180,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-
-enum class NxIconKind {
-    Plus, ChevronLeft, ChevronRight, Eye, EyeOff, Lock, Unlock, Image, Camera, Share,
-    Trash, Archive, Restore, Copy, Check, Close, Settings, Palette, Info, Warning, Vault
-}
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 
 object NxIconSet {
 
@@ -1353,7 +1361,7 @@ fun NxIcon(
 }
 ```
 
-- [ ] **Step 3: Write `NxIconButton.kt`:**
+- [ ] **Step 4: Write `NxIconButton.kt`:**
 
 ```kotlin
 package com.slothiesmooth.nyx.designlibrary.atoms
@@ -1366,6 +1374,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
 
 enum class NxIconButtonStyle { Outline, Ghost, Filled }
@@ -1405,7 +1414,7 @@ fun NxIconButton(
 }
 ```
 
-- [ ] **Step 4: Write `NxIconSetPreview.kt`:**
+- [ ] **Step 5: Write `NxIconSetPreview.kt`:**
 
 ```kotlin
 package com.slothiesmooth.nyx.designlibrary.atoms
@@ -1418,6 +1427,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
@@ -1457,7 +1467,7 @@ private fun NxIconSetPaletteAll(@PreviewParameter(NxPaletteProvider::class) pale
 
 Add the missing import line to the file above: `import org.jetbrains.compose.ui.tooling.preview.PreviewParameter` (alphabetical position: after the `com.slothiesmooth...` imports).
 
-- [ ] **Step 5: Write `NxIconButtonPreview.kt`:**
+- [ ] **Step 6: Write `NxIconButtonPreview.kt`:**
 
 ```kotlin
 package com.slothiesmooth.nyx.designlibrary.atoms
@@ -1468,6 +1478,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
@@ -1494,8 +1505,8 @@ private fun NxIconButtonPaletteAll(@PreviewParameter(NxPaletteProvider::class) p
 }
 ```
 
-- [ ] **Step 6: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
-- [ ] **Step 7: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): 21-icon NxIconSet with NxIcon and NxIconButton"`.
+- [ ] **Step 7: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
+- [ ] **Step 8: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): 21-icon NxIconSet with NxIcon and NxIconButton"`.
 
 ---
 
@@ -1535,6 +1546,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxRadius
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
@@ -1625,6 +1637,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
@@ -1761,6 +1774,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
 
 private val PasswordTextSize = 15.sp
@@ -2127,8 +2141,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
@@ -2183,8 +2197,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
@@ -2256,7 +2270,7 @@ data class NxBottomNavItem(
 )
 ```
 
-> Note: `NxIconKind` is declared in Task 6's `NxIconSet.kt` under package `...designlibrary.atoms`. If plan 05's pinned import (`...designlibrary.tokens.NxIconKind`) is treated as authoritative instead, move the `enum class NxIconKind` declaration into a `tokens/` file in Task 6 and update the imports in Tasks 6, 12, 16 accordingly — pick one location and keep every reference consistent (see the "Cross-plan note" at the end of this plan).
+> Note: `NxIconKind` lives in `tokens/NxIconKind.kt` (package `...designlibrary.tokens`), created in Task 6 Step 1 — 00-INDEX pins it to the tokens section, and plans 05/06 import it from there. This `...designlibrary.tokens.NxIconKind` import is authoritative; every atom, molecule, template, and preview in this plan references `NxIconKind` from `tokens`.
 
 - [ ] **Step 2: Write `NxBottomNav.kt`:**
 
@@ -2413,7 +2427,7 @@ private fun NxBottomNavPaletteAll(@PreviewParameter(NxPaletteProvider::class) pa
 }
 ```
 
-> The preview import above uses `...tokens.NxIconKind` to stay byte-identical to plan 05. If Task 6 keeps `NxIconKind` in `atoms` (as written), change this single import to `...atoms.NxIconKind`. Resolve once, per the cross-plan note.
+> The preview import above uses `...tokens.NxIconKind` — the canonical location (created in Task 6 Step 1, per the 00-INDEX tokens section). It is byte-identical to plan 05's import; no change needed.
 
 - [ ] **Step 4: Verify:** `./gradlew :shared:design-library:compileKotlinJvm` → `BUILD SUCCESSFUL`.
 - [ ] **Step 5: Commit:** `git add shared/design-library/src && git commit -m "feat(design-library): NxBottomNav organism with NxBottomNavItem"`.
@@ -2448,7 +2462,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxShadow
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
 
@@ -2489,8 +2503,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
@@ -2555,7 +2569,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxRadius
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
 
@@ -2795,8 +2809,8 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
@@ -2845,8 +2859,8 @@ fun NxEmptyState(
 package com.slothiesmooth.nyx.designlibrary.molecules
 
 import androidx.compose.runtime.Composable
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
@@ -3047,9 +3061,9 @@ import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxButtonStyle
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
 import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
@@ -3678,4 +3692,4 @@ This plan now delivers all 16 components (Tasks 5-20) plus the snapshot module (
 
 1. **`NxBottomNav` + `NxEmptyState` are delivered here (Tasks 12, 16), not in plan 05 Task 3.** Plan 05 was written assuming plan 04 stopped at `NxCard`. When executing plan 05, **skip its Task 3** (both components exist after this plan) and keep only plan 05's downstream wiring (the `NavItem → NxBottomNavItem` mapping in its Task 8, and the feature stubs in its Task 9).
 2. **`NxEmptyState` CTA parameter is `ctaText` (not `ctaLabel`).** Chosen to satisfy plan 06's explicit mandate that plan 04 Tasks 11-20 expose those exact signatures. Update plan 05's single `ctaLabel = "Change theme"` call in `BasicSettingsProvider` to `ctaText = "Change theme"`.
-3. **`NxIconKind` package.** Task 6 (unchanged by this completion) declares `enum class NxIconKind` in `...designlibrary.atoms`; plans 05/06 import it from `...designlibrary.tokens`. Pick one home and make every reference agree. Recommended: move the enum to a `tokens/NxIconKind.kt` file (it is a pure token enum with no atom dependency, and 00-INDEX lists it in the tokens section) and update imports in Tasks 6, 11-16, 18, 20 here plus the plan 05/06 consumers. This plan's new tasks import from `atoms` to stay compilable against Task 6 as currently written; flip them together with Task 6 if you relocate the enum.
+3. **`NxIconKind` package (resolved).** `NxIconKind` is declared in `tokens/NxIconKind.kt` (package `...designlibrary.tokens`), created in Task 6 Step 1 — matching 00-INDEX (which lists it in the tokens section) and the `...designlibrary.tokens.NxIconKind` imports already used throughout plans 05/06. Every reference in this plan (Tasks 6-16, 18) imports it from `tokens`. No action is required for plans 05/06 — their existing `tokens.NxIconKind` imports are already correct.

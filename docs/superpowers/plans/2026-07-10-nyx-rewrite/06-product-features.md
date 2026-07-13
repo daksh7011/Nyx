@@ -142,21 +142,24 @@ interface FeatureContext {
     fun restoreDestination(route: Any)
 }
 interface FeatureProvider {
-    @Composable fun provideContent(content: @Composable () -> Unit)
+    @Composable fun provideContent(context: FeatureContext, content: @Composable () -> Unit)
     fun provideNavigation(context: FeatureContext, builder: NavGraphBuilder)
 }
-abstract class BaseFeatureProvider : FeatureProvider   // internal nav-action SharedFlow; onSendAction/onReceiveAction
+abstract class BaseFeatureProvider : FeatureProvider {   // internal nav-action SharedFlow; onSendAction/onReceiveAction
+    // final override provideContent(context, content): LaunchedEffect(context) collects the Action flow, then delegates to onProvideContent
+    @Composable abstract fun onProvideContent(context: FeatureContext, content: @Composable () -> Unit)  // template method — every concrete provider MUST override
+    open fun onProvideNavigation(context: FeatureContext, builder: NavGraphBuilder) {}                   // template method; base's provideNavigation delegates here
+}
 
 // koin — com.slothiesmooth.nyx.feature.common.koin
 abstract class KoinFeatureProvider : BaseFeatureProvider() {
     open fun Module.onProvideDI() {}
-    open fun onProvideNavigation(context: FeatureContext, builder: NavGraphBuilder) {}   // template method; base's provideNavigation delegates here
     @Composable fun withDI(content: @Composable () -> Unit)                               // sets the isolated Koin context for the subtree
 }
 @Composable inline fun <reified T : BaseViewModel> koinFeatureViewModel(): T             // resolves in isolated context + calls bind()
 ```
 
-**Provider pattern this plan uses (pinned):** each `BasicXProvider` extends `KoinFeatureProvider()` and implements its api `XFeature`. It overrides `fun Module.onProvideDI()` (register outer deps + repos/use-cases/VMs) and `onProvideNavigation(context, builder)` (register `composable<Route> { withDI { XScreen(...) } }`, wiring navigation lambdas that call `context.pushDestination(...)` / `context.popDestination()` directly). Screens resolve VMs via `koinFeatureViewModel<T>()`. (This plan navigates directly through the `FeatureContext` passed to `onProvideNavigation` rather than the optional `onSendAction`/`onReceiveAction` relay — simpler and fully sufficient; the relay remains available from `BaseFeatureProvider` if a later need arises.)
+**Provider pattern this plan uses (pinned):** each `BasicXProvider` extends `KoinFeatureProvider()` and implements its api `XFeature`. It overrides `@Composable fun onProvideContent(context, content) = content()` (the abstract template on `BaseFeatureProvider` — per-route `withDI` is applied inside `onProvideNavigation`, so this chain wrapper just passes `content()` through), `fun Module.onProvideDI()` (register outer deps + repos/use-cases/VMs), and `onProvideNavigation(context, builder)` (register `composable<Route> { withDI { XScreen(...) } }`, wiring navigation lambdas that call `context.pushDestination(...)` / `context.popDestination()` directly). Screens resolve VMs via `koinFeatureViewModel<T>()`. (This plan navigates directly through the `FeatureContext` passed to `onProvideNavigation` rather than the optional `onSendAction`/`onReceiveAction` relay — simpler and fully sufficient; the relay remains available from `BaseFeatureProvider` if a later need arises.)
 
 ### From `:shared:compose-test-support` (plan 05) — `runFeatureUiTest`
 
@@ -1582,6 +1585,7 @@ git commit -m "feat(vault): detail screen with share/archive/restore/delete/decr
 ```kotlin
 package com.slothiesmooth.nyx.feature.vault.basic
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
@@ -1625,6 +1629,9 @@ class BasicVaultProvider(
 ) : KoinFeatureProvider(), VaultFeature {
 
     override fun observeActiveCount(): Flow<Int> = vaultSource.observeActive().map { it.size }
+
+    @Composable
+    override fun onProvideContent(context: FeatureContext, content: @Composable () -> Unit) = content()
 
     override fun Module.onProvideDI() {
         single { vaultSource }
@@ -2453,6 +2460,7 @@ git commit -m "feat(encrypt): wizard screen and content with previews"
 ```kotlin
 package com.slothiesmooth.nyx.feature.encrypt.basic
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.slothiesmooth.nyx.crypto.NyxCrypto
@@ -2491,6 +2499,9 @@ class BasicEncryptProvider(
     private val shareSource: ShareSource,
     private val capabilities: PlatformCapabilities,
 ) : KoinFeatureProvider(), EncryptFeature {
+
+    @Composable
+    override fun onProvideContent(context: FeatureContext, content: @Composable () -> Unit) = content()
 
     override fun Module.onProvideDI() {
         single { crypto }
@@ -3230,6 +3241,7 @@ git commit -m "feat(decrypt): reveal screen and content with copy-to-clipboard a
 ```kotlin
 package com.slothiesmooth.nyx.feature.decrypt.basic
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
@@ -3255,6 +3267,9 @@ class BasicDecryptProvider(
     private val codec: ImageCodec,
     private val fileStore: VaultFileStore,
 ) : KoinFeatureProvider(), DecryptFeature {
+
+    @Composable
+    override fun onProvideContent(context: FeatureContext, content: @Composable () -> Unit) = content()
 
     override fun Module.onProvideDI() {
         single { crypto }
@@ -3968,6 +3983,7 @@ git commit -m "feat(settings): about screen with wipe dialog and open-source lic
 ```kotlin
 package com.slothiesmooth.nyx.feature.settings.basic
 
+import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import com.slothiesmooth.nyx.feature.common.api.FeatureContext
@@ -3994,6 +4010,9 @@ class BasicSettingsProvider(
     private val eventBus: DomainEventBus,
     private val appInfo: AppInfo,
 ) : KoinFeatureProvider(), SettingsFeature {
+
+    @Composable
+    override fun onProvideContent(context: FeatureContext, content: @Composable () -> Unit) = content()
 
     override fun Module.onProvideDI() {
         single { vaultSource }

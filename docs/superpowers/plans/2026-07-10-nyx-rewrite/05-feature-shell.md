@@ -40,7 +40,7 @@ This plan consumes, by exact 00-INDEX signature, types delivered by earlier plan
 
 - **Plan 02 (`:crypto`, `:steganography`):** `interface NyxCrypto`, `class DefaultNyxCrypto()`, `class Steganography()`, `class PixelImage(width, height, pixels: IntArray)`.
 - **Plan 03 (`:shared:data`, `:shared:presentation`, `:shared:test-support`, `:client` SqlDelight):** `AppResult`/`AppError`, `StegoImageId`, `IdGenerator`/`Uuid4IdGenerator`, `Clock`/`SystemClock`/`FakeClock`, `DomainEvent`/`DomainEventBus`/`DefaultDomainEventBus`, `ImageCodec`, `StegoImageRecord`, `VaultSource`, `VaultFileStore`, `SettingsSource`, `PickedImage`, `CameraSource`, `ShareSource`, `PlatformCapabilities`, `DeterministicIdGenerator`, in-memory `TestSqlDriver`; `BaseViewModel`, `ViewState`, `MutableViewState`, `UiState`, `UiEvent`; `NavController` extensions `pushDestination`/`popDestination`/`setDestination`/`restoreDestination`; SqlDelight `NyxDb`, `SqlDelightSource`, `VaultSqlSource(SqlDelightSource) : VaultSource` in `:client`.
-- **Plan 04 (`:shared:design-library`):** `NxColors`, `NxPalette` (`Umbra`/`Eclipse`/`Dusk`/`Moonlight`/`Dawn`, `DefaultDark = Umbra`, `DefaultLight = Moonlight`, `.colors`, `.displayName`, `.dark`), `NxTokens` (`colors`/`type`/`spacing`/`radius`), `NxTheme(palette, content)`, `NxSpacing.s0..s10`, `NxRadius.xs..pill`, `NxShadow`, `NxTextStyle`, `NxIconKind` (incl. `Vault`, `Lock`, `Unlock`, `Settings`, `Palette`, `Image`, `Check`), `NxText`, `NxIcon`, `NxIconButton`, `NxButton`, `NxCard`/`NxCardVariant`, `NxChip`, `AllThemePreview`, `NxPaletteProvider`. **Plan 04 delivered components only through `NxCard`; the two components the shell needs beyond that (`NxBottomNav`, `NxEmptyState`) are built here in Task 3 per spec §8 "components built as screens demand," in the same `:shared:design-library` module and preview conventions.**
+- **Plan 04 (`:shared:design-library`):** `NxColors`, `NxPalette` (`Umbra`/`Eclipse`/`Dusk`/`Moonlight`/`Dawn`, `DefaultDark = Umbra`, `DefaultLight = Moonlight`, `.colors`, `.displayName`, `.dark`), `NxTokens` (`colors`/`type`/`spacing`/`radius`), `NxTheme(palette, content)`, `NxSpacing.s0..s10`, `NxRadius.xs..pill`, `NxShadow`, `NxTextStyle`, `NxIconKind` (incl. `Vault`, `Lock`, `Unlock`, `Settings`, `Palette`, `Image`, `Check`), `NxText`, `NxIcon`, `NxIconButton`, `NxButton`, `NxCard`/`NxCardVariant`, `NxChip`, `AllThemePreview`, `NxPaletteProvider`. **The two shell components beyond `NxCard` — `NxBottomNav` (+ `NxBottomNavItem`) and `NxEmptyState` (with `ctaText`/`onCta`) — are delivered by Plan 04 Task 12 and Task 16 respectively, in the same `:shared:design-library` module and preview conventions. This plan does NOT re-create them (Task 3 is a SKIP); it consumes them: `com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem`, `...organisms.NxBottomNav`, `...molecules.NxEmptyState`.**
 
 The single deviation from the abbreviated 00-INDEX prose for the common-api plumbing: the ported `FeatureProvider.provideContent` keeps its `context: FeatureContext` parameter (the recursive host cannot thread navigation/actions without it — the 00-INDEX one-line summary omitted it for brevity; the "ported from pawdex source — same shape" clause governs the exact signature). `FeatureContext.getDestinationId` is dropped (the reference stubbed it to `0`; it is dead once selection is a client-computed flag), and `getCurrentDestinationChanges()` returns route-name `String?`s instead of `Int` ids (wasm-safe). Both are recorded in Open Questions.
 
@@ -442,295 +442,9 @@ git add feature/common/client/koin/src && git commit -m "feat(feature-common): K
 
 ---
 
-### Task 3: `:shared:design-library` — shell components (NxBottomNav, NxEmptyState)
+### Task 3: `:shared:design-library` — SKIP (NxBottomNav/NxEmptyState delivered by Plan 04)
 
-Plan 04 delivered components through `NxCard`; the shell needs two more. Built here in the same module, packages (`models`/`organisms`/`molecules`), and preview convention (public `NxXSample()` + private `@AllThemePreview` over `NxPaletteProvider`) that Plan 04 established.
-
-**Files:**
-- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/models/NxBottomNavItem.kt`
-- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/organisms/NxBottomNav.kt`
-- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/organisms/NxBottomNavPreview.kt`
-- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxEmptyState.kt`
-- Create: `shared/design-library/src/commonMain/kotlin/com/slothiesmooth/nyx/designlibrary/molecules/NxEmptyStatePreview.kt`
-
-**Interfaces:**
-- Consumes (Plan 04): `NxTokens`, `NxIconKind`, `NxIcon`, `NxText`, `NxTextStyle`, `NxButton`, `NxSpacing`, `NxTheme`, `AllThemePreview`, `NxPaletteProvider`, `NxPalette`.
-- Produces:
-  - `@Immutable data class NxBottomNavItem(val icon: NxIconKind, val label: String)`
-  - `@Composable fun NxBottomNav(items: ImmutableList<NxBottomNavItem>, selectedIndex: Int, onSelect: (Int) -> Unit, modifier: Modifier = Modifier)`
-  - `@Composable fun NxEmptyState(icon: NxIconKind, title: String, body: String, modifier: Modifier = Modifier, ctaLabel: String? = null, onCta: (() -> Unit)? = null)`
-
-**Steps:**
-
-- [ ] **Step 1: Write `NxBottomNavItem.kt`:**
-```kotlin
-package com.slothiesmooth.nyx.designlibrary.models
-
-import androidx.compose.runtime.Immutable
-import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
-
-/** One bottom-navigation destination: an [icon] over its [label]. Selection lives in the caller. */
-@Immutable
-data class NxBottomNavItem(
-    val icon: NxIconKind,
-    val label: String,
-)
-```
-
-- [ ] **Step 2: Write `NxBottomNav.kt`:**
-```kotlin
-package com.slothiesmooth.nyx.designlibrary.organisms
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.windowInsetsBottomHeight
-import androidx.compose.material3.ripple
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
-import com.slothiesmooth.nyx.designlibrary.atoms.NxText
-import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
-import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
-import kotlinx.collections.immutable.ImmutableList
-
-private val BarHeight: Dp = 64.dp
-private val NavIconSize: Dp = 22.dp
-private val HairlineWidth: Dp = 1.dp
-private val SelectedStripeWidth: Dp = 2.dp
-
-/**
- * The bottom navigation bar: full-width, evenly-weighted [items], each an [NxIcon] over its label.
- * The item at [selectedIndex] is tinted `brand` and carries a top accent stripe; tapping fires
- * [onSelect]. Stateless — selection and routing live in the caller. Fills under the system gesture bar.
- */
-@Composable
-fun NxBottomNav(
-    items: ImmutableList<NxBottomNavItem>,
-    selectedIndex: Int,
-    onSelect: (Int) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = NxTokens.colors
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(colors.bgElev1)
-            .drawBehind {
-                drawLine(
-                    color = colors.divider,
-                    start = Offset(x = 0f, y = 0f),
-                    end = Offset(x = size.width, y = 0f),
-                    strokeWidth = HairlineWidth.toPx(),
-                )
-            },
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().height(BarHeight),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            items.forEachIndexed { index, item ->
-                NxBottomNavCell(
-                    item = item,
-                    selected = index == selectedIndex,
-                    onClick = { onSelect(index) },
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
-        Spacer(Modifier.fillMaxWidth().windowInsetsBottomHeight(WindowInsets.navigationBars))
-    }
-}
-
-@Composable
-private fun NxBottomNavCell(
-    item: NxBottomNavItem,
-    selected: Boolean,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val colors = NxTokens.colors
-    val tint = if (selected) colors.brand else colors.fgMuted
-    val interactionSource = remember { MutableInteractionSource() }
-    val stripe = if (selected) {
-        Modifier.drawBehind {
-            drawLine(
-                color = colors.brand,
-                start = Offset(x = 0f, y = 0f),
-                end = Offset(x = size.width, y = 0f),
-                strokeWidth = SelectedStripeWidth.toPx(),
-            )
-        }
-    } else {
-        Modifier
-    }
-    Column(
-        modifier = modifier
-            .clickable(interactionSource = interactionSource, indication = ripple(), onClick = onClick)
-            .then(stripe)
-            .padding(vertical = NxSpacing.s2),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NxSpacing.s1),
-    ) {
-        NxIcon(kind = item.icon, tint = tint, contentDescription = item.label, size = NavIconSize)
-        NxText(text = item.label, style = NxTextStyle.Kicker, color = tint, maxLines = 1)
-    }
-}
-```
-
-- [ ] **Step 3: Write `NxBottomNavPreview.kt`:**
-```kotlin
-package com.slothiesmooth.nyx.designlibrary.organisms
-
-import androidx.compose.runtime.Composable
-import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
-import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
-import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
-import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
-import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
-import kotlinx.collections.immutable.persistentListOf
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-
-@Composable
-fun NxBottomNavSample() {
-    NxBottomNav(
-        items = persistentListOf(
-            NxBottomNavItem(NxIconKind.Vault, "Vault"),
-            NxBottomNavItem(NxIconKind.Lock, "Encrypt"),
-            NxBottomNavItem(NxIconKind.Unlock, "Decrypt"),
-            NxBottomNavItem(NxIconKind.Settings, "Settings"),
-        ),
-        selectedIndex = 0,
-        onSelect = {},
-    )
-}
-
-@AllThemePreview
-@Composable
-private fun NxBottomNavPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
-    NxTheme(palette) { NxBottomNavSample() }
-}
-```
-
-- [ ] **Step 4: Write `NxEmptyState.kt`:**
-```kotlin
-package com.slothiesmooth.nyx.designlibrary.molecules
-
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
-import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
-import com.slothiesmooth.nyx.designlibrary.atoms.NxText
-import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
-import com.slothiesmooth.nyx.designlibrary.tokens.NxSpacing
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTokens
-
-private val EmptyIconSize: Dp = 40.dp
-private val EmptyMaxWidth: Dp = 320.dp
-
-/**
- * Centered empty / placeholder state: a large [icon], a [title], supporting [body], and an optional
- * call-to-action. Used for the "coming soon" shell stubs and every feature's empty list.
- */
-@Composable
-fun NxEmptyState(
-    icon: NxIconKind,
-    title: String,
-    body: String,
-    modifier: Modifier = Modifier,
-    ctaLabel: String? = null,
-    onCta: (() -> Unit)? = null,
-) {
-    val colors = NxTokens.colors
-    Column(
-        modifier = modifier.fillMaxSize().padding(NxSpacing.s5),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(NxSpacing.s3, Alignment.CenterVertically),
-    ) {
-        NxIcon(kind = icon, tint = colors.fgMuted, size = EmptyIconSize)
-        NxText(text = title, style = NxTextStyle.Heading, textAlign = TextAlign.Center)
-        NxText(
-            text = body,
-            style = NxTextStyle.Body,
-            color = colors.fgSubtle,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.widthIn(max = EmptyMaxWidth),
-        )
-        if (ctaLabel != null && onCta != null) {
-            NxButton(text = ctaLabel, onClick = onCta)
-        }
-    }
-}
-```
-
-- [ ] **Step 5: Write `NxEmptyStatePreview.kt`:**
-```kotlin
-package com.slothiesmooth.nyx.designlibrary.molecules
-
-import androidx.compose.runtime.Composable
-import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
-import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
-import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
-import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
-import org.jetbrains.compose.ui.tooling.preview.PreviewParameter
-
-@Composable
-fun NxEmptyStateSample() {
-    NxEmptyState(
-        icon = NxIconKind.Vault,
-        title = "Your vault is empty",
-        body = "Hidden messages you save will appear here.",
-        ctaLabel = "Encrypt a message",
-        onCta = {},
-    )
-}
-
-@AllThemePreview
-@Composable
-private fun NxEmptyStatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
-    NxTheme(palette) { NxEmptyStateSample() }
-}
-```
-
-- [ ] **Step 6: Compile:**
-```bash
-./gradlew :shared:design-library:compileKotlinJvm
-```
-Expected: `BUILD SUCCESSFUL`.
-
-- [ ] **Step 7: Commit:**
-```bash
-git add shared/design-library/src && git commit -m "feat(design-library): NxBottomNav and NxEmptyState shell components"
-```
+**SKIP — create no files in this task.** `NxBottomNav` and `NxBottomNavItem` are delivered by Plan 04 Task 12; `NxEmptyState` (with `ctaText`/`onCta`) is delivered by Plan 04 Task 16. Do not create these files here. This plan runs *after* Plan 04, so re-creating them would overwrite Plan 04's `NxEmptyState` — whose CTA parameter is `ctaText`, not `ctaLabel` — and break Plan 06's `ctaText =` call sites. Downstream consumers in this plan already resolve against Plan 04's packages: Task 7 (`BasicNavigationProvider`) imports `com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem` and `...organisms.NxBottomNav`; Task 10 stubs import `...molecules.NxEmptyState` and pass `ctaText`.
 
 ---
 
@@ -1395,7 +1109,7 @@ git add feature/theme/client/basic/src && git commit -m "feat(theme): repository
 - Create: `feature/navigation/client/basic/src/commonMain/kotlin/com/slothiesmooth/nyx/feature/navigation/basic/BasicNavigationProvider.kt`
 
 **Interfaces:**
-- Consumes: `Feature`/`FeatureContext`/`BaseFeatureProvider`/`LocalFeatureBottomBar` (Task 1), `NxIconKind`/`NxBottomNav`/`NxBottomNavItem` (Plan 04 + Task 3).
+- Consumes: `Feature`/`FeatureContext`/`BaseFeatureProvider`/`LocalFeatureBottomBar` (Task 1), `NxIconKind`/`NxBottomNav`/`NxBottomNavItem` (Plan 04, Tasks 12 & 16).
 - Produces (00-INDEX contract — exact):
   - `interface NavigationFeature : Feature { fun setItems(items: ImmutableList<NavItem>) }`
   - `data class NavItem(val route: Any, val label: String, val icon: NxIconKind, val selected: Boolean)`
@@ -1908,7 +1622,7 @@ Each stub provider makes the shell compile and run with a placeholder screen; Pl
 - Create: `feature/settings/client/basic/src/commonMain/kotlin/com/slothiesmooth/nyx/feature/settings/basic/BasicSettingsProvider.kt`
 
 **Interfaces:**
-- Consumes: the matching `XFeature`/`XRoute` (Task 9), `BaseFeatureProvider`/`FeatureContext` (Task 1), `NxEmptyState`/`NxIconKind` (Plan 04 + Task 3).
+- Consumes: the matching `XFeature`/`XRoute` (Task 9), `BaseFeatureProvider`/`FeatureContext` (Task 1), `NxEmptyState`/`NxIconKind` (Plan 04 Task 16).
 - Produces:
   - `class BasicVaultProvider : BaseFeatureProvider(), VaultFeature`
   - `class BasicEncryptProvider : BaseFeatureProvider(), EncryptFeature`
@@ -2058,7 +1772,7 @@ class BasicSettingsProvider(
                 icon = NxIconKind.Settings,
                 title = "Settings",
                 body = "About, licenses, and vault controls are coming soon.",
-                ctaLabel = "Change theme",
+                ctaText = "Change theme",
                 onCta = { onSendAction(OpenTheme) },
             )
         }
@@ -2409,9 +2123,8 @@ fun appModule(platformModule: Module): Module = module {
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
 
     // SqlDelight-backed vault metadata source (schema + wrappers delivered by Plan 03).
-    single { com.slothiesmooth.nyx.client.data.sqldelight.NyxDb(get()) }
-    single { com.slothiesmooth.nyx.client.data.SqlDelightSource(get()) }
-    single<VaultSource> { com.slothiesmooth.nyx.client.data.VaultSqlSource(get()) }
+    single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
+    single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
 
     // Features (each bound to its cross-feature interface).
     single<ThemeFeature> { BasicThemeProvider(ThemeRepository(get()), get()) }
@@ -2438,7 +2151,7 @@ fun appModule(platformModule: Module): Module = module {
     viewModelOf(::AppViewModel)
 }
 ```
-> The three `com.slothiesmooth.nyx.client.data.*` references (`NyxDb`, `SqlDelightSource`, `VaultSqlSource`) are Plan 03 deliverables. If Plan 03's constructors differ (e.g. `SqlDelightSource(NyxDb)` vs `SqlDelightSource(SqlDriver)`), align these three lines with the delivered shapes — they are lazy `single`s the shell never instantiates, so a mismatch surfaces only at compile time. Recorded in Open Questions.
+> Both `com.slothiesmooth.nyx.client.data.source.database.*` references are Plan 03 deliverables, aligned here to their delivered constructors/packages: `SqlDelightSource(driver: SqlDriver, scope: CoroutineScope)` (package `...client.data.source.database.sqldelight`) builds `NyxDb` internally from the injected `SqlDriver` (Task 13's `single<SqlDriver>`) and the shared `CoroutineScope`; `VaultSqlSource(source: SqlDelightSource, ioContext: CoroutineContext = Dispatchers.Default)` (package `...client.data.source.database.vault`) binds `VaultSource`. Both are lazy `single`s the shell never instantiates, so any residual shape drift surfaces only at compile time.
 
 - [ ] **Step 3: Write `AppViewModel.kt`** (owns the start destination and the tab set; `selected` is computed here where route types are known — wasm-safe, no runtime serialization). Route names are stripped of any argument suffix before comparison so a route with args (Decrypt) still matches:
 ```kotlin
@@ -3101,5 +2814,5 @@ git add shared/compose-test-support/src feature/theme/client/basic/src && git co
 2. `FeatureContext.getDestinationId` dropped; `getCurrentDestinationChanges()` returns route-name `String?` (wasm-safe; the reference architecture abandoned the serializer-hash id for the same reason — Nyx targets wasmJs).
 3. Bottom-nav tab selection is a client-computed `NavItem.selected` flag (no runtime route serialization), not a destination-id match.
 4. Cross-feature navigation targets are injected as `Any` routes by `:client` (no feature→feature api deps), rather than the reference's direct api import.
-5. `NxBottomNav` + `NxEmptyState` are built here (Plan 04 stopped at `NxCard`), per spec §8 "components built as screens demand."
+5. `NxBottomNav` + `NxEmptyState` are delivered by Plan 04 (Task 12 and Task 16); this plan consumes them (Task 3 is a SKIP to avoid overwriting Plan 04's `ctaText`-based `NxEmptyState`).
 6. `DefaultImageCodec` is realized as an `expect`/`actual` factory function `defaultImageCodec()` (avoids the `expect class`-implements-interface actualization trap); same contract intent.

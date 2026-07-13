@@ -74,9 +74,13 @@ Phase-specific constraints (load-bearing for entry apps — read before writing 
   `com.slothiesmooth.nyx.client`; the Xcode scaffold at `client/iosApp/`.
 - **`:client` surface consumed here** (00-INDEX `:client` contract): `fun initKoin(platformModule: Module): KoinApplication`,
   `fun appModule(platformModule: Module): Module`, `@Composable fun App()`, the generated
-  SqlDelight database `NyxDb` in package `com.slothiesmooth.nyx.client.data.sqldelight`, and
-  `VaultSqlSource : VaultSource` (plan 03/05). These are `public` — plan 05's `androidApp`
-  already constructs `NyxDb`/`VaultSqlSource` across the module boundary, so desktop can too.
+  SqlDelight database `NyxDb` in package `com.slothiesmooth.nyx.client.data.sqldelight`, the
+  `SqlDelightSource(driver, scope)` wrapper in
+  `com.slothiesmooth.nyx.client.data.source.database.sqldelight`, and
+  `VaultSqlSource(source: SqlDelightSource) : VaultSource` in
+  `com.slothiesmooth.nyx.client.data.source.database.vault` (both plan 03). These are `public` —
+  plan 05's `androidApp` already constructs the vault source across the module boundary, so
+  desktop can too.
 - **`:shared:data` source interfaces consumed here** (00-INDEX `:shared:data` contract, package
   `com.slothiesmooth.nyx.shared.data`): `VaultSource`, `VaultFileStore`, `SettingsSource`,
   `ShareSource`, `CameraSource`, `PickedImage`, `PlatformCapabilities`, `StegoImageRecord`,
@@ -136,8 +140,11 @@ Phase-specific constraints (load-bearing for entry apps — read before writing 
 **Interfaces:**
 - Consumes (from `:client`, plans 03/05): `fun initKoin(platformModule: Module): KoinApplication`,
   `@Composable fun App()`, `class NyxDb` (`com.slothiesmooth.nyx.client.data.sqldelight`),
-  `class VaultSqlSource : VaultSource`. From `:shared:data` (plan 03): `VaultSource`,
-  `VaultFileStore`, `SettingsSource`, `ShareSource`, `CameraSource`, `PickedImage`,
+  `class SqlDelightSource(driver: SqlDriver, scope: CoroutineScope)`
+  (`com.slothiesmooth.nyx.client.data.source.database.sqldelight`),
+  `class VaultSqlSource(source: SqlDelightSource) : VaultSource`
+  (`com.slothiesmooth.nyx.client.data.source.database.vault`). From `:shared:data` (plan 03):
+  `VaultSource`, `VaultFileStore`, `SettingsSource`, `ShareSource`, `CameraSource`, `PickedImage`,
   `PlatformCapabilities`, `AppResult`, `AppError`.
 - Produces: `fun desktopPlatformModule(): org.koin.core.module.Module`, `fun main()` (compiles
   to `com.slothiesmooth.nyx.desktop.MainKt`), the gradle tasks `:desktopApp:run` and
@@ -172,23 +179,32 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
   cannot compile/run. Run:
 
 ```bash
-grep -rn "VaultSource\|VaultFileStore\|VaultSqlSource\|SqlDriver\|NyxDb" \
+grep -rn "VaultSource\|VaultFileStore\|VaultSqlSource\|SqlDelightSource\|SqlDriver\|NyxDb" \
   client/src/commonMain/kotlin/com/slothiesmooth/nyx/client/app/
 ```
 
   Decision rule:
   - **Invariant already holds** (no `single<VaultSource>` / `single<VaultFileStore>` /
-    `VaultSqlSource(...)` / `SqlDriver` construction inside `appModule`; the only hits are the
-    expect/actual `ImageCodec` or none) → nothing to repair; record "invariant holds" and go to
-    Step 3.
-  - **Invariant violated** (`appModule` builds `VaultSqlSource`, a `SqlDriver`, or registers
-    `single<VaultSource>` / `single<VaultFileStore>`) → move that wiring out of `appModule` into
-    the platform modules. Concretely: (a) delete those `single { ... }` lines from
-    `AppConfig.kt`'s `appModule`; (b) add the identical `single<VaultSource> { VaultSqlSource(...) }`
-    + `single<VaultFileStore> { ... }` (with the platform driver) into
-    `androidApp`'s `AndroidPlatformModule` so Android keeps working — mirror exactly the desktop
-    wiring written in Step 6 below, substituting `AndroidSqliteDriver(...)` for the JDBC driver.
-    Re-run `./gradlew :androidApp:assembleDebug` and confirm `BUILD SUCCESSFUL` before moving on.
+    `SqlDelightSource(...)` / `VaultSqlSource(...)` / `SqlDriver` construction inside `appModule`;
+    the only hits are the expect/actual `ImageCodec`, the shared `single<CoroutineScope>`, or
+    none) → nothing to repair; record "invariant holds" and go to Step 3.
+  - **Invariant violated** (`appModule` builds `SqlDelightSource` / `VaultSqlSource`, a
+    `SqlDriver`, or registers `single<VaultSource>` / `single<VaultFileStore>`) → move that wiring
+    out of `appModule` into the platform modules. Concretely: (a) delete the vault `single { ... }`
+    lines from `AppConfig.kt`'s `appModule` — the `NyxDb` / `SqlDelightSource` / `VaultSqlSource`
+    and any `SqlDriver` registrations — but KEEP the `single<CoroutineScope>` there: it is the
+    shared app scope `SqlDelightSource` depends on, and every platform (including wasm) needs it;
+    (b) add the platform vault wiring into `androidApp`'s `AndroidPlatformModule` so Android keeps
+    working — mirror exactly the desktop wiring written in Step 6 below
+    (`single { SqlDelightSource(get(), get()) }` +
+    `single<VaultSource> { VaultSqlSource(get()) }`), substituting `AndroidSqliteDriver(...)` for
+    the JDBC driver; `AndroidPlatformModule` already registers the `SqlDriver` and
+    `single<VaultFileStore>`, so only the two vault-source `single`s are added. Re-run
+    `./gradlew :androidApp:assembleDebug` and confirm `BUILD SUCCESSFUL` before moving on.
+
+  After this step `VaultSource` is registered exactly once per platform — SqlDelight-backed in
+  each non-wasm platform module (android/desktop/ios), `InMemoryVaultSource` in `WebPlatformModule`
+  (Task 2) — and NEVER in the common `appModule`.
 
   Expected: either a recorded "invariant holds", or a repaired `appModule` + `AndroidPlatformModule`
   with Android still assembling green.
@@ -415,8 +431,11 @@ private const val VAULT_DIR_NAME = "stego_vault"
 
 fun desktopPlatformModule(): Module = module {
     single<SqlDriver> { desktopSqlDriver() }
-    single { NyxDb(get()) }
-    single<VaultSource> { VaultSqlSource(get()) }
+    // SqlDelightSource(driver, scope): the second get() resolves the shared app CoroutineScope that
+    // appModule (plan 05) registers as single<CoroutineScope>. SqlDelightSource builds NyxDb
+    // internally, so there is no separate single { NyxDb(get()) }. VaultSqlSource wraps the source.
+    single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
+    single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
     single<VaultFileStore> { FileKitVaultFileStore(desktopVaultRoot()) }
     single<SettingsSource> { DataStoreSettingsSource(desktopDataStore()) }
     single<ShareSource> { DesktopShareSource() }
@@ -439,18 +458,23 @@ private fun desktopDataStore(): DataStore<Preferences> = PreferenceDataStoreFact
 )
 ```
 
-  **Two edits required as you paste this** (they cannot be resolved from Linux without plan
-  03/05's exact code — see Open Questions):
+  **One edit required as you paste this** (it cannot be resolved from Linux without plan 05's exact
+  code — see Open Questions):
   1. Add the `synchronous()` import (deliberately omitted above) — copy the exact
      `import ...synchronous` line from plan 05's `AndroidPlatformModule` (the SqlDelight async→sync
-     schema adapter). It is the identical extension used for `AndroidSqliteDriver`. Until it is
-     added, `NyxDb.Schema.synchronous()` is an unresolved reference — that is the one intentional
+     schema adapter on `NyxDb.Schema`; plan 03 Task 14 shows it as
+     `import app.cash.sqldelight.async.coroutines.synchronous`, the `async-extensions` artifact).
+     It is the identical extension used for `AndroidSqliteDriver`. Until it is added,
+     `NyxDb.Schema.synchronous()` is an unresolved reference — that is the one intentional
      cross-plan blank, not a compile-forever placeholder.
-  2. Confirm `VaultSqlSource`'s constructor: this file assumes `VaultSqlSource(db: NyxDb)` fed by
-     `single { NyxDb(get()) }`. If plan 03 declared it `VaultSqlSource(driver: SqlDriver)` or with
-     a wrapper, adjust the `single<VaultSource>` line to match (e.g.
-     `single<VaultSource> { VaultSqlSource(get<SqlDriver>()) }`) and drop the now-unused
-     `single { NyxDb(get()) }` if the source builds `NyxDb` internally.
+
+  The vault wiring is already pinned to plan 03's delivered shapes and needs NO reconciliation:
+  `SqlDelightSource(driver: SqlDriver, scope: CoroutineScope)` (package
+  `com.slothiesmooth.nyx.client.data.source.database.sqldelight`, builds `NyxDb` internally) and
+  `VaultSqlSource(source: SqlDelightSource) : VaultSource` (package
+  `com.slothiesmooth.nyx.client.data.source.database.vault`). The `single<SqlDriver>` feeds
+  `SqlDelightSource`'s first arg; its second arg resolves the `single<CoroutineScope>` that
+  `appModule` (plan 05) registers — do NOT re-register a `CoroutineScope` in this platform module.
 
 - [ ] **Step 7: Write the desktop `main()`.** Create
   `desktopApp/src/jvmMain/kotlin/com/slothiesmooth/nyx/desktop/Main.kt`:
@@ -484,9 +508,10 @@ fun main() {
 ```
 
   Expected: `BUILD SUCCESSFUL`. If it fails on an unresolved `synchronous`, `FileKit.init`,
-  `write`, `openFileSaver`, or `VaultSqlSource` constructor, apply the Step 6 reconciliation
-  against plan 03/05's actual signatures (these are the only cross-plan unknowns; the rest is
-  self-contained). Do not `@Suppress` — fix the reference.
+  `write`, or `openFileSaver`, apply the Step 6 reconciliation against plan 05's actual signatures
+  (the `synchronous()` import is the only remaining cross-plan unknown — the vault-source
+  constructors are already pinned to plan 03's shapes; the rest is self-contained). Do not
+  `@Suppress` — fix the reference.
 
 - [ ] **Step 9: Run the desktop app (Linux smoke test).** On a machine with a display:
 
@@ -1087,8 +1112,9 @@ commands run on the macOS lane and are listed in Step 9.
 
 **Interfaces:**
 - Consumes: `@Composable fun App()`, `fun initKoin(platformModule: Module)`, `class NyxDb`,
-  `class VaultSqlSource : VaultSource` from `:client`; the `:shared:data` source interfaces.
-  FileKit `openCameraPicker` (mobileMain — reachable from iosMain), `FileKit.filesDir` (nonWeb).
+  `class SqlDelightSource(driver, scope)`, `class VaultSqlSource(source: SqlDelightSource) : VaultSource`
+  from `:client`; the `:shared:data` source interfaces. FileKit `openCameraPicker` (mobileMain —
+  reachable from iosMain), `FileKit.filesDir` (nonWeb).
 - Produces: `fun MainViewController(): UIViewController`, `fun initKoinIos()`,
   `fun iosPlatformModule(): Module` (exported to Swift via the `App` framework). Consumed by the
   `client/iosApp/` Xcode project and by plan 08's README (iosApp path).
@@ -1274,8 +1300,11 @@ private const val VAULT_DIR_NAME = "stego_vault"
 
 fun iosPlatformModule(): Module = module {
     single<SqlDriver> { NativeSqliteDriver(NyxDb.Schema.synchronous(), DATABASE_FILE_NAME) }
-    single { NyxDb(get()) }
-    single<VaultSource> { VaultSqlSource(get()) }
+    // SqlDelightSource(driver, scope): the second get() resolves the shared app CoroutineScope that
+    // appModule (plan 05) registers as single<CoroutineScope>. SqlDelightSource builds NyxDb
+    // internally, so there is no separate single { NyxDb(get()) }. VaultSqlSource wraps the source.
+    single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
+    single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
     single<VaultFileStore> { FileKitVaultFileStore(PlatformFile(FileKit.filesDir, VAULT_DIR_NAME)) }
     single<SettingsSource> { DataStoreSettingsSource(iosDataStore()) }
     single<ShareSource> { IosShareSource() }
@@ -1298,8 +1327,11 @@ private fun iosDataStore(): DataStore<Preferences> = PreferenceDataStoreFactory.
 )
 ```
 
-  Apply the same two reconciliations as Task 1 Step 6: add plan 05's real `synchronous()` import
-  (deliberately omitted above), and match `VaultSqlSource`'s actual constructor.
+  Apply the same single reconciliation as Task 1 Step 6: add plan 05's real `synchronous()` import
+  (deliberately omitted above). The vault wiring already matches plan 03's delivered
+  `SqlDelightSource(driver, scope)` / `VaultSqlSource(source)` shapes (fully qualified above);
+  `SqlDelightSource`'s second arg resolves the `single<CoroutineScope>` that `appModule` (plan 05)
+  registers — do NOT re-register a `CoroutineScope` here.
 
 - [ ] **Step 6: Write the Xcode scaffold (Swift + Info.plist + XcodeGen spec).** The project is a
   standard KMP-iOS host that renders `MainViewController` and calls `initKoinIos()` on launch.
