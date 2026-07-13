@@ -522,17 +522,34 @@ class WipeVaultUseCase(
     val codeBg: Color, val codeFg: Color,
 )
 enum class NxPalette(val displayName: String, val dark: Boolean) {
-    Umbra("Umbra", true),        // default dark
-    Eclipse("Eclipse", true),    // OLED black
-    Dusk("Dusk", true),          // dark violet
-    Moonlight("Moonlight", false), // default light
-    Dawn("Dawn", false);         // warm light
+    Midnight("Midnight", true),        // default dark
+    Espresso("Espresso", true),    // OLED black
+    Nardo("Nardo", true),          // dark violet
+    Creame("Creame", false), // default light
+    Mist("Mist", false);         // warm light
     val colors: NxColors get() = ...
-    companion object { val DefaultDark = Umbra; val DefaultLight = Moonlight }
+    companion object { val DefaultDark = Midnight; val DefaultLight = Creame }
 }
-object NxTokens { val colors: NxColors @Composable get; val type: NxType @Composable get;
-                  val spacing = NxSpacing; val radius = NxRadius }
-@Composable fun NxTheme(palette: NxPalette, content: @Composable () -> Unit)
+// Non-color tokens are @Immutable data classes provided via staticCompositionLocalOf and read via
+// MaterialTheme.nx* extensions (Material3 extended-theme pattern). NxTokens/NxSpacing/NxRadius/NxKeyline
+// OBJECTS ARE REMOVED. NxTheme provides every local.
+@Immutable data class Dimensions(  // 4.dp keyline grid: keylineN=(N*4).dp, keylineNH=(N*4+2).dp
+    zero=0, one=1, keyline0=2, keyline1=4, keyline1H=6, keyline2=8, keyline2H=10, keyline3=12,
+    keyline3H=14, keyline4=16, keyline5=20, keyline6=24, keyline7=28, keyline8=32, keyline10=40,
+    keyline12=48, keyline16=64, keyline24=96, keyline32=128 : Dp)
+@Immutable data class Corners(xs=6, sm=10, md=14, lg=20, xl=28, xxl=40, pill=999 : Dp)
+@Immutable data class Alpha(disabled=0.38f, medium=0.60f, divider=0.12f)
+@Immutable data class Elevations(level0=0, level1=1, level2=3, level3=6, level4=8, level5=12 : Dp)
+// per group: val LocalX = staticCompositionLocalOf { X() };  val MaterialTheme.nxX: X @Composable @ReadOnlyComposable get() = LocalX.current
+// colors -> MaterialTheme.colorScheme (M3, via toMaterial3ColorScheme) + MaterialTheme.nxColors (extended NxColors slots)
+// type   -> MaterialTheme.nxType (NxType)
+// OLD->NEW token mapping for any stale brief code (plans 04 components / 05 / 06):
+//   NxSpacing.s0->nxDimensions.zero, s1->keyline1, s2->keyline2, s3->keyline3, s4->keyline4,
+//   s5->keyline6, s6->keyline8, s7->keyline12, s8->keyline16, s9->keyline24, s10->keyline32
+//   NxRadius.{xs,sm,md,lg,xl,xxl,pill}->MaterialTheme.nxCorners.{xs,sm,md,lg,xl,xxl,pill}
+//   NxTokens.colors->MaterialTheme.colorScheme|nxColors ; NxTokens.type->MaterialTheme.nxType
+//   NxShadow.{xs,sm,md,lg}(shape)->Modifier.shadow(MaterialTheme.nxElevations.{level1,level2,level3,level4}, shape)
+@Composable fun NxTheme(palette: NxPalette, content: @Composable () -> Unit)  // provides all 6 nx locals + MaterialTheme(colorScheme=toMaterial3ColorScheme(dark))
 fun NxColors.toMaterial3ColorScheme(dark: Boolean): ColorScheme    // tokens/NxMaterial3Bridge.kt
 // tokens/AllThemePreview.kt: @AllThemePreview multipreview (5 palettes)
 // tokens/NxPaletteProvider.kt: PreviewParameterProvider<NxPalette>

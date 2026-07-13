@@ -2600,7 +2600,7 @@ class EncryptFlowUiTest {
         viewModel.onImagePicked(cover)
 
         setContent {
-            NxTheme(NxPalette.Umbra) {
+            NxTheme(NxPalette.Midnight) {
                 EncryptContent(
                     state = viewModel.state,
                     onPickImage = {},
@@ -3350,7 +3350,7 @@ class DecryptFlowUiTest {
         viewModel.onImagePicked(stegoBytes)
 
         setContent {
-            NxTheme(NxPalette.Umbra) {
+            NxTheme(NxPalette.Midnight) {
                 DecryptContent(
                     state = viewModel.state,
                     onPickImage = {},

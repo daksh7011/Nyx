@@ -40,7 +40,7 @@ This plan consumes, by exact 00-INDEX signature, types delivered by earlier plan
 
 - **Plan 02 (`:crypto`, `:steganography`):** `interface NyxCrypto`, `class DefaultNyxCrypto()`, `class Steganography()`, `class PixelImage(width, height, pixels: IntArray)`.
 - **Plan 03 (`:shared:data`, `:shared:presentation`, `:shared:test-support`, `:client` SqlDelight):** `AppResult`/`AppError`, `StegoImageId`, `IdGenerator`/`Uuid4IdGenerator`, `Clock`/`SystemClock`/`FakeClock`, `DomainEvent`/`DomainEventBus`/`DefaultDomainEventBus`, `ImageCodec`, `StegoImageRecord`, `VaultSource`, `VaultFileStore`, `SettingsSource`, `PickedImage`, `CameraSource`, `ShareSource`, `PlatformCapabilities`, `DeterministicIdGenerator`, in-memory `TestSqlDriver`; `BaseViewModel`, `ViewState`, `MutableViewState`, `UiState`, `UiEvent`; `NavController` extensions `pushDestination`/`popDestination`/`setDestination`/`restoreDestination`; SqlDelight `NyxDb`, `SqlDelightSource`, `VaultSqlSource(SqlDelightSource) : VaultSource` in `:client`.
-- **Plan 04 (`:shared:design-library`):** `NxColors`, `NxPalette` (`Umbra`/`Eclipse`/`Dusk`/`Moonlight`/`Dawn`, `DefaultDark = Umbra`, `DefaultLight = Moonlight`, `.colors`, `.displayName`, `.dark`), `NxTokens` (`colors`/`type`/`spacing`/`radius`), `NxTheme(palette, content)`, `NxSpacing.s0..s10`, `NxRadius.xs..pill`, `NxShadow`, `NxTextStyle`, `NxIconKind` (incl. `Vault`, `Lock`, `Unlock`, `Settings`, `Palette`, `Image`, `Check`), `NxText`, `NxIcon`, `NxIconButton`, `NxButton`, `NxCard`/`NxCardVariant`, `NxChip`, `AllThemePreview`, `NxPaletteProvider`. **The two shell components beyond `NxCard` — `NxBottomNav` (+ `NxBottomNavItem`) and `NxEmptyState` (with `ctaText`/`onCta`) — are delivered by Plan 04 Task 12 and Task 16 respectively, in the same `:shared:design-library` module and preview conventions. This plan does NOT re-create them (Task 3 is a SKIP); it consumes them: `com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem`, `...organisms.NxBottomNav`, `...molecules.NxEmptyState`.**
+- **Plan 04 (`:shared:design-library`):** `NxColors`, `NxPalette` (`Midnight`/`Espresso`/`Nardo`/`Creame`/`Mist`, `DefaultDark = Midnight`, `DefaultLight = Creame`, `.colors`, `.displayName`, `.dark`), `NxTokens` (`colors`/`type`/`spacing`/`radius`), `NxTheme(palette, content)`, `NxSpacing.s0..s10`, `NxRadius.xs..pill`, `NxShadow`, `NxTextStyle`, `NxIconKind` (incl. `Vault`, `Lock`, `Unlock`, `Settings`, `Palette`, `Image`, `Check`), `NxText`, `NxIcon`, `NxIconButton`, `NxButton`, `NxCard`/`NxCardVariant`, `NxChip`, `AllThemePreview`, `NxPaletteProvider`. **The two shell components beyond `NxCard` — `NxBottomNav` (+ `NxBottomNavItem`) and `NxEmptyState` (with `ctaText`/`onCta`) — are delivered by Plan 04 Task 12 and Task 16 respectively, in the same `:shared:design-library` module and preview conventions. This plan does NOT re-create them (Task 3 is a SKIP); it consumes them: `com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem`, `...organisms.NxBottomNav`, `...molecules.NxEmptyState`.**
 
 The single deviation from the abbreviated 00-INDEX prose for the common-api plumbing: the ported `FeatureProvider.provideContent` keeps its `context: FeatureContext` parameter (the recursive host cannot thread navigation/actions without it — the 00-INDEX one-line summary omitted it for brevity; the "ported from pawdex source — same shape" clause governs the exact signature). `FeatureContext.getDestinationId` is dropped (the reference stubbed it to `0`; it is dead once selection is a client-computed flag), and `getCurrentDestinationChanges()` returns route-name `String?`s instead of `Int` ids (wasm-safe). Both are recorded in Open Questions.
 
@@ -638,12 +638,12 @@ import kotlin.test.assertEquals
 class ThemeRepositoryTest {
 
     @Test
-    fun `defaults to System mode with Umbra dark and Moonlight light`() = runTest {
+    fun `defaults to System mode with Midnight dark and Creame light`() = runTest {
         val repository = ThemeRepository(FakeSettingsSource())
         val config = repository.observeConfig().first()
         assertEquals(ThemeMode.System, config.mode)
-        assertEquals(NxPalette.Umbra, config.darkPalette)
-        assertEquals(NxPalette.Moonlight, config.lightPalette)
+        assertEquals(NxPalette.Midnight, config.darkPalette)
+        assertEquals(NxPalette.Creame, config.lightPalette)
     }
 
     @Test
@@ -656,19 +656,19 @@ class ThemeRepositoryTest {
     @Test
     fun `setPalette routes a dark palette to the dark slot only`() = runTest {
         val repository = ThemeRepository(FakeSettingsSource())
-        repository.setPalette(NxPalette.Eclipse)
+        repository.setPalette(NxPalette.Espresso)
         val config = repository.observeConfig().first()
-        assertEquals(NxPalette.Eclipse, config.darkPalette)
-        assertEquals(NxPalette.Moonlight, config.lightPalette)
+        assertEquals(NxPalette.Espresso, config.darkPalette)
+        assertEquals(NxPalette.Creame, config.lightPalette)
     }
 
     @Test
     fun `setPalette routes a light palette to the light slot only`() = runTest {
         val repository = ThemeRepository(FakeSettingsSource())
-        repository.setPalette(NxPalette.Dawn)
+        repository.setPalette(NxPalette.Mist)
         val config = repository.observeConfig().first()
-        assertEquals(NxPalette.Dawn, config.lightPalette)
-        assertEquals(NxPalette.Umbra, config.darkPalette)
+        assertEquals(NxPalette.Mist, config.lightPalette)
+        assertEquals(NxPalette.Midnight, config.darkPalette)
     }
 }
 ```
@@ -785,7 +785,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private class FakeThemeFeature : ThemeFeature {
-    private val config = MutableStateFlow(ThemeConfig(ThemeMode.System, NxPalette.Umbra, NxPalette.Moonlight))
+    private val config = MutableStateFlow(ThemeConfig(ThemeMode.System, NxPalette.Midnight, NxPalette.Creame))
     override val theme: StateFlow<ThemeConfig> = config
     override suspend fun setMode(mode: ThemeMode) {
         config.value = config.value.copy(mode = mode)
@@ -823,9 +823,9 @@ class ThemeViewModelTest {
         val feature = FakeThemeFeature()
         val viewModel = ThemeViewModel(ChangeThemeMutableState(), feature)
         viewModel.observeTheme()
-        viewModel.onPaletteSelected(NxPalette.Eclipse)
-        assertEquals(NxPalette.Eclipse, feature.theme.value.darkPalette)
-        assertEquals(NxPalette.Eclipse, viewModel.state.darkPalette)
+        viewModel.onPaletteSelected(NxPalette.Espresso)
+        assertEquals(NxPalette.Espresso, feature.theme.value.darkPalette)
+        assertEquals(NxPalette.Espresso, viewModel.state.darkPalette)
     }
 }
 ```
@@ -2580,7 +2580,7 @@ class MainActivity : ComponentActivity() {
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Umbra background (NxPalette.Umbra.bg) — matches the adaptive icon body and the splash field. -->
+    <!-- Midnight background (NxPalette.Midnight.bg) — matches the adaptive icon body and the splash field. -->
     <color name="nyx_splash_background">#14121F</color>
     <color name="ic_launcher_background">#14121F</color>
 </resources>
@@ -2772,16 +2772,16 @@ class ThemeSwitchUiTest {
 
         runBlocking {
             theme.setMode(ThemeMode.Dark)
-            theme.setPalette(NxPalette.Umbra)
+            theme.setPalette(NxPalette.Midnight)
         }
         waitForIdle()
         val umbraBg = latestBg
-        assertEquals(NxPalette.Umbra.colors.bg, umbraBg)
+        assertEquals(NxPalette.Midnight.colors.bg, umbraBg)
 
-        runBlocking { theme.setPalette(NxPalette.Eclipse) }
+        runBlocking { theme.setPalette(NxPalette.Espresso) }
         waitForIdle()
         val eclipseBg = latestBg
-        assertEquals(NxPalette.Eclipse.colors.bg, eclipseBg)
+        assertEquals(NxPalette.Espresso.colors.bg, eclipseBg)
         assertNotEquals(umbraBg, eclipseBg)
     }
 }

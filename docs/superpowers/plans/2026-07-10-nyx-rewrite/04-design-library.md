@@ -85,8 +85,8 @@ Phase-specific constraints:
   before being locked into this plan. The verified pairs, all ≥ 4.5:1 in all 5 palettes:
   `fg/bg`, `fg/bgElev1`, `fg/bgElev2`, `fgMuted/bg`, `brandFg/brand`, `fgOnBrand/brand`,
   `fgOnBrand/danger` (Danger button text), `danger/bg`, `success/bg`, `warning/bg`, `info/bg`,
-  `codeFg/codeBg`, `brand/bg`. Measured minima: Umbra 6.68, Eclipse 8.64, Dusk 6.53,
-  Moonlight 4.57 (success/bg), Dawn 4.53 (warning/bg). `NxColorsTest` re-asserts these at
+  `codeFg/codeBg`, `brand/bg`. Measured minima: Midnight 6.68, Espresso 8.64, Nardo 6.53,
+  Creame 4.57 (success/bg), Mist 4.53 (warning/bg). `NxColorsTest` re-asserts these at
   every build.
 - **Version catalog aliases used in this plan** (pawdex naming; reconcile in Task 1 Step 1):
   `libs.plugins.kotlin.multiplatform`, `libs.plugins.compose.compiler`,
@@ -235,8 +235,8 @@ git commit -m "feat(design-library): module build wiring and JetBrains Mono font
 - Consumes: Task 1 module.
 - Produces (00-INDEX contract):
   - `@Immutable data class NxColors(28 slots — bg..codeFg as listed in the contract)`
-  - `val NxColorsUmbra/NxColorsEclipse/NxColorsDusk/NxColorsMoonlight/NxColorsDawn: NxColors`
-  - `enum class NxPalette(val displayName: String, val dark: Boolean) { Umbra, Eclipse, Dusk, Moonlight, Dawn }` with `val colors: NxColors` and `companion object { val DefaultDark = Umbra; val DefaultLight = Moonlight }`
+  - `val NxColorsMidnight/NxColorsEspresso/NxColorsNardo/NxColorsCreame/NxColorsMist: NxColors`
+  - `enum class NxPalette(val displayName: String, val dark: Boolean) { Midnight, Espresso, Nardo, Creame, Mist }` with `val colors: NxColors` and `companion object { val DefaultDark = Midnight; val DefaultLight = Creame }`
 
 Note: 00-INDEX prose says "27 slots"; the contract data class enumerates 28 fields — the data class is authoritative and is reproduced exactly below.
 
@@ -244,11 +244,11 @@ Note: 00-INDEX prose says "27 slots"; the contract data class enumerates 28 fiel
 
 | Palette | Mood | bg | fg | brand |
 |---|---|---|---|---|
-| Umbra (default dark) | deep night indigo, violet brand | `#14121F` | `#ECE9F6` | `#A78BFA` |
-| Eclipse (dark) | pure-black OLED | `#000000` | `#F2F2F7` | `#B8A6FF` |
-| Dusk (dark) | dark violet | `#1D1430` | `#F0EAF9` | `#C084FC` |
-| Moonlight (default light) | cool gray, deep violet brand | `#F4F4F8` | `#1B1926` | `#6D28D9` |
-| Dawn (light) | warm cream, plum brand | `#FAF5EC` | `#26201A` | `#7E22CE` |
+| Midnight (default dark) | deep night indigo, violet brand | `#14121F` | `#ECE9F6` | `#A78BFA` |
+| Espresso (dark) | pure-black OLED | `#000000` | `#F2F2F7` | `#B8A6FF` |
+| Nardo (dark) | dark violet | `#1D1430` | `#F0EAF9` | `#C084FC` |
+| Creame (default light) | cool gray, deep violet brand | `#F4F4F8` | `#1B1926` | `#6D28D9` |
+| Mist (light) | warm cream, plum brand | `#FAF5EC` | `#26201A` | `#7E22CE` |
 
 **Steps:**
 
@@ -268,45 +268,45 @@ class NxColorsTest {
 
     @Test
     fun `palette bg slots match locked hex`() {
-        assertEquals(Color(0xFF14121F), NxColorsUmbra.bg)
-        assertEquals(Color(0xFF000000), NxColorsEclipse.bg)
-        assertEquals(Color(0xFF1D1430), NxColorsDusk.bg)
-        assertEquals(Color(0xFFF4F4F8), NxColorsMoonlight.bg)
-        assertEquals(Color(0xFFFAF5EC), NxColorsDawn.bg)
+        assertEquals(Color(0xFF14121F), NxColorsMidnight.bg)
+        assertEquals(Color(0xFF000000), NxColorsEspresso.bg)
+        assertEquals(Color(0xFF1D1430), NxColorsNardo.bg)
+        assertEquals(Color(0xFFF4F4F8), NxColorsCreame.bg)
+        assertEquals(Color(0xFFFAF5EC), NxColorsMist.bg)
     }
 
     @Test
     fun `palette fg slots match locked hex`() {
-        assertEquals(Color(0xFFECE9F6), NxColorsUmbra.fg)
-        assertEquals(Color(0xFFF2F2F7), NxColorsEclipse.fg)
-        assertEquals(Color(0xFFF0EAF9), NxColorsDusk.fg)
-        assertEquals(Color(0xFF1B1926), NxColorsMoonlight.fg)
-        assertEquals(Color(0xFF26201A), NxColorsDawn.fg)
+        assertEquals(Color(0xFFECE9F6), NxColorsMidnight.fg)
+        assertEquals(Color(0xFFF2F2F7), NxColorsEspresso.fg)
+        assertEquals(Color(0xFFF0EAF9), NxColorsNardo.fg)
+        assertEquals(Color(0xFF1B1926), NxColorsCreame.fg)
+        assertEquals(Color(0xFF26201A), NxColorsMist.fg)
     }
 
     @Test
     fun `palette brand slots match locked hex`() {
-        assertEquals(Color(0xFFA78BFA), NxColorsUmbra.brand)
-        assertEquals(Color(0xFFB8A6FF), NxColorsEclipse.brand)
-        assertEquals(Color(0xFFC084FC), NxColorsDusk.brand)
-        assertEquals(Color(0xFF6D28D9), NxColorsMoonlight.brand)
-        assertEquals(Color(0xFF7E22CE), NxColorsDawn.brand)
+        assertEquals(Color(0xFFA78BFA), NxColorsMidnight.brand)
+        assertEquals(Color(0xFFB8A6FF), NxColorsEspresso.brand)
+        assertEquals(Color(0xFFC084FC), NxColorsNardo.brand)
+        assertEquals(Color(0xFF6D28D9), NxColorsCreame.brand)
+        assertEquals(Color(0xFF7E22CE), NxColorsMist.brand)
     }
 
     @Test
     fun `palette enum wiring and defaults`() {
-        assertEquals(NxPalette.Umbra, NxPalette.DefaultDark)
-        assertEquals(NxPalette.Moonlight, NxPalette.DefaultLight)
-        assertTrue(NxPalette.Umbra.dark)
-        assertTrue(NxPalette.Eclipse.dark)
-        assertTrue(NxPalette.Dusk.dark)
-        assertFalse(NxPalette.Moonlight.dark)
-        assertFalse(NxPalette.Dawn.dark)
-        assertEquals(NxColorsUmbra, NxPalette.Umbra.colors)
-        assertEquals(NxColorsEclipse, NxPalette.Eclipse.colors)
-        assertEquals(NxColorsDusk, NxPalette.Dusk.colors)
-        assertEquals(NxColorsMoonlight, NxPalette.Moonlight.colors)
-        assertEquals(NxColorsDawn, NxPalette.Dawn.colors)
+        assertEquals(NxPalette.Midnight, NxPalette.DefaultDark)
+        assertEquals(NxPalette.Creame, NxPalette.DefaultLight)
+        assertTrue(NxPalette.Midnight.dark)
+        assertTrue(NxPalette.Espresso.dark)
+        assertTrue(NxPalette.Nardo.dark)
+        assertFalse(NxPalette.Creame.dark)
+        assertFalse(NxPalette.Mist.dark)
+        assertEquals(NxColorsMidnight, NxPalette.Midnight.colors)
+        assertEquals(NxColorsEspresso, NxPalette.Espresso.colors)
+        assertEquals(NxColorsNardo, NxPalette.Nardo.colors)
+        assertEquals(NxColorsCreame, NxPalette.Creame.colors)
+        assertEquals(NxColorsMist, NxPalette.Mist.colors)
     }
 
     @Test
@@ -363,7 +363,7 @@ private fun contrastRatio(a: Color, b: Color): Double {
 ./gradlew :shared:design-library:jvmTest --tests "com.slothiesmooth.nyx.designlibrary.tokens.NxColorsTest"
 ```
 
-Expected failure: compilation error in `commonTest`, `Unresolved reference 'NxColorsUmbra'` (and siblings). That is the red state — the production types do not exist yet.
+Expected failure: compilation error in `commonTest`, `Unresolved reference 'NxColorsMidnight'` (and siblings). That is the red state — the production types do not exist yet.
 
 - [ ] **Step 3: Write `NxColors.kt`.** This is THE one raw-ARGB file; the suppression below is the single documented exception in the whole codebase:
 
@@ -389,7 +389,7 @@ data class NxColors(
 )
 
 /** Default dark. Deep night indigo with a violet brand — Nyx, goddess of night. */
-val NxColorsUmbra = NxColors(
+val NxColorsMidnight = NxColors(
     bg = Color(0xFF14121F), bgElev1 = Color(0xFF1B1929), bgElev2 = Color(0xFF232033), bgSunken = Color(0xFF0E0C17), bgInverse = Color(0xFFECE9F6),
     fg = Color(0xFFECE9F6), fgMuted = Color(0xFFB5AECB), fgSubtle = Color(0xFF8B84A3), fgFaint = Color(0xFF5F5978),
     fgInverse = Color(0xFF14121F), fgOnBrand = Color(0xFF14121F),
@@ -401,7 +401,7 @@ val NxColorsUmbra = NxColors(
 )
 
 /** Pure-black OLED dark. */
-val NxColorsEclipse = NxColors(
+val NxColorsEspresso = NxColors(
     bg = Color(0xFF000000), bgElev1 = Color(0xFF0C0C14), bgElev2 = Color(0xFF16161F), bgSunken = Color(0xFF000000), bgInverse = Color(0xFFF2F2F7),
     fg = Color(0xFFF2F2F7), fgMuted = Color(0xFFB3B3C2), fgSubtle = Color(0xFF85859A), fgFaint = Color(0xFF55556A),
     fgInverse = Color(0xFF000000), fgOnBrand = Color(0xFF0A0A12),
@@ -413,7 +413,7 @@ val NxColorsEclipse = NxColors(
 )
 
 /** Dark violet. */
-val NxColorsDusk = NxColors(
+val NxColorsNardo = NxColors(
     bg = Color(0xFF1D1430), bgElev1 = Color(0xFF251A3D), bgElev2 = Color(0xFF2E2149), bgSunken = Color(0xFF150E24), bgInverse = Color(0xFFF0EAF9),
     fg = Color(0xFFF0EAF9), fgMuted = Color(0xFFC0B4D6), fgSubtle = Color(0xFF9488AE), fgFaint = Color(0xFF675C80),
     fgInverse = Color(0xFF1D1430), fgOnBrand = Color(0xFF1D1430),
@@ -425,7 +425,7 @@ val NxColorsDusk = NxColors(
 )
 
 /** Default light. Cool moonlit grays with a deep violet brand. */
-val NxColorsMoonlight = NxColors(
+val NxColorsCreame = NxColors(
     bg = Color(0xFFF4F4F8), bgElev1 = Color(0xFFFAFAFD), bgElev2 = Color(0xFFFFFFFF), bgSunken = Color(0xFFE8E8F0), bgInverse = Color(0xFF17151F),
     fg = Color(0xFF1B1926), fgMuted = Color(0xFF4A475C), fgSubtle = Color(0xFF6E6B82), fgFaint = Color(0xFF9A97AB),
     fgInverse = Color(0xFFF4F4F8), fgOnBrand = Color(0xFFFFFFFF),
@@ -437,7 +437,7 @@ val NxColorsMoonlight = NxColors(
 )
 
 /** Warm light. Cream first-light tones with a plum brand. */
-val NxColorsDawn = NxColors(
+val NxColorsMist = NxColors(
     bg = Color(0xFFFAF5EC), bgElev1 = Color(0xFFFDFAF3), bgElev2 = Color(0xFFFFFFFF), bgSunken = Color(0xFFF0E8D9), bgInverse = Color(0xFF201B14),
     fg = Color(0xFF26201A), fgMuted = Color(0xFF575043), fgSubtle = Color(0xFF7B7365), fgFaint = Color(0xFFA69D8D),
     fgInverse = Color(0xFFFAF5EC), fgOnBrand = Color(0xFFFFFFFF),
@@ -455,24 +455,24 @@ val NxColorsDawn = NxColors(
 package com.slothiesmooth.nyx.designlibrary.tokens
 
 enum class NxPalette(val displayName: String, val dark: Boolean) {
-    Umbra("Umbra", true),
-    Eclipse("Eclipse", true),
-    Dusk("Dusk", true),
-    Moonlight("Moonlight", false),
-    Dawn("Dawn", false);
+    Midnight("Midnight", true),
+    Espresso("Espresso", true),
+    Nardo("Nardo", true),
+    Creame("Creame", false),
+    Mist("Mist", false);
 
     val colors: NxColors
         get() = when (this) {
-            Umbra -> NxColorsUmbra
-            Eclipse -> NxColorsEclipse
-            Dusk -> NxColorsDusk
-            Moonlight -> NxColorsMoonlight
-            Dawn -> NxColorsDawn
+            Midnight -> NxColorsMidnight
+            Espresso -> NxColorsEspresso
+            Nardo -> NxColorsNardo
+            Creame -> NxColorsCreame
+            Mist -> NxColorsMist
         }
 
     companion object {
-        val DefaultDark = Umbra
-        val DefaultLight = Moonlight
+        val DefaultDark = Midnight
+        val DefaultLight = Creame
     }
 }
 ```
@@ -3478,7 +3478,7 @@ git commit -m "feat(design-library): Paparazzi snapshot module and nxPaparazzi f
 - Consumes: `nxPaparazzi()` (Task 21), `NxPalette`/`NxTheme` (Task 4), every public `NxXSample()` (Tasks 5-20).
 - Produces: recorded goldens plus a green `verifyPaparazziDebug`.
 
-One `@RunWith(Parameterized::class)` class per atomic layer (atoms / molecules / organisms / templates), each parameterized over `NxPalette.entries` and rendering every sample in its layer through `NxTheme(palette)`. The JUnit parameter name (`{0}` → the palette) and the `@Test` method name together make each golden file unique (e.g. `NxAtomsSnapshotTest_buttons[Umbra].png`).
+One `@RunWith(Parameterized::class)` class per atomic layer (atoms / molecules / organisms / templates), each parameterized over `NxPalette.entries` and rendering every sample in its layer through `NxTheme(palette)`. The JUnit parameter name (`{0}` → the palette) and the `@Test` method name together make each golden file unique (e.g. `NxAtomsSnapshotTest_buttons[Midnight].png`).
 
 **Steps:**
 
@@ -3667,7 +3667,7 @@ class NxTemplatesSnapshotTest(private val palette: NxPalette) {
 ./gradlew :shared:design-library:snapshot:recordPaparazziDebug
 ```
 
-Expected: `BUILD SUCCESSFUL`; PNGs written under `shared/design-library/snapshot/src/test/snapshots/` — one per `@Test` method × palette (17 samples × 5 palettes = 85 goldens: 6 atoms + 7 molecules + 1 organism + 3 templates). Eyeball a handful (e.g. the `Umbra` and `Moonlight` button/topBar goldens) to confirm fonts, tokens, and layout rendered as expected before locking them in.
+Expected: `BUILD SUCCESSFUL`; PNGs written under `shared/design-library/snapshot/src/test/snapshots/` — one per `@Test` method × palette (17 samples × 5 palettes = 85 goldens: 6 atoms + 7 molecules + 1 organism + 3 templates). Eyeball a handful (e.g. the `Midnight` and `Creame` button/topBar goldens) to confirm fonts, tokens, and layout rendered as expected before locking them in.
 
 - [ ] **Step 6: Commit the goldens.**
 
