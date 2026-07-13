@@ -71,6 +71,51 @@ class SteganographyTest {
         assertEquals(80L, exceeded.requiredBits)
         assertEquals(72L, exceeded.availableBits)
     }
+
+    @Test
+    fun `changes only the low two bits of each RGB channel`() = runTest {
+        val stego = Steganography()
+        val cover = solidImage(width = 32, height = 32, argb = 0xFF7F7F7F.toInt())
+        val result = assertIs<StegoEncodeResult.Success>(stego.encode(listOf(cover), "delta check"))
+        val output = result.images.single()
+        // Alpha + the high 6 bits of R, G, B must be byte-identical to the cover.
+        val preserveMask = 0xFFFCFCFC.toInt()
+        cover.pixels.indices.forEach { index ->
+            assertEquals(
+                cover.pixels[index] and preserveMask,
+                output.pixels[index] and preserveMask,
+                "pixel $index changed outside the low 2 bits of R/G/B",
+            )
+        }
+    }
+
+    @Test
+    fun `never modifies the alpha channel`() = runTest {
+        val stego = Steganography()
+        // Semi-transparent cover: the algorithm must neither touch nor force alpha opaque.
+        val cover = solidImage(width = 32, height = 32, argb = 0x80112233.toInt())
+        val result = assertIs<StegoEncodeResult.Success>(stego.encode(listOf(cover), "keep alpha"))
+        result.images.single().pixels.forEach { pixel ->
+            assertEquals(0x80, (pixel ushr 24) and 0xFF, "alpha byte must stay 0x80")
+        }
+    }
+
+    @Test
+    fun `round trips a unicode payload`() = runTest {
+        val stego = Steganography()
+        val cover = solidImage(width = 64, height = 64, argb = 0xFF446688.toInt())
+        val secret = "Rendezvous 🦊🔒 at 07:30"
+        val result = assertIs<StegoEncodeResult.Success>(stego.encode(listOf(cover), secret))
+        assertEquals(secret, stego.decode(result.images))
+    }
+
+    @Test
+    fun `round trips an empty payload`() = runTest {
+        val stego = Steganography()
+        val cover = solidImage(width = 8, height = 8, argb = 0xFF123456.toInt())
+        val result = assertIs<StegoEncodeResult.Success>(stego.encode(listOf(cover), ""))
+        assertEquals("", stego.decode(result.images))
+    }
 }
 
 private fun solidImage(width: Int, height: Int, argb: Int): PixelImage =
