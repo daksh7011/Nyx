@@ -22,6 +22,8 @@ androidx-splashscreen = "1.2.0"
 kotlinx-browser = "0.5.0"
 detekt = "1.23.8"
 spotless = "7.0.4"
+android-compileSdk = "36"
+android-minSdk = "24"
 
 [libraries]
 # Koin
@@ -51,6 +53,9 @@ cryptography-provider-optimal = { module = "dev.whyoleg.cryptography:cryptograph
 
 # Logging
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
+
+# Kotlin
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
 # kotlinx
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
@@ -88,6 +93,7 @@ koin = ["koin-core", "koin-compose", "koin-compose-viewmodel"]
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 android-kotlin-multiplatform-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
+android-kmp-library = { id = "com.android.kotlin.multiplatform.library", version.ref = "agp" }
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
