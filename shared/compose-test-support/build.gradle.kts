@@ -18,7 +18,7 @@ kotlin {
             api(projects.shared.data)
             api(projects.shared.testSupport)
             api(libs.koin.core)
-            implementation("org.jetbrains.compose.ui:ui-test:${libs.versions.compose.multiplatform.get()}")
+            implementation(libs.compose.ui.test)
         }
     }
 }

@@ -11,8 +11,11 @@ kotlin {
             }
         }
         commonMain.dependencies {
-            implementation(libs.jetbrains.lifecycle.viewmodel.compose)
-            implementation(libs.jetbrains.navigation.compose)
+            // api (not implementation): BaseViewModel publicly extends androidx.lifecycle.ViewModel and
+            // the NavController extensions expose androidx.navigation.NavController receivers, so
+            // downstream feature modules need these types on their compile classpath.
+            api(libs.jetbrains.lifecycle.viewmodel.compose)
+            api(libs.jetbrains.navigation.compose)
         }
     }
 }
