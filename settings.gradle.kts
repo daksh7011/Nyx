@@ -23,3 +23,13 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 // Module includes are added incrementally in Tasks 10-13.
+
+include(
+    ":crypto",
+    ":steganography",
+    ":shared:data",
+    ":shared:test-support",
+    ":shared:presentation",
+    ":shared:compose-test-support",
+    ":shared:design-library",
+)
