@@ -16,6 +16,8 @@ kotlin {
             // downstream feature modules need these types on their compile classpath.
             api(libs.jetbrains.lifecycle.viewmodel.compose)
             api(libs.jetbrains.navigation.compose)
+            // LocalLifecycleOwner (androidx.lifecycle.compose) used inside BaseViewModel.bind().
+            implementation(libs.jetbrains.lifecycle.runtime.compose)
         }
     }
 }
