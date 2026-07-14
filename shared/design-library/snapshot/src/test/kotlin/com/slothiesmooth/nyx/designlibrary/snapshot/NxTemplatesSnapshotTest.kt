@@ -1,14 +1,11 @@
 package com.slothiesmooth.nyx.designlibrary.snapshot
 
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import app.cash.paparazzi.Paparazzi
 import com.slothiesmooth.nyx.designlibrary.templates.NxDetailTemplateSample
 import com.slothiesmooth.nyx.designlibrary.templates.NxFormTemplateSample
 import com.slothiesmooth.nyx.designlibrary.templates.NxWizardTemplateSample
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
-import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -27,11 +24,7 @@ class NxTemplatesSnapshotTest(private val palette: NxPalette) {
     @Test fun wizard() = snapshot { NxWizardTemplateSample() }
 
     private fun snapshot(content: @Composable () -> Unit) {
-        paparazzi.snapshot {
-            NxTheme(palette = palette) {
-                Surface(color = MaterialTheme.colorScheme.background) { content() }
-            }
-        }
+        paparazzi.snapshot { NxSnapshot(palette) { content() } }
     }
 
     companion object {
