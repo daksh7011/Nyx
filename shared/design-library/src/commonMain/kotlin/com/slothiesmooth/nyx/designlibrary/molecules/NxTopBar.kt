@@ -10,11 +10,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIconButtonStyle
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 
@@ -58,4 +63,92 @@ fun NxTopBar(
         }
         trailing()
     }
+}
+
+private const val SAMPLE_LONG_TITLE =
+    "Quarterly encrypted archive of every field expedition photo"
+private const val SAMPLE_LONG_SUBTITLE =
+    "Synced across all devices, awaiting the final passphrase confirmation before upload"
+
+@Composable
+private fun SampleShareAction() {
+    NxIconButton(
+        kind = NxIconKind.Share,
+        onClick = {},
+        style = NxIconButtonStyle.Ghost,
+        contentDescription = "Share",
+    )
+}
+
+@Composable
+private fun SampleTwoActions() {
+    NxIconButton(
+        kind = NxIconKind.Eye,
+        onClick = {},
+        style = NxIconButtonStyle.Ghost,
+        contentDescription = "Reveal",
+    )
+    NxIconButton(
+        kind = NxIconKind.Plus,
+        onClick = {},
+        style = NxIconButtonStyle.Ghost,
+        contentDescription = "Add",
+    )
+}
+
+@Composable
+fun NxTopBarSample() {
+    val dimensions = MaterialTheme.nxDimensions
+    Column(verticalArrangement = Arrangement.spacedBy(dimensions.keyline4)) {
+        // Title only: no back, no subtitle, no trailing.
+        NxTopBar(title = "Vault")
+        // Title with back affordance only.
+        NxTopBar(title = "Settings", onBack = {})
+        // Title with subtitle, no back, no trailing.
+        NxTopBar(title = "Overview", subtitle = "12 items")
+        // Title with a single trailing action, no back, no subtitle.
+        NxTopBar(title = "Photos", trailing = { SampleShareAction() })
+        // Title with back and subtitle, no trailing.
+        NxTopBar(title = "Encrypt", subtitle = "Step 2 of 3", onBack = {})
+        // Title with back and a trailing action, no subtitle.
+        NxTopBar(title = "Album", onBack = {}, trailing = { SampleShareAction() })
+        // Title with subtitle and a trailing action, no back.
+        NxTopBar(
+            title = "Gallery",
+            subtitle = "Updated just now",
+            trailing = { SampleShareAction() },
+        )
+        // All slots populated: back, subtitle, and a single trailing action.
+        NxTopBar(
+            title = "Encrypt",
+            subtitle = "Step 2 of 3",
+            onBack = {},
+            trailing = { SampleShareAction() },
+        )
+        // All slots with multiple trailing actions.
+        NxTopBar(
+            title = "Collection",
+            subtitle = "48 photos",
+            onBack = {},
+            trailing = { SampleTwoActions() },
+        )
+        // Long title truncates to a single line even with back and trailing present.
+        NxTopBar(
+            title = SAMPLE_LONG_TITLE,
+            onBack = {},
+            trailing = { SampleShareAction() },
+        )
+        // Long subtitle truncates to a single line.
+        NxTopBar(
+            title = "Archive",
+            subtitle = SAMPLE_LONG_SUBTITLE,
+            onBack = {},
+        )
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxTopBarPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxTopBarSample() }
 }

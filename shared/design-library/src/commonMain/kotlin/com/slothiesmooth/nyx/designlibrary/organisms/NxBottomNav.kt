@@ -21,15 +21,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
 import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
+import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 
 private val BarHeight: Dp = 64.dp
 private val NavIconSize: Dp = 22.dp
@@ -112,4 +119,61 @@ private fun NxBottomNavCell(
         NxIcon(kind = item.icon, tint = tint, contentDescription = item.label, size = NavIconSize)
         NxText(text = item.label, style = NxTextStyle.Kicker, color = tint, maxLines = 1)
     }
+}
+
+@Composable
+fun NxBottomNavSample() {
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline4)) {
+        // Four destinations, first selected: brand-tinted cell with the top accent stripe on the left edge.
+        NxBottomNav(
+            items = SampleFourItems,
+            selectedIndex = 0,
+            onSelect = {},
+        )
+        // Same four destinations, a middle cell selected: stripe and tint move inward.
+        NxBottomNav(
+            items = SampleFourItems,
+            selectedIndex = 2,
+            onSelect = {},
+        )
+        // Five destinations, the last selected: tighter cell weighting, selection on the trailing edge.
+        NxBottomNav(
+            items = SampleFiveItems,
+            selectedIndex = 4,
+            onSelect = {},
+        )
+        // Three destinations, a middle cell selected: wider cell weighting than the four/five-item bars.
+        NxBottomNav(
+            items = SampleThreeItems,
+            selectedIndex = 1,
+            onSelect = {},
+        )
+    }
+}
+
+private val SampleThreeItems = persistentListOf(
+    NxBottomNavItem(NxIconKind.Vault, "Vault"),
+    NxBottomNavItem(NxIconKind.Lock, "Encrypt"),
+    NxBottomNavItem(NxIconKind.Settings, "Settings"),
+)
+
+private val SampleFourItems = persistentListOf(
+    NxBottomNavItem(NxIconKind.Vault, "Vault"),
+    NxBottomNavItem(NxIconKind.Lock, "Encrypt"),
+    NxBottomNavItem(NxIconKind.Unlock, "Decrypt"),
+    NxBottomNavItem(NxIconKind.Settings, "Settings"),
+)
+
+private val SampleFiveItems = persistentListOf(
+    NxBottomNavItem(NxIconKind.Vault, "Vault"),
+    NxBottomNavItem(NxIconKind.Lock, "Encrypt"),
+    NxBottomNavItem(NxIconKind.Unlock, "Decrypt"),
+    NxBottomNavItem(NxIconKind.Archive, "Archive"),
+    NxBottomNavItem(NxIconKind.Settings, "Settings"),
+)
+
+@AllThemePreview
+@Composable
+private fun NxBottomNavPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxBottomNavSample() }
 }

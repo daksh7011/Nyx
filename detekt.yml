@@ -128,7 +128,9 @@ complexity:
   TooManyFunctions:
     active: true
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
-    thresholdInFiles: 11
+    # 15: a design-library component file holds the component + its all-states sample + private
+    # sample helpers + the @AllThemePreview entry in one file (previews were merged into components).
+    thresholdInFiles: 15
     thresholdInClasses: 11
     thresholdInInterfaces: 11
     thresholdInObjects: 11

@@ -1,8 +1,11 @@
 package com.slothiesmooth.nyx.designlibrary.molecules
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.MaterialTheme
@@ -10,13 +13,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxIcon
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 
@@ -55,4 +63,45 @@ fun NxEmptyState(
             NxButton(text = ctaText, onClick = onCta)
         }
     }
+}
+
+private val EmptyStatePreviewHeight: Dp = 240.dp
+
+/** Bounds a [NxEmptyState] to a finite height so several variants can stack in one preview. */
+@Composable
+private fun EmptyStateFrame(content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth().height(EmptyStatePreviewHeight)) { content() }
+}
+
+@Composable
+fun NxEmptyStateSample() {
+    Column(
+        modifier = Modifier.padding(MaterialTheme.nxDimensions.keyline4),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline4),
+    ) {
+        // With a call-to-action: icon + title + body + button.
+        EmptyStateFrame {
+            NxEmptyState(
+                icon = NxIconKind.Vault,
+                title = "Your vault is empty",
+                body = "Hidden messages you save will appear here.",
+                ctaText = "Encrypt a message",
+                onCta = {},
+            )
+        }
+        // Without a call-to-action: icon + title + body only, longer body to show wrapping.
+        EmptyStateFrame {
+            NxEmptyState(
+                icon = NxIconKind.Archive,
+                title = "No archived items",
+                body = "Messages you archive are kept out of sight until you choose to restore them.",
+            )
+        }
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxEmptyStatePaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxEmptyStateSample() }
 }

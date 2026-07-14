@@ -1,15 +1,30 @@
 package com.slothiesmooth.nyx.designlibrary.atoms
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.slothiesmooth.nyx.designlibrary.tokens.AllThemePreview
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
+import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
+import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
+import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
+import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 
 object NxIconSet {
 
@@ -195,4 +210,101 @@ fun NxIcon(
         modifier = modifier.size(size),
         tint = tint,
     )
+}
+
+private const val ICONS_PER_ROW = 6
+
+/**
+ * Regression snapshot for [NxIcon]: every [NxIconKind] variant, the full size scale, and each
+ * semantic tint slot are rendered so any change to a glyph, size default, or color token shifts
+ * the golden image.
+ */
+private val IconSampleWidth = 780.dp
+
+@Composable
+fun NxIconSetSample() {
+    Column(
+        modifier = Modifier.padding(MaterialTheme.nxDimensions.keyline4).width(IconSampleWidth),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline5),
+    ) {
+        NxIconKindGrid()
+        NxIconSizeScale()
+        NxIconTintScale()
+    }
+}
+
+@Composable
+private fun NxIconKindGrid() {
+    val colors = MaterialTheme.nxColors
+    val rows = NxIconKind.entries.chunked(ICONS_PER_ROW)
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline3)) {
+        NxText(text = "Kinds", style = NxTextStyle.Kicker, color = colors.fgSubtle)
+        rows.forEach { row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline3)) {
+                row.forEach { kind ->
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        NxIcon(kind = kind, tint = colors.fg)
+                        NxText(text = kind.name, style = NxTextStyle.Caption, color = colors.fgMuted)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NxIconSizeScale() {
+    val colors = MaterialTheme.nxColors
+    val dimensions = MaterialTheme.nxDimensions
+    val sizes = listOf(
+        "16" to dimensions.keyline4,
+        "20" to dimensions.keyline5,
+        "28" to dimensions.keyline7,
+        "40" to dimensions.keyline10,
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline3)) {
+        NxText(text = "Sizes", style = NxTextStyle.Kicker, color = colors.fgSubtle)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline4),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            sizes.forEach { (label, size) ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    NxIcon(kind = NxIconKind.Settings, tint = colors.fg, size = size)
+                    NxText(text = label, style = NxTextStyle.Caption, color = colors.fgMuted)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NxIconTintScale() {
+    val colors = MaterialTheme.nxColors
+    val tints = listOf(
+        Triple(NxIconKind.Info, "info", colors.info),
+        Triple(NxIconKind.Check, "success", colors.success),
+        Triple(NxIconKind.Warning, "warning", colors.warning),
+        Triple(NxIconKind.Trash, "danger", colors.danger),
+        Triple(NxIconKind.Palette, "brand", colors.brand),
+        Triple(NxIconKind.Eye, "muted", colors.fgMuted),
+        Triple(NxIconKind.EyeOff, "subtle", colors.fgSubtle),
+    )
+    Column(verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline3)) {
+        NxText(text = "Tints", style = NxTextStyle.Kicker, color = colors.fgSubtle)
+        Row(horizontalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline3)) {
+            tints.forEach { (kind, label, tint) ->
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    NxIcon(kind = kind, tint = tint)
+                    NxText(text = label, style = NxTextStyle.Caption, color = colors.fgMuted)
+                }
+            }
+        }
+    }
+}
+
+@AllThemePreview
+@Composable
+private fun NxIconSetPaletteAll(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    NxTheme(palette) { NxIconSetSample() }
 }
