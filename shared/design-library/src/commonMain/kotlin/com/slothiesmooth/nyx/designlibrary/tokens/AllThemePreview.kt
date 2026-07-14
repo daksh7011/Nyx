@@ -8,7 +8,7 @@ private const val BG_MIDNIGHT = 0xFF14121F
 private const val BG_ESPRESSO = 0xFF000000
 private const val BG_NARDO = 0xFF1D1430
 private const val BG_CREAME = 0xFFF4F4F8
-private const val BG_MIST = 0xFFFAF5EC
+private const val BG_MIST = 0xFFF1E8D7
 
 @Preview(name = "midnight", group = "dark", showBackground = true, backgroundColor = BG_MIDNIGHT)
 @Preview(name = "espresso", group = "dark", showBackground = true, backgroundColor = BG_ESPRESSO)

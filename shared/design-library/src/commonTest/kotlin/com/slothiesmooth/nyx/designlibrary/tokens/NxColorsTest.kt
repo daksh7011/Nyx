@@ -15,7 +15,7 @@ class NxColorsTest {
         assertEquals(Color(0xFF000000), NxColorsEspresso.bg)
         assertEquals(Color(0xFF1D1430), NxColorsNardo.bg)
         assertEquals(Color(0xFFF4F4F8), NxColorsCreame.bg)
-        assertEquals(Color(0xFFFAF5EC), NxColorsMist.bg)
+        assertEquals(Color(0xFFF1E8D7), NxColorsMist.bg)
     }
 
     @Test
