@@ -4,7 +4,7 @@ enum class NxPalette(val displayName: String, val dark: Boolean) {
     Midnight("Midnight", true),
     Espresso("Espresso", true),
     Nardo("Nardo", true),
-    Creame("Creame", false),
+    Cream("Cream", false),
     Mist("Mist", false);
 
     val colors: NxColors
@@ -12,12 +12,12 @@ enum class NxPalette(val displayName: String, val dark: Boolean) {
             Midnight -> NxColorsMidnight
             Espresso -> NxColorsEspresso
             Nardo -> NxColorsNardo
-            Creame -> NxColorsCreame
+            Cream -> NxColorsCream
             Mist -> NxColorsMist
         }
 
     companion object {
-        val DefaultDark = Midnight
-        val DefaultLight = Creame
+        val DefaultDark = Nardo
+        val DefaultLight = Cream
     }
 }

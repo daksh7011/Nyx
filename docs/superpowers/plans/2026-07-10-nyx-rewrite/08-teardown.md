@@ -469,7 +469,7 @@ message ──(AES-256-GCM)──> encrypted blob ──(LSB embed, 2 bits per R
 - **Decrypt** — open a vault image or pick any image, enter the password,
   reveal and copy the hidden message. Wrong password and no-hidden-message are
   reported honestly and distinctly.
-- **Themes** — five palettes (Midnight, Espresso, Nardo, Creame, Mist) with a
+- **Themes** — five palettes (Midnight, Espresso, Nardo, Cream, Mist) with a
   system/light/dark mode override, persisted across launches.
 - **Settings** — about, open-source licenses, wipe vault, app version.
 - **Ad-free, account-free, network-free** — Nyx makes zero network calls.

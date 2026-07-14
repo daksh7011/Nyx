@@ -525,10 +525,10 @@ enum class NxPalette(val displayName: String, val dark: Boolean) {
     Midnight("Midnight", true),        // default dark
     Espresso("Espresso", true),    // OLED black
     Nardo("Nardo", true),          // dark violet
-    Creame("Creame", false), // default light
+    Cream("Cream", false), // default light
     Mist("Mist", false);         // warm light
     val colors: NxColors get() = ...
-    companion object { val DefaultDark = Midnight; val DefaultLight = Creame }
+    companion object { val DefaultDark = Midnight; val DefaultLight = Cream }
 }
 // Non-color tokens are @Immutable data classes provided via staticCompositionLocalOf and read via
 // MaterialTheme.nx* extensions (Material3 extended-theme pattern). NxTokens/NxSpacing/NxRadius/NxKeyline
