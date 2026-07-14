@@ -139,7 +139,7 @@ private fun DetailSingleActionState(height: Dp) {
             NxButton(
                 text = "Archive",
                 onClick = {},
-                style = NxButtonStyle.Soft,
+                style = NxButtonStyle.Secondary,
                 block = true,
                 leadingIcon = NxIconKind.Archive,
             )
@@ -184,7 +184,7 @@ private fun DetailMultipleActionsState(height: Dp) {
             NxButton(
                 text = "Duplicate",
                 onClick = {},
-                style = NxButtonStyle.Soft,
+                style = NxButtonStyle.Secondary,
                 block = true,
                 leadingIcon = NxIconKind.Copy,
             )

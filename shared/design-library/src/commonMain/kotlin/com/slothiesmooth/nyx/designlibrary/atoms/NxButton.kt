@@ -34,7 +34,7 @@ import com.slothiesmooth.nyx.designlibrary.tokens.nxCorners
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 import com.slothiesmooth.nyx.designlibrary.tokens.nxType
 
-enum class NxButtonStyle { Primary, Soft, Ghost, Danger }
+enum class NxButtonStyle { Primary, Secondary, Ghost, Danger }
 enum class NxButtonSize { Regular, Small }
 
 private val ButtonHeightRegular = 48.dp
@@ -43,29 +43,27 @@ private val ButtonPadRegular = 20.dp
 private val ButtonPadSmall = 14.dp
 private val ButtonTextSizeSmall = 13.sp
 private val ButtonIconSize = 16.dp
-private val GhostBorderWidth = 1.dp
+private val ButtonBorderWidth = 1.dp
 private const val DISABLED_ALPHA = 0.4f
 
 private fun backgroundFor(style: NxButtonStyle, colors: NxColors): Color = when (style) {
     NxButtonStyle.Primary -> colors.brand
-    NxButtonStyle.Soft -> colors.bgElev2
+    NxButtonStyle.Secondary -> Color.Transparent
     NxButtonStyle.Ghost -> Color.Transparent
     NxButtonStyle.Danger -> colors.danger
 }
 
 private fun foregroundFor(style: NxButtonStyle, colors: NxColors): Color = when (style) {
     NxButtonStyle.Primary -> colors.brandFg
-    NxButtonStyle.Soft -> colors.fg
+    NxButtonStyle.Secondary -> colors.fg
     NxButtonStyle.Ghost -> colors.fg
-    NxButtonStyle.Danger -> colors.fgOnBrand
+    NxButtonStyle.Danger -> colors.fgInverse
 }
 
-// Filled primary/danger, a raised tonal Soft (visible surface + hairline), an outlined Ghost.
-private fun borderFor(style: NxButtonStyle, colors: NxColors): BorderStroke? = when (style) {
-    NxButtonStyle.Soft -> BorderStroke(GhostBorderWidth, colors.border)
-    NxButtonStyle.Ghost -> BorderStroke(GhostBorderWidth, colors.borderStrong)
-    else -> null
-}
+// Design-system button styles: filled primary/danger, outlined secondary (border-strong),
+// text-only ghost. Danger text is fgInverse so it reads on the fill on both light and dark themes.
+private fun borderFor(style: NxButtonStyle, colors: NxColors): BorderStroke? =
+    if (style == NxButtonStyle.Secondary) BorderStroke(ButtonBorderWidth, colors.borderStrong) else null
 
 private fun textStyleFor(size: NxButtonSize, type: NxType) = if (size == NxButtonSize.Regular) {
     type.bodyStrong
@@ -172,9 +170,9 @@ private fun NxButtonStyleRow(size: NxButtonSize, enabled: Boolean, withIcon: Boo
             leadingIcon = if (withIcon) NxIconKind.Lock else null,
         )
         NxButton(
-            text = "Soft",
+            text = "Secondary",
             onClick = {},
-            style = NxButtonStyle.Soft,
+            style = NxButtonStyle.Secondary,
             size = size,
             enabled = enabled,
             leadingIcon = if (withIcon) NxIconKind.Eye else null,
@@ -225,7 +223,7 @@ private fun NxButtonBlockSection() {
         NxButton(
             text = "Save draft",
             onClick = {},
-            style = NxButtonStyle.Soft,
+            style = NxButtonStyle.Secondary,
             block = true,
         )
     }
