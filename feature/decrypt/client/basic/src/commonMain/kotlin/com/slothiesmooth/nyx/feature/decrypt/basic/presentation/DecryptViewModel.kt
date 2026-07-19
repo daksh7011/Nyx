@@ -9,6 +9,7 @@ import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.LoadVaultImage
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.ClipboardWriter
+import com.slothiesmooth.nyx.shared.data.source.ImagePicker
 import com.slothiesmooth.nyx.shared.presentation.image.toImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
@@ -36,6 +37,7 @@ private class DecryptMutableState : MutableViewState(), DecryptState {
 class DecryptViewModel(
     private val decryptMessage: DecryptMessageUseCase,
     private val loadVaultImageBytes: LoadVaultImageBytesUseCase,
+    private val imagePicker: ImagePicker,
     private val clipboardWriter: ClipboardWriter,
 ) : BaseViewModel() {
 
@@ -58,6 +60,10 @@ class DecryptViewModel(
 
     fun onImagePicked(bytes: ByteArray) {
         async("pick") { setImage(bytes, fromVault = false) }
+    }
+
+    fun onPickImage() {
+        async("pick-image") { imagePicker.pickImage()?.let { onImagePicked(it.bytes) } }
     }
 
     private suspend fun setImage(bytes: ByteArray, fromVault: Boolean) {

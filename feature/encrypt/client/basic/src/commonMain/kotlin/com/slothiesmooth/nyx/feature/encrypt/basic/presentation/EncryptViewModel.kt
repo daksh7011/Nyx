@@ -7,6 +7,7 @@ import com.slothiesmooth.nyx.shared.data.result.AppError
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.CameraSource
 import com.slothiesmooth.nyx.shared.data.source.ImageCodec
+import com.slothiesmooth.nyx.shared.data.source.ImagePicker
 import com.slothiesmooth.nyx.shared.data.source.PlatformCapabilities
 import com.slothiesmooth.nyx.shared.data.source.ShareSource
 import com.slothiesmooth.nyx.shared.presentation.image.toImageBitmap
@@ -27,6 +28,7 @@ class EncryptViewModel(
     private val encryptMessage: EncryptMessageUseCase,
     private val saveToVault: SaveToVaultUseCase,
     private val codec: ImageCodec,
+    private val imagePicker: ImagePicker,
     private val cameraSource: CameraSource,
     private val shareSource: ShareSource,
     private val capabilities: PlatformCapabilities,
@@ -55,6 +57,10 @@ class EncryptViewModel(
                 mutableState.step = EncryptStep.Compose
             }
         }
+    }
+
+    fun onPickImage() {
+        async("pick-image") { imagePicker.pickImage()?.let { onImagePicked(it.bytes) } }
     }
 
     fun onCameraCapture() {

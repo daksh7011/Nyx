@@ -60,7 +60,26 @@ fun appModule(platformModule: Module): Module = module {
     single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
     single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
 
-    // Features (each bound to its cross-feature interface).
+    registerFeatures()
+
+    // The nested order: splash + navigation wrap first, then the tab features contribute routes.
+    single<List<Feature>> {
+        listOf(
+            get<SplashFeature>(),
+            get<NavigationFeature>(),
+            get<ThemeFeature>(),
+            get<VaultFeature>(),
+            get<EncryptFeature>(),
+            get<DecryptFeature>(),
+            get<SettingsFeature>(),
+        )
+    }
+
+    viewModelOf(::AppViewModel)
+}
+
+/** Binds each feature to its cross-feature interface within the app graph. */
+private fun Module.registerFeatures() {
     single<ThemeFeature> { BasicThemeProvider(ThemeRepository(get()), get()) }
     single<NavigationFeature> { BasicNavigationProvider() }
     single<SplashFeature> { BasicSplashProvider(afterSplashRoute = VaultRoute) }
@@ -79,6 +98,7 @@ fun appModule(platformModule: Module): Module = module {
                 crypto = get(),
                 stego = get(),
                 codec = get(),
+                imagePicker = get(),
                 vaultSource = get(),
                 fileStore = get(),
                 idGenerator = get(),
@@ -91,24 +111,16 @@ fun appModule(platformModule: Module): Module = module {
         )
     }
     single<DecryptFeature> {
-        BasicDecryptProvider(crypto = get(), stego = get(), codec = get(), fileStore = get(), clipboardWriter = get())
+        BasicDecryptProvider(
+            crypto = get(),
+            stego = get(),
+            codec = get(),
+            fileStore = get(),
+            imagePicker = get(),
+            clipboardWriter = get(),
+        )
     }
     single<SettingsFeature> {
         BasicSettingsProvider(vaultSource = get(), fileStore = get(), eventBus = get(), appInfo = get())
     }
-
-    // The nested order: splash + navigation wrap first, then the tab features contribute routes.
-    single<List<Feature>> {
-        listOf(
-            get<SplashFeature>(),
-            get<NavigationFeature>(),
-            get<ThemeFeature>(),
-            get<VaultFeature>(),
-            get<EncryptFeature>(),
-            get<DecryptFeature>(),
-            get<SettingsFeature>(),
-        )
-    }
-
-    viewModelOf(::AppViewModel)
 }

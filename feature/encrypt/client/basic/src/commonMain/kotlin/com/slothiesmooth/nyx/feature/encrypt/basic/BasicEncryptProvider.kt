@@ -38,6 +38,7 @@ class BasicEncryptProvider(
         single { dependencies.crypto }
         single { dependencies.stego }
         single { dependencies.codec }
+        single { dependencies.imagePicker }
         single { dependencies.vaultSource }
         single { dependencies.fileStore }
         single { dependencies.idGenerator }
