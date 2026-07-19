@@ -31,10 +31,24 @@ import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
+import com.slothiesmooth.nyx.feature.settings.basic.resources.Res
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_appearance
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_cancel
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_licenses_title
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_source_code
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_title
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_wipe_confirm_action
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_wipe_confirm_message
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_wipe_confirm_title
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_wipe_vault
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_wiping_progress
 import com.slothiesmooth.nyx.shared.presentation.state.UiEvent
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
+import com.slothiesmooth.nyx.shared.presentation.util.asString
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Stateless settings body: about label, appearance/licenses/source-code rows, the danger-zone wipe
@@ -55,7 +69,7 @@ fun SettingsContent(
     val dimensions = MaterialTheme.nxDimensions
     Box(modifier = modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            NxTopBar(title = "Settings")
+            NxTopBar(title = stringResource(Res.string.settings_title))
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -63,12 +77,28 @@ fun SettingsContent(
                     .padding(dimensions.keyline4),
                 verticalArrangement = Arrangement.spacedBy(dimensions.keyline3),
             ) {
-                NxText(text = state.versionLabel, style = NxTextStyle.Caption, color = MaterialTheme.nxColors.fgMuted)
-                SettingsRow(icon = NxIconKind.Palette, label = "Appearance", onClick = onOpenTheme)
-                SettingsRow(icon = NxIconKind.Info, label = "Open-source licenses", onClick = onOpenLicenses)
-                SettingsRow(icon = NxIconKind.Share, label = "Source code", onClick = onOpenRepo)
+                NxText(
+                    text = state.versionLabel.asString(),
+                    style = NxTextStyle.Caption,
+                    color = MaterialTheme.nxColors.fgMuted,
+                )
+                SettingsRow(
+                    icon = NxIconKind.Palette,
+                    label = stringResource(Res.string.settings_appearance),
+                    onClick = onOpenTheme,
+                )
+                SettingsRow(
+                    icon = NxIconKind.Info,
+                    label = stringResource(Res.string.settings_licenses_title),
+                    onClick = onOpenLicenses,
+                )
+                SettingsRow(
+                    icon = NxIconKind.Share,
+                    label = stringResource(Res.string.settings_source_code),
+                    onClick = onOpenRepo,
+                )
                 NxButton(
-                    text = "Wipe vault",
+                    text = stringResource(Res.string.settings_wipe_vault),
                     onClick = onRequestWipe,
                     style = NxButtonStyle.Danger,
                     block = true,
@@ -77,22 +107,42 @@ fun SettingsContent(
             }
         }
         if (state.showWipeConfirm) {
-            AlertDialog(
-                onDismissRequest = onCancelWipe,
-                title = { NxText(text = "Wipe vault?", style = NxTextStyle.Subhead) },
-                text = {
-                    NxText(
-                        text = "This permanently deletes every stored image and its hidden message. " +
-                            "This cannot be undone.",
-                        style = NxTextStyle.Body,
-                    )
-                },
-                confirmButton = { NxButton(text = "Wipe", onClick = onConfirmWipe, style = NxButtonStyle.Danger) },
-                dismissButton = { NxButton(text = "Cancel", onClick = onCancelWipe, style = NxButtonStyle.Ghost) },
+            WipeConfirmDialog(onConfirmWipe = onConfirmWipe, onCancelWipe = onCancelWipe)
+        }
+        if (state.isWiping) {
+            NxProgressOverlay(
+                label = stringResource(Res.string.settings_wiping_progress),
+                modifier = Modifier.fillMaxSize(),
             )
         }
-        if (state.isWiping) NxProgressOverlay(label = "Wiping vault", modifier = Modifier.fillMaxSize())
     }
+}
+
+@Composable
+private fun WipeConfirmDialog(onConfirmWipe: () -> Unit, onCancelWipe: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onCancelWipe,
+        title = {
+            NxText(text = stringResource(Res.string.settings_wipe_confirm_title), style = NxTextStyle.Subhead)
+        },
+        text = {
+            NxText(text = stringResource(Res.string.settings_wipe_confirm_message), style = NxTextStyle.Body)
+        },
+        confirmButton = {
+            NxButton(
+                text = stringResource(Res.string.settings_wipe_confirm_action),
+                onClick = onConfirmWipe,
+                style = NxButtonStyle.Danger,
+            )
+        },
+        dismissButton = {
+            NxButton(
+                text = stringResource(Res.string.settings_cancel),
+                onClick = onCancelWipe,
+                style = NxButtonStyle.Ghost,
+            )
+        },
+    )
 }
 
 @Composable
@@ -111,7 +161,7 @@ private fun SettingsRow(icon: NxIconKind, label: String, onClick: () -> Unit) {
 }
 
 private class PreviewSettingsState(
-    override val versionLabel: String,
+    override val versionLabel: UiText,
     override val showWipeConfirm: Boolean,
     override val isWiping: Boolean,
 ) : SettingsState {
@@ -119,20 +169,22 @@ private class PreviewSettingsState(
     override val uiEvent: Flow<UiEvent> = emptyFlow()
 }
 
+private val previewVersionLabel = UiText.raw("Nyx 1.0.0 · Android")
+
 @AllThemePreview
 @Composable
 private fun SettingsContentPreview(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
-    NxTheme(palette) { SettingsContent(PreviewSettingsState("Nyx 1.0.0 · Android", false, false)) }
+    NxTheme(palette) { SettingsContent(PreviewSettingsState(previewVersionLabel, false, false)) }
 }
 
 @AllThemePreview
 @Composable
 private fun SettingsWipeConfirmPreview(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
-    NxTheme(palette) { SettingsContent(PreviewSettingsState("Nyx 1.0.0 · Android", true, false)) }
+    NxTheme(palette) { SettingsContent(PreviewSettingsState(previewVersionLabel, true, false)) }
 }
 
 @AllThemePreview
 @Composable
 private fun SettingsWipingPreview(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
-    NxTheme(palette) { SettingsContent(PreviewSettingsState("Nyx 1.0.0 · Android", false, true)) }
+    NxTheme(palette) { SettingsContent(PreviewSettingsState(previewVersionLabel, false, true)) }
 }

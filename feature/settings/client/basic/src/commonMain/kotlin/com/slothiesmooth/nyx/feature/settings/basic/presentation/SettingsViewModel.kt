@@ -6,10 +6,11 @@ import androidx.compose.runtime.setValue
 import com.slothiesmooth.nyx.feature.settings.basic.domain.usecase.WipeVaultUseCase
 import com.slothiesmooth.nyx.shared.data.source.AppInfo
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import com.slothiesmooth.nyx.shared.presentation.viewmodel.BaseViewModel
 
-private class SettingsMutableState(initialVersionLabel: String) : MutableViewState(), SettingsState {
-    override var versionLabel: String by mutableStateOf(initialVersionLabel)
+private class SettingsMutableState(initialVersionLabel: UiText) : MutableViewState(), SettingsState {
+    override var versionLabel: UiText by mutableStateOf(initialVersionLabel)
     override var showWipeConfirm: Boolean by mutableStateOf(false)
     override var isWiping: Boolean by mutableStateOf(false)
 }

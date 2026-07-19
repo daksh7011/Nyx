@@ -20,7 +20,10 @@ import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 import com.slothiesmooth.nyx.feature.settings.basic.domain.LicenseEntry
 import com.slothiesmooth.nyx.feature.settings.basic.domain.nyxLicenses
+import com.slothiesmooth.nyx.feature.settings.basic.resources.Res
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_licenses_title
 import kotlinx.collections.immutable.ImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * Stateless list of third-party licenses. Rendered as a plain [Column] (not a `LazyColumn`): the
@@ -35,7 +38,7 @@ fun LicensesContent(
     onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
-    NxDetailTemplate(title = "Open-source licenses", onBack = onBack, modifier = modifier) {
+    NxDetailTemplate(title = stringResource(Res.string.settings_licenses_title), onBack = onBack, modifier = modifier) {
         entries.forEach { entry ->
             NxCard(variant = NxCardVariant.Elevated, onClick = { onOpenUrl(entry.url) }) {
                 Column(modifier = Modifier.fillMaxWidth().padding(MaterialTheme.nxDimensions.keyline3)) {

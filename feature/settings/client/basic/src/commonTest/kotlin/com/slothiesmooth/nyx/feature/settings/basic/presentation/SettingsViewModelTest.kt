@@ -2,9 +2,12 @@ package com.slothiesmooth.nyx.feature.settings.basic.presentation
 
 import app.cash.turbine.test
 import com.slothiesmooth.nyx.feature.settings.basic.domain.usecase.WipeVaultUseCase
+import com.slothiesmooth.nyx.feature.settings.basic.resources.Res
+import com.slothiesmooth.nyx.feature.settings.basic.resources.settings_version_label
 import com.slothiesmooth.nyx.shared.data.event.DefaultDomainEventBus
 import com.slothiesmooth.nyx.shared.data.source.AppInfo
 import com.slothiesmooth.nyx.shared.data.source.StegoImageRecord
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import com.slothiesmooth.nyx.shared.testsupport.FakeVaultFileStore
 import com.slothiesmooth.nyx.shared.testsupport.FakeVaultSource
 import kotlinx.coroutines.Dispatchers
@@ -47,7 +50,10 @@ class SettingsViewModelTest {
 
     @Test
     fun `version label is composed from AppInfo at construction`() {
-        assertEquals("Nyx 1.0.0 · Android", viewModel().state.versionLabel)
+        assertEquals(
+            UiText.res(Res.string.settings_version_label, "1.0.0", "Android"),
+            viewModel().state.versionLabel,
+        )
     }
 
     @Test
