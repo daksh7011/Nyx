@@ -19,7 +19,9 @@ fun defaultAndroidNamespace(projectPath: String): String {
         .split(":")
         .filter { it != "client" }
         .map { it.replace("-", "") }
-    return "com.slothiesmooth.nyx." + segments.joinToString(".")
+    // ":client" filters down to no segments; it keeps the "client" leaf (matches the 00-INDEX table).
+    val suffix = if (segments.isEmpty()) "client" else segments.joinToString(".")
+    return "com.slothiesmooth.nyx.$suffix"
 }
 
 kotlin {
