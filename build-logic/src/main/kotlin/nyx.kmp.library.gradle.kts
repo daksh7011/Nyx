@@ -56,6 +56,7 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.findLibrary("kotlinx-coroutines-test").get())
+            implementation(libs.findLibrary("turbine").get())
         }
     }
 }
