@@ -16,6 +16,9 @@ import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
+import com.slothiesmooth.nyx.feature.splash.basic.resources.Res
+import com.slothiesmooth.nyx.feature.splash.basic.resources.splash_app_name
+import org.jetbrains.compose.resources.stringResource
 
 private val BrandMarkSize: Dp = 72.dp
 
@@ -36,6 +39,6 @@ internal fun SplashScreenStateless() {
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.nxDimensions.keyline4, Alignment.CenterVertically),
     ) {
         NxIcon(kind = NxIconKind.Vault, tint = colors.brand, size = BrandMarkSize)
-        NxText(text = "Nyx", style = NxTextStyle.Display, color = colors.fg)
+        NxText(text = stringResource(Res.string.splash_app_name), style = NxTextStyle.Display, color = colors.fg)
     }
 }

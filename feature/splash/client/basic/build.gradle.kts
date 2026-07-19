@@ -14,3 +14,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "com.slothiesmooth.nyx.feature.splash.basic.resources"
+}
