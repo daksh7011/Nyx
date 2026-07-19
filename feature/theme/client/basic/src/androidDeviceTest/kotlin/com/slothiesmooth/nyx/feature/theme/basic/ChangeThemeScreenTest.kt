@@ -10,7 +10,7 @@ import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.slothiesmooth.nyx.designlibrary.atoms.NxText
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
