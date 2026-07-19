@@ -72,5 +72,8 @@ kotlin {
         commonTest.dependencies {
             implementation(projects.shared.testSupport)
         }
+        getByName("androidDeviceTest").dependencies {
+            implementation(projects.shared.testSupport)
+        }
     }
 }
