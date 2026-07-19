@@ -16,6 +16,12 @@ sqldelight {
 
 kotlin {
     sourceSets {
+        // Intermediate source set: iOS + JVM + wasmJs share the skiko-based image codec
+        // (skiko ships with Compose Multiplatform on every non-android target). Never android.
+        val skikoMain by creating { dependsOn(commonMain.get()) }
+        iosMain.get().dependsOn(skikoMain)
+        jvmMain.get().dependsOn(skikoMain)
+        wasmJsMain.get().dependsOn(skikoMain)
         all {
             languageSettings {
                 optIn("kotlinx.coroutines.ExperimentalCoroutinesApi")
