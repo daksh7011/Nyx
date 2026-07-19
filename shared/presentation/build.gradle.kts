@@ -5,6 +5,11 @@ plugins {
 
 kotlin {
     sourceSets {
+        // Intermediate source set: iOS + JVM + wasmJs share one skiko ImageBitmap decoder.
+        val skikoMain by creating { dependsOn(commonMain.get()) }
+        iosMain.get().dependsOn(skikoMain)
+        jvmMain.get().dependsOn(skikoMain)
+        wasmJsMain.get().dependsOn(skikoMain)
         all {
             languageSettings {
                 optIn("androidx.compose.material3.ExperimentalMaterial3Api")
