@@ -47,9 +47,10 @@ class VaultDetailViewModel(
 
     private suspend fun applyImage(image: VaultImage) {
         val thumbnail = decode(useCases.getImageBytes(image.id))
+        val createdLabel = formatVaultDate(image.createdAt, clock.zone())
         withState {
             mutableState.name = image.name
-            mutableState.createdLabel = formatVaultDate(image.createdAt, clock.zone())
+            mutableState.createdLabel = createdLabel
             mutableState.isArchived = image.isArchived
             mutableState.thumbnail = thumbnail
             mutableState.isLoading = false

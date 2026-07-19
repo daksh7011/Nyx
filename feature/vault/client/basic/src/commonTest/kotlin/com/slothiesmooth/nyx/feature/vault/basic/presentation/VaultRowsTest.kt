@@ -3,8 +3,12 @@ package com.slothiesmooth.nyx.feature.vault.basic.presentation
 import com.slothiesmooth.nyx.feature.vault.basic.data.VaultRepositoryImpl
 import com.slothiesmooth.nyx.feature.vault.basic.domain.usecase.GetImageBytesUseCase
 import com.slothiesmooth.nyx.feature.vault.basic.presentation.list.buildVaultRows
+import com.slothiesmooth.nyx.feature.vault.basic.resources.Res
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_date_format
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_month_7
 import com.slothiesmooth.nyx.shared.data.event.DefaultDomainEventBus
 import com.slothiesmooth.nyx.shared.data.source.StegoImageRecord
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import com.slothiesmooth.nyx.shared.testsupport.FakeVaultFileStore
 import com.slothiesmooth.nyx.shared.testsupport.FakeVaultSource
 import com.slothiesmooth.nyx.shared.testsupport.time.FakeClock
@@ -19,9 +23,9 @@ import kotlin.time.Instant
 class VaultRowsTest {
 
     @Test
-    fun `formatVaultDate renders abbreviated month day and year`() {
+    fun `formatVaultDate builds a date UiText from the month resource, day, and year`() {
         val label = formatVaultDate(Instant.parse("2026-07-13T12:00:00Z"), TimeZone.UTC)
-        assertEquals("Jul 13, 2026", label)
+        assertEquals(UiText.res(Res.string.vault_date_format, Res.string.vault_month_7, 13, 2026), label)
     }
 
     @Test
@@ -50,7 +54,7 @@ class VaultRowsTest {
 
         assertEquals(1, rows.size)
         assertEquals("nyx-a.png", rows[0].name)
-        assertEquals("Jul 13, 2026", rows[0].createdLabel)
+        assertEquals(UiText.res(Res.string.vault_date_format, Res.string.vault_month_7, 13, 2026), rows[0].createdLabel)
         assertNull(rows[0].thumbnail)
         assertEquals(listOf(2), decodedByteCounts)
     }

@@ -31,10 +31,20 @@ import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
+import com.slothiesmooth.nyx.feature.vault.basic.resources.Res
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_archived_section
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_empty_body
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_empty_title
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_encrypt_cta
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_loading
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_title
+import com.slothiesmooth.nyx.feature.vault.basic.resources.vault_toggle_archived
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 private const val GRID_COLUMNS = 2
 
@@ -52,23 +62,26 @@ fun VaultContent(
     Box(modifier = modifier.fillMaxSize().background(MaterialTheme.nxColors.bg)) {
         Column(modifier = Modifier.fillMaxSize()) {
             NxTopBar(
-                title = "Vault",
+                title = stringResource(Res.string.vault_title),
                 trailing = {
                     NxIconButton(
                         kind = if (state.showArchived) NxIconKind.Eye else NxIconKind.Archive,
                         onClick = onToggleArchived,
                         style = NxIconButtonStyle.Ghost,
-                        contentDescription = "Toggle archived",
+                        contentDescription = stringResource(Res.string.vault_toggle_archived),
                     )
                 },
             )
             when {
-                state.isLoading -> NxProgressOverlay(label = "Loading vault", modifier = Modifier.fillMaxSize())
+                state.isLoading -> NxProgressOverlay(
+                    label = stringResource(Res.string.vault_loading),
+                    modifier = Modifier.fillMaxSize(),
+                )
                 showEmptyState -> NxEmptyState(
                     icon = NxIconKind.Vault,
-                    title = "Your vault is empty",
-                    body = "Hide an encrypted message inside an image to get started.",
-                    ctaText = "Encrypt a message",
+                    title = stringResource(Res.string.vault_empty_title),
+                    body = stringResource(Res.string.vault_empty_body),
+                    ctaText = stringResource(Res.string.vault_encrypt_cta),
                     onCta = onOpenEncrypt,
                     modifier = Modifier.fillMaxSize(),
                 )
@@ -85,7 +98,7 @@ fun VaultContent(
             NxFab(
                 icon = NxIconKind.Plus,
                 onClick = onOpenEncrypt,
-                contentDescription = "Encrypt a message",
+                contentDescription = stringResource(Res.string.vault_encrypt_cta),
                 modifier = Modifier.align(Alignment.BottomEnd).padding(MaterialTheme.nxDimensions.keyline5),
             )
         }
@@ -116,7 +129,9 @@ private fun VaultGrid(
             )
         }
         if (showArchived && archived.isNotEmpty()) {
-            item(span = { GridItemSpan(maxLineSpan) }) { NxSectionHeader(title = "Archived") }
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                NxSectionHeader(title = stringResource(Res.string.vault_archived_section))
+            }
             items(archived, key = { "archived-${it.id.value}" }) { row ->
                 NxImageTile(
                     image = row.thumbnail,
@@ -129,7 +144,9 @@ private fun VaultGrid(
 }
 
 private fun sampleRows(count: Int): ImmutableList<VaultImageUi> =
-    (1..count).map { VaultImageUi(StegoImageId("id-$it"), "nyx-000$it.png", "Jul 13, 2026", null) }.toImmutableList()
+    (1..count).map {
+        VaultImageUi(StegoImageId("id-$it"), "nyx-000$it.png", UiText.raw("Jul 13, 2026"), null)
+    }.toImmutableList()
 
 private fun previewState(
     active: ImmutableList<VaultImageUi> = persistentListOf(),

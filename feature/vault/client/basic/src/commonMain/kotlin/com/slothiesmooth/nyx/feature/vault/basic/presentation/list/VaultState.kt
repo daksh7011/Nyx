@@ -8,6 +8,7 @@ import androidx.compose.ui.graphics.ImageBitmap
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.ViewState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
@@ -16,7 +17,7 @@ import kotlinx.collections.immutable.persistentListOf
 data class VaultImageUi(
     val id: StegoImageId,
     val name: String,
-    val createdLabel: String,
+    val createdLabel: UiText,
     val thumbnail: ImageBitmap?,
 )
 
