@@ -1,5 +1,8 @@
 package com.slothiesmooth.nyx.feature.encrypt.basic.presentation
 
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.Res
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_passwords_do_not_match
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -19,7 +22,7 @@ class EncryptValidationTest {
     fun `mismatched passwords surface an error and block encrypt`() {
         val result = validateEncryptInput(message = "hi", password = "pw", confirmPassword = "px")
         assertFalse(result.canEncrypt)
-        assertEquals("Passwords do not match", result.error)
+        assertEquals(UiText.res(Res.string.encrypt_passwords_do_not_match), result.error)
     }
 
     @Test

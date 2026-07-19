@@ -24,10 +24,30 @@ import com.slothiesmooth.nyx.designlibrary.tokens.NxPaletteProvider
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.Res
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_another
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_choose_image
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_confirm_password_label
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_encrypted_image_content_description
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_message_label
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_password_label
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_pick_prompt
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_progress
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_result_heading
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_selected_image_content_description
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_share
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_step_done
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_step_image
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_step_message
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_submit
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_take_photo
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_title
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
+import com.slothiesmooth.nyx.shared.presentation.util.asString
 import kotlinx.collections.immutable.persistentListOf
+import org.jetbrains.compose.resources.stringResource
 
-private val STEP_LABELS = persistentListOf("Image", "Message", "Done")
 private const val PREVIEW_THUMBNAIL_PX = 320
 
 /**
@@ -50,10 +70,15 @@ fun EncryptContent(
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
+        val stepLabels = persistentListOf(
+            stringResource(Res.string.encrypt_step_image),
+            stringResource(Res.string.encrypt_step_message),
+            stringResource(Res.string.encrypt_step_done),
+        )
         NxWizardTemplate(
-            stepLabels = STEP_LABELS,
+            stepLabels = stepLabels,
             currentStep = state.step.ordinal,
-            title = "Encrypt",
+            title = stringResource(Res.string.encrypt_title),
             onBack = onBack,
         ) {
             when (state.step) {
@@ -63,7 +88,7 @@ fun EncryptContent(
             }
         }
         if (state.uiState is UiState.Blocking) {
-            NxProgressOverlay(label = "Encrypting", modifier = Modifier.fillMaxSize())
+            NxProgressOverlay(label = stringResource(Res.string.encrypt_progress), modifier = Modifier.fillMaxSize())
         }
     }
 }
@@ -73,17 +98,17 @@ private fun PickImageStep(state: EncryptState, onPickImage: () -> Unit, onCaptur
     if (state.hasImage) {
         NxImageTile(
             image = state.thumbnail,
-            contentDescription = "Selected image",
+            contentDescription = stringResource(Res.string.encrypt_selected_image_content_description),
             modifier = Modifier.fillMaxWidth().aspectRatio(1f),
         )
     }
     NxText(
-        text = "Choose a cover image to hide your message in.",
+        text = stringResource(Res.string.encrypt_pick_prompt),
         style = NxTextStyle.Body,
         color = MaterialTheme.nxColors.fgMuted,
     )
     NxButton(
-        text = "Choose image",
+        text = stringResource(Res.string.encrypt_choose_image),
         onClick = onPickImage,
         style = NxButtonStyle.Primary,
         block = true,
@@ -91,7 +116,7 @@ private fun PickImageStep(state: EncryptState, onPickImage: () -> Unit, onCaptur
     )
     if (state.showCamera) {
         NxButton(
-            text = "Take photo",
+            text = stringResource(Res.string.encrypt_take_photo),
             onClick = onCaptureImage,
             style = NxButtonStyle.Secondary,
             block = true,
@@ -110,19 +135,34 @@ private fun ComposeStep(
 ) {
     NxImageTile(
         image = state.thumbnail,
-        contentDescription = "Selected image",
+        contentDescription = stringResource(Res.string.encrypt_selected_image_content_description),
         modifier = Modifier.fillMaxWidth().aspectRatio(1f),
     )
-    NxText(text = state.maxCharsLabel, style = NxTextStyle.Caption, color = MaterialTheme.nxColors.fgMuted)
-    NxField(value = state.message, onValueChange = onMessageChange, label = "Secret message", multiline = true)
-    NxPasswordField(value = state.password, onValueChange = onPasswordChange, label = "Password")
-    NxPasswordField(value = state.confirmPassword, onValueChange = onConfirmChange, label = "Confirm password")
+    state.maxCharsLabel?.let { label ->
+        NxText(text = label.asString(), style = NxTextStyle.Caption, color = MaterialTheme.nxColors.fgMuted)
+    }
+    NxField(
+        value = state.message,
+        onValueChange = onMessageChange,
+        label = stringResource(Res.string.encrypt_message_label),
+        multiline = true,
+    )
+    NxPasswordField(
+        value = state.password,
+        onValueChange = onPasswordChange,
+        label = stringResource(Res.string.encrypt_password_label),
+    )
+    NxPasswordField(
+        value = state.confirmPassword,
+        onValueChange = onConfirmChange,
+        label = stringResource(Res.string.encrypt_confirm_password_label),
+    )
     val error = state.validationError
     if (error != null) {
-        NxText(text = error, style = NxTextStyle.Caption, color = MaterialTheme.nxColors.danger)
+        NxText(text = error.asString(), style = NxTextStyle.Caption, color = MaterialTheme.nxColors.danger)
     }
     NxButton(
-        text = "Encrypt",
+        text = stringResource(Res.string.encrypt_submit),
         onClick = onEncrypt,
         style = NxButtonStyle.Primary,
         block = true,
@@ -135,20 +175,20 @@ private fun ComposeStep(
 private fun ResultStep(state: EncryptState, onShare: () -> Unit, onReset: () -> Unit) {
     NxImageTile(
         image = state.thumbnail,
-        contentDescription = "Encrypted image",
+        contentDescription = stringResource(Res.string.encrypt_encrypted_image_content_description),
         modifier = Modifier.fillMaxWidth().aspectRatio(1f),
     )
-    NxText(text = "Encrypted and saved", style = NxTextStyle.Heading)
+    NxText(text = stringResource(Res.string.encrypt_result_heading), style = NxTextStyle.Heading)
     NxText(text = state.savedName ?: "", style = NxTextStyle.Caption, color = MaterialTheme.nxColors.fgMuted)
     NxButton(
-        text = "Share image",
+        text = stringResource(Res.string.encrypt_share),
         onClick = onShare,
         style = NxButtonStyle.Primary,
         block = true,
         leadingIcon = NxIconKind.Share,
     )
     NxButton(
-        text = "Encrypt another",
+        text = stringResource(Res.string.encrypt_another),
         onClick = onReset,
         style = NxButtonStyle.Ghost,
         block = true,
@@ -161,7 +201,7 @@ private fun previewState(
     message: String = "",
     password: String = "",
     confirmPassword: String = "",
-    validationError: String? = null,
+    validationError: UiText? = null,
     canEncrypt: Boolean = false,
     savedName: String? = null,
     thumbnail: ImageBitmap? = null,
@@ -175,7 +215,7 @@ private fun previewState(
     this.canEncrypt = canEncrypt
     this.savedName = savedName
     this.thumbnail = thumbnail
-    this.maxCharsLabel = "About 1820 characters fit"
+    this.maxCharsLabel = UiText.raw("About 1820 characters fit")
     if (blocking) uiState = UiState.Blocking
 }
 
@@ -205,7 +245,7 @@ private fun EncryptComposeErrorPreview(@PreviewParameter(NxPaletteProvider::clas
                 message = "meet me",
                 password = "pw",
                 confirmPassword = "px",
-                validationError = "Passwords do not match",
+                validationError = UiText.raw("Passwords do not match"),
             ),
         )
     }

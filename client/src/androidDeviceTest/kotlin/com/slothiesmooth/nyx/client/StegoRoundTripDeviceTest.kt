@@ -7,8 +7,8 @@ import com.slothiesmooth.nyx.client.data.codec.defaultImageCodec
 import com.slothiesmooth.nyx.crypto.DefaultNyxCrypto
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.DecryptOutcome
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.DecryptMessageUseCase
+import com.slothiesmooth.nyx.feature.encrypt.basic.domain.EncryptOutcome
 import com.slothiesmooth.nyx.feature.encrypt.basic.domain.usecase.EncryptMessageUseCase
-import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.PickedImage
 import com.slothiesmooth.nyx.shared.testsupport.FakeImagePicker
 import com.slothiesmooth.nyx.steganography.Steganography
@@ -53,7 +53,7 @@ class StegoRoundTripDeviceTest {
     fun hidesAndRecoversMessageThroughTheRealAndroidCodec() = runBlocking {
         // Encrypt path: the picker supplies the base cover, exactly as the wizard would.
         val cover = imagePicker.pickImage() ?: error("picker must supply the cover image")
-        val stegoBytes = (encrypt(cover.bytes, MESSAGE, PASSWORD) as? AppResult.Ok)?.value
+        val stegoBytes = (encrypt(cover.bytes, MESSAGE, PASSWORD) as? EncryptOutcome.Success)?.pngBytes
             ?: error("encrypting into a cover of $COVER_SIZE px should succeed")
         assertFalse("stego output must differ from the cover", stegoBytes.contentEquals(cover.bytes))
 

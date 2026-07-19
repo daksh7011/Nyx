@@ -9,7 +9,6 @@ import com.slothiesmooth.nyx.shared.data.event.DefaultDomainEventBus
 import com.slothiesmooth.nyx.shared.data.event.DomainEvent
 import com.slothiesmooth.nyx.shared.data.id.IdGenerator
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
-import com.slothiesmooth.nyx.shared.data.result.AppError
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.testsupport.FakeImageCodec
 import com.slothiesmooth.nyx.shared.testsupport.FakeVaultFileStore
@@ -41,20 +40,19 @@ class EncryptDomainTest {
     fun `encrypt then manual stego+crypto decode recovers the message`() = runTest {
         val useCase = EncryptMessageUseCase(crypto, stego, codec)
         val png = useCase(coverBytes(96, 96), "meet me at dawn", "hunter2")
-        assertTrue(png is AppResult.Ok)
-        val decoded = (codec.decode(png.value) as AppResult.Ok).value
+        assertTrue(png is EncryptOutcome.Success)
+        val decoded = (codec.decode(png.pngBytes) as AppResult.Ok).value
         val blob = stego.decode(listOf(decoded))!!
         val result = crypto.decrypt(blob, "hunter2")
         assertEquals(DecryptResult.Success("meet me at dawn"), result)
     }
 
     @Test
-    fun `encrypt reports a validation error when the message exceeds capacity`() = runTest {
+    fun `encrypt reports TooLarge with capacity counts when the message exceeds capacity`() = runTest {
         val useCase = EncryptMessageUseCase(crypto, stego, codec)
         val result = useCase(coverBytes(4, 4), "x".repeat(500), "pw")
-        assertTrue(result is AppResult.Err)
-        assertTrue(result.cause is AppError.Validation)
-        assertTrue((result.cause as AppError.Validation).message.contains("too large"))
+        assertTrue(result is EncryptOutcome.TooLarge)
+        assertTrue(result.requiredChars > result.availableChars)
     }
 
     @Test

@@ -1,9 +1,13 @@
 package com.slothiesmooth.nyx.feature.encrypt.basic.presentation
 
+import com.slothiesmooth.nyx.feature.encrypt.basic.domain.EncryptOutcome
 import com.slothiesmooth.nyx.feature.encrypt.basic.domain.estimateMaxMessageChars
 import com.slothiesmooth.nyx.feature.encrypt.basic.domain.usecase.EncryptMessageUseCase
 import com.slothiesmooth.nyx.feature.encrypt.basic.domain.usecase.SaveToVaultUseCase
-import com.slothiesmooth.nyx.shared.data.result.AppError
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.Res
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_capacity_hint
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_failed
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_too_large
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.CameraSource
 import com.slothiesmooth.nyx.shared.data.source.ImageCodec
@@ -12,11 +16,11 @@ import com.slothiesmooth.nyx.shared.data.source.PlatformCapabilities
 import com.slothiesmooth.nyx.shared.data.source.ShareSource
 import com.slothiesmooth.nyx.shared.presentation.image.toImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import com.slothiesmooth.nyx.shared.presentation.viewmodel.BaseViewModel
 
 private const val ID_PREFIX_LENGTH = 8
 private const val DEFAULT_SHARE_NAME = "nyx-image.png"
-private const val ENCRYPT_FAILED = "Could not encrypt this image."
 
 /**
  * Drives the encrypt wizard: decode the picked cover into a thumbnail + capacity hint, validate the
@@ -47,9 +51,10 @@ class EncryptViewModel(
             val decoded = codec.decode(bytes)
             val thumb = runCatching { bytes.toImageBitmap() }.getOrNull()
             val label = if (decoded is AppResult.Ok) {
-                "About ${estimateMaxMessageChars(decoded.value.width, decoded.value.height)} characters fit"
+                val fit = estimateMaxMessageChars(decoded.value.width, decoded.value.height)
+                UiText.res(Res.string.encrypt_capacity_hint, fit)
             } else {
-                ""
+                null
             }
             withState {
                 mutableState.thumbnail = thumb
@@ -85,29 +90,31 @@ class EncryptViewModel(
         if (!mutableState.canEncrypt) return
         withState { mutableState.uiState = UiState.Blocking }
         async("encrypt") {
-            val result = encryptMessage(cover, mutableState.message, mutableState.password)
-            if (result is AppResult.Err) {
-                val message = (result.cause as? AppError.Validation)?.message ?: ENCRYPT_FAILED
-                withState {
-                    mutableState.validationError = message
+            when (val outcome = encryptMessage(cover, mutableState.message, mutableState.password)) {
+                is EncryptOutcome.Success -> onEncryptSuccess(outcome.pngBytes)
+                is EncryptOutcome.TooLarge -> withState {
+                    mutableState.validationError =
+                        UiText.res(Res.string.encrypt_too_large, outcome.requiredChars, outcome.availableChars)
                     mutableState.uiState = UiState.Ready
                 }
-                return@async
+                EncryptOutcome.Failed -> withState {
+                    mutableState.validationError = UiText.res(Res.string.encrypt_failed)
+                    mutableState.uiState = UiState.Ready
+                }
             }
-            val pngBytes = (result as AppResult.Ok).value
-            resultBytes = pngBytes
-            val saved = if (capabilities.persistentVault) saveToVault(pngBytes, name = "") else null
-            val savedId = when (saved) {
-                is AppResult.Ok -> saved.value
-                else -> null
-            }
-            val name = savedId?.let { "nyx-${it.value.take(ID_PREFIX_LENGTH)}.png" } ?: DEFAULT_SHARE_NAME
-            shareFileName = name
-            withState {
-                mutableState.savedName = name
-                mutableState.step = EncryptStep.Result
-                mutableState.uiState = UiState.Ready
-            }
+        }
+    }
+
+    private suspend fun onEncryptSuccess(pngBytes: ByteArray) {
+        resultBytes = pngBytes
+        val saved = if (capabilities.persistentVault) saveToVault(pngBytes, name = "") else null
+        val savedId = (saved as? AppResult.Ok)?.value
+        val name = savedId?.let { "nyx-${it.value.take(ID_PREFIX_LENGTH)}.png" } ?: DEFAULT_SHARE_NAME
+        shareFileName = name
+        withState {
+            mutableState.savedName = name
+            mutableState.step = EncryptStep.Result
+            mutableState.uiState = UiState.Ready
         }
     }
 
@@ -131,7 +138,7 @@ class EncryptViewModel(
         withState {
             mutableState.step = EncryptStep.PickImage
             mutableState.thumbnail = null
-            mutableState.maxCharsLabel = ""
+            mutableState.maxCharsLabel = null
             mutableState.message = ""
             mutableState.password = ""
             mutableState.confirmPassword = ""

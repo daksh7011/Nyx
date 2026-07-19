@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.ViewState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 
 /** The three wizard steps: pick a cover image, compose the message, then the saved/share result. */
 enum class EncryptStep { PickImage, Compose, Result }
@@ -19,11 +20,11 @@ interface EncryptState : ViewState {
     val step: EncryptStep
     val thumbnail: ImageBitmap?
     val hasImage: Boolean
-    val maxCharsLabel: String
+    val maxCharsLabel: UiText?
     val message: String
     val password: String
     val confirmPassword: String
-    val validationError: String?
+    val validationError: UiText?
     val canEncrypt: Boolean
     val savedName: String?
     val showCamera: Boolean
@@ -33,11 +34,11 @@ interface EncryptState : ViewState {
 class EncryptMutableState(cameraVisible: Boolean) : MutableViewState(), EncryptState {
     override var step: EncryptStep by mutableStateOf(EncryptStep.PickImage)
     override var thumbnail: ImageBitmap? by mutableStateOf(null)
-    override var maxCharsLabel: String by mutableStateOf("")
+    override var maxCharsLabel: UiText? by mutableStateOf(null)
     override var message: String by mutableStateOf("")
     override var password: String by mutableStateOf("")
     override var confirmPassword: String by mutableStateOf("")
-    override var validationError: String? by mutableStateOf(null)
+    override var validationError: UiText? by mutableStateOf(null)
     override var canEncrypt: Boolean by mutableStateOf(false)
     override var savedName: String? by mutableStateOf(null)
     override val showCamera: Boolean = cameraVisible

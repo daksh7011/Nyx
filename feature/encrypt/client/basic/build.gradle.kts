@@ -21,3 +21,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "com.slothiesmooth.nyx.feature.encrypt.basic.resources"
+}
