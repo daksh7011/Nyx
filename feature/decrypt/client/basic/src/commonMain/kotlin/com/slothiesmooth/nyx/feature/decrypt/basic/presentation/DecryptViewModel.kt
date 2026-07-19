@@ -6,6 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.ImageBitmap
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.DecryptMessageUseCase
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.LoadVaultImageBytesUseCase
+import com.slothiesmooth.nyx.feature.decrypt.basic.resources.Res
+import com.slothiesmooth.nyx.feature.decrypt.basic.resources.decrypt_load_failed
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.ClipboardWriter
@@ -13,9 +15,8 @@ import com.slothiesmooth.nyx.shared.data.source.ImagePicker
 import com.slothiesmooth.nyx.shared.presentation.image.toImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import com.slothiesmooth.nyx.shared.presentation.viewmodel.BaseViewModel
-
-private const val LOAD_FAILED = "This image could not be loaded from the vault."
 
 /** Mutable backing state owned by [DecryptViewModel]. */
 private class DecryptMutableState : MutableViewState(), DecryptState {
@@ -25,7 +26,7 @@ private class DecryptMutableState : MutableViewState(), DecryptState {
     override var password: String by mutableStateOf("")
     override var canDecrypt: Boolean by mutableStateOf(false)
     override var plaintext: String? by mutableStateOf(null)
-    override var errorMessage: String? by mutableStateOf(null)
+    override var errorMessage: UiText? by mutableStateOf(null)
 }
 
 /**
@@ -52,7 +53,7 @@ class DecryptViewModel(
                 is AppResult.Ok -> setImage(result.value, fromVault = true)
                 is AppResult.Err -> withState {
                     mutableState.isFromVault = true
-                    mutableState.errorMessage = LOAD_FAILED
+                    mutableState.errorMessage = UiText.res(Res.string.decrypt_load_failed)
                 }
             }
         }

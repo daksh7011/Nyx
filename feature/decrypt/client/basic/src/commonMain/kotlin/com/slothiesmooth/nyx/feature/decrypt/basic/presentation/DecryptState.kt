@@ -2,6 +2,7 @@ package com.slothiesmooth.nyx.feature.decrypt.basic.presentation
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.ViewState
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 
 /**
  * Read-only reveal state the screen observes. Everything is render-ready: [thumbnail] is already
@@ -15,5 +16,5 @@ interface DecryptState : ViewState {
     val password: String
     val canDecrypt: Boolean
     val plaintext: String?
-    val errorMessage: String?
+    val errorMessage: UiText?
 }

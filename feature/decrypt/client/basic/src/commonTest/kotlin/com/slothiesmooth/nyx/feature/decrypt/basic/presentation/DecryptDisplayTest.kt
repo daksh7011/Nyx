@@ -1,6 +1,9 @@
 package com.slothiesmooth.nyx.feature.decrypt.basic.presentation
 
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.DecryptOutcome
+import com.slothiesmooth.nyx.feature.decrypt.basic.resources.Res
+import com.slothiesmooth.nyx.feature.decrypt.basic.resources.decrypt_unreadable
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
@@ -25,8 +28,9 @@ class DecryptDisplayTest {
     }
 
     @Test
-    fun `failure surfaces its reason`() {
-        val display = mapDecryptOutcome(DecryptOutcome.Failure("This image could not be read."))
-        assertEquals("This image could not be read.", display.error)
+    fun `failure maps to the generic unreadable message, ignoring the technical reason`() {
+        val display = mapDecryptOutcome(DecryptOutcome.Failure("codec error 0x5"))
+        assertEquals(UiText.res(Res.string.decrypt_unreadable), display.error)
+        assertNull(display.plaintext)
     }
 }
