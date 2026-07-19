@@ -8,6 +8,7 @@ import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.DecryptMessage
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.LoadVaultImageBytesUseCase
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
 import com.slothiesmooth.nyx.shared.data.result.AppResult
+import com.slothiesmooth.nyx.shared.data.source.ClipboardWriter
 import com.slothiesmooth.nyx.shared.presentation.image.toImageBitmap
 import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.UiState
@@ -35,6 +36,7 @@ private class DecryptMutableState : MutableViewState(), DecryptState {
 class DecryptViewModel(
     private val decryptMessage: DecryptMessageUseCase,
     private val loadVaultImageBytes: LoadVaultImageBytesUseCase,
+    private val clipboardWriter: ClipboardWriter,
 ) : BaseViewModel() {
 
     private val mutableState = DecryptMutableState()
@@ -88,6 +90,12 @@ class DecryptViewModel(
                 mutableState.uiState = UiState.Ready
             }
         }
+    }
+
+    /** Copies the revealed message to the clipboard; no-op until a message has been revealed. */
+    fun onCopy() {
+        val text = mutableState.plaintext ?: return
+        ui("copy", force = true) { clipboardWriter.copyPlainText(text) }
     }
 
     private fun recomputeCanDecrypt() {

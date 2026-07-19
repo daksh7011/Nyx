@@ -11,6 +11,7 @@ import com.slothiesmooth.nyx.BuildConfig
 import com.slothiesmooth.nyx.client.data.sqldelight.NyxDb
 import com.slothiesmooth.nyx.shared.data.source.AppInfo
 import com.slothiesmooth.nyx.shared.data.source.CameraSource
+import com.slothiesmooth.nyx.shared.data.source.ClipboardWriter
 import com.slothiesmooth.nyx.shared.data.source.PlatformCapabilities
 import com.slothiesmooth.nyx.shared.data.source.SettingsSource
 import com.slothiesmooth.nyx.shared.data.source.ShareSource
@@ -40,4 +41,5 @@ fun androidPlatformModule(context: Context): Module = module {
     single<CameraSource> { FileKitCameraSource() }
     single { PlatformCapabilities(camera = true, persistentVault = true) }
     single<AppInfo> { AndroidAppInfo(versionName = BuildConfig.VERSION_NAME) }
+    single<ClipboardWriter> { AndroidClipboardWriter(context) }
 }

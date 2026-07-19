@@ -91,7 +91,7 @@ fun appModule(platformModule: Module): Module = module {
         )
     }
     single<DecryptFeature> {
-        BasicDecryptProvider(crypto = get(), stego = get(), codec = get(), fileStore = get())
+        BasicDecryptProvider(crypto = get(), stego = get(), codec = get(), fileStore = get(), clipboardWriter = get())
     }
     single<SettingsFeature> {
         BasicSettingsProvider(vaultSource = get(), fileStore = get(), eventBus = get(), appInfo = get())

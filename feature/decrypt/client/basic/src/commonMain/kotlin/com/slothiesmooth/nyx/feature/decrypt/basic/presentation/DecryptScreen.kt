@@ -3,8 +3,6 @@ package com.slothiesmooth.nyx.feature.decrypt.basic.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import com.slothiesmooth.nyx.feature.common.koin.koinFeatureViewModel
 import io.github.vinceglb.filekit.dialogs.FileKitMode
 import io.github.vinceglb.filekit.dialogs.FileKitType
@@ -24,7 +22,6 @@ fun DecryptScreen(
 ) {
     val viewModel = koinFeatureViewModel<DecryptViewModel>()
     val scope = rememberCoroutineScope()
-    val clipboard = LocalClipboardManager.current
     LaunchedEffect(imageId) { viewModel.load(imageId) }
     val picker = rememberFilePickerLauncher(type = FileKitType.Image, mode = FileKitMode.Single) { file ->
         if (file != null) scope.launch { viewModel.onImagePicked(file.readBytes()) }
@@ -34,7 +31,7 @@ fun DecryptScreen(
         onPickImage = { picker.launch() },
         onPasswordChange = viewModel::onPasswordChange,
         onDecrypt = viewModel::decrypt,
-        onCopy = { text -> clipboard.setText(AnnotatedString(text)) },
+        onCopy = viewModel::onCopy,
         onBack = onBack,
     )
 }

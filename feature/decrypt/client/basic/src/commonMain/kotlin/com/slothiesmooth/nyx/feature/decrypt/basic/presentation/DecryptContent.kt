@@ -45,7 +45,7 @@ fun DecryptContent(
     onPickImage: () -> Unit = {},
     onPasswordChange: (String) -> Unit = {},
     onDecrypt: () -> Unit = {},
-    onCopy: (String) -> Unit = {},
+    onCopy: () -> Unit = {},
     onBack: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
@@ -96,7 +96,7 @@ fun DecryptContent(
 }
 
 @Composable
-private fun RevealedMessage(plaintext: String, onCopy: (String) -> Unit) {
+private fun RevealedMessage(plaintext: String, onCopy: () -> Unit) {
     NxCard(variant = NxCardVariant.Flat) {
         Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             NxText(
@@ -107,7 +107,7 @@ private fun RevealedMessage(plaintext: String, onCopy: (String) -> Unit) {
             )
             NxIconButton(
                 kind = NxIconKind.Copy,
-                onClick = { onCopy(plaintext) },
+                onClick = onCopy,
                 contentDescription = "Copy message",
             )
         }

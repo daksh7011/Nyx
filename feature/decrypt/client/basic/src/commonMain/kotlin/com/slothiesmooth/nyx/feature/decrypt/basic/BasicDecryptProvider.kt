@@ -13,6 +13,7 @@ import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.DecryptMessage
 import com.slothiesmooth.nyx.feature.decrypt.basic.domain.usecase.LoadVaultImageBytesUseCase
 import com.slothiesmooth.nyx.feature.decrypt.basic.presentation.DecryptScreen
 import com.slothiesmooth.nyx.feature.decrypt.basic.presentation.DecryptViewModel
+import com.slothiesmooth.nyx.shared.data.source.ClipboardWriter
 import com.slothiesmooth.nyx.shared.data.source.ImageCodec
 import com.slothiesmooth.nyx.shared.data.source.VaultFileStore
 import com.slothiesmooth.nyx.steganography.Steganography
@@ -30,6 +31,7 @@ class BasicDecryptProvider(
     private val stego: Steganography,
     private val codec: ImageCodec,
     private val fileStore: VaultFileStore,
+    private val clipboardWriter: ClipboardWriter,
 ) : KoinFeatureProvider(), DecryptFeature {
 
     @Composable
@@ -49,6 +51,7 @@ class BasicDecryptProvider(
         single { stego }
         single { codec }
         single { fileStore }
+        single { clipboardWriter }
         factoryOf(::DecryptMessageUseCase)
         factoryOf(::LoadVaultImageBytesUseCase)
         viewModelOf(::DecryptViewModel)
