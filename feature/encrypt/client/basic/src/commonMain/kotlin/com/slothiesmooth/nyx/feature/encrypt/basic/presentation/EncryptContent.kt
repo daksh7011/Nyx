@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import com.slothiesmooth.nyx.designlibrary.atoms.NxButton
 import com.slothiesmooth.nyx.designlibrary.atoms.NxButtonStyle
@@ -27,6 +28,7 @@ import com.slothiesmooth.nyx.shared.presentation.state.UiState
 import kotlinx.collections.immutable.persistentListOf
 
 private val STEP_LABELS = persistentListOf("Image", "Message", "Done")
+private const val PREVIEW_THUMBNAIL_PX = 320
 
 /**
  * Stateless wizard body: renders the active step over [NxWizardTemplate] and overlays a blocking
@@ -68,6 +70,13 @@ fun EncryptContent(
 
 @Composable
 private fun PickImageStep(state: EncryptState, onPickImage: () -> Unit, onCaptureImage: () -> Unit) {
+    if (state.hasImage) {
+        NxImageTile(
+            image = state.thumbnail,
+            contentDescription = "Selected image",
+            modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+        )
+    }
     NxText(
         text = "Choose a cover image to hide your message in.",
         style = NxTextStyle.Body,
@@ -155,6 +164,7 @@ private fun previewState(
     validationError: String? = null,
     canEncrypt: Boolean = false,
     savedName: String? = null,
+    thumbnail: ImageBitmap? = null,
     blocking: Boolean = false,
 ): EncryptMutableState = EncryptMutableState(cameraVisible = true).apply {
     this.step = step
@@ -164,6 +174,7 @@ private fun previewState(
     this.validationError = validationError
     this.canEncrypt = canEncrypt
     this.savedName = savedName
+    this.thumbnail = thumbnail
     this.maxCharsLabel = "About 1820 characters fit"
     if (blocking) uiState = UiState.Blocking
 }
@@ -172,6 +183,16 @@ private fun previewState(
 @Composable
 private fun EncryptPickPreview(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
     NxTheme(palette) { EncryptContent(previewState(EncryptStep.PickImage)) }
+}
+
+@AllThemePreview
+@Composable
+private fun EncryptPickWithImagePreview(@PreviewParameter(NxPaletteProvider::class) palette: NxPalette) {
+    val state = previewState(
+        EncryptStep.PickImage,
+        thumbnail = ImageBitmap(width = PREVIEW_THUMBNAIL_PX, height = PREVIEW_THUMBNAIL_PX),
+    )
+    NxTheme(palette) { EncryptContent(state) }
 }
 
 @AllThemePreview
