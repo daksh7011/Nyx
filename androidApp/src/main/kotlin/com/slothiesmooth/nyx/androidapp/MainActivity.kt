@@ -7,6 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.slothiesmooth.nyx.client.app.presentation.App
+import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.init
 
 /** Single-activity host. Keeps the OS splash on-screen until the shared [App] draws its first frame. */
 class MainActivity : ComponentActivity() {
@@ -14,6 +16,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        // Registers the ActivityResultRegistry FileKit's suspend pickers (image + camera) need.
+        FileKit.init(this)
 
         var firstFrameDrawn = false
         splashScreen.setKeepOnScreenCondition { !firstFrameDrawn }
