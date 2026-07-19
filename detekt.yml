@@ -92,6 +92,9 @@ complexity:
     threshold: 60
   LongParameterList:
     active: true
+    # ViewModels are DI aggregation points (koin injects their granular use-case deps); the strict
+    # constructor limit is not worth forcing parameter objects on them. Still enforced everywhere else.
+    excludes: [ '**/*ViewModel.kt' ]
     functionThreshold: 6
     constructorThreshold: 7
     ignoreDefaultParameters: true
