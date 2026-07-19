@@ -64,7 +64,15 @@ fun appModule(platformModule: Module): Module = module {
     single<ThemeFeature> { BasicThemeProvider(ThemeRepository(get()), get()) }
     single<NavigationFeature> { BasicNavigationProvider() }
     single<SplashFeature> { BasicSplashProvider(afterSplashRoute = VaultRoute) }
-    single<VaultFeature> { BasicVaultProvider() }
+    single<VaultFeature> {
+        BasicVaultProvider(
+            vaultSource = get(),
+            fileStore = get(),
+            clock = get(),
+            eventBus = get(),
+            shareSource = get(),
+        )
+    }
     single<EncryptFeature> { BasicEncryptProvider() }
     single<DecryptFeature> { BasicDecryptProvider() }
     single<SettingsFeature> { BasicSettingsProvider(changeThemeRoute = ThemeRoute) }
