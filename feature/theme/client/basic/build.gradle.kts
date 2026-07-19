@@ -22,3 +22,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "com.slothiesmooth.nyx.feature.theme.basic.resources"
+}

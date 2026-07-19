@@ -20,6 +20,13 @@ import com.slothiesmooth.nyx.designlibrary.tokens.NxTextStyle
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxDimensions
 import com.slothiesmooth.nyx.feature.theme.api.ThemeMode
+import com.slothiesmooth.nyx.feature.theme.basic.resources.Res
+import com.slothiesmooth.nyx.feature.theme.basic.resources.theme_mode
+import com.slothiesmooth.nyx.feature.theme.basic.resources.theme_mode_dark
+import com.slothiesmooth.nyx.feature.theme.basic.resources.theme_mode_light
+import com.slothiesmooth.nyx.feature.theme.basic.resources.theme_palette
+import com.slothiesmooth.nyx.feature.theme.basic.resources.theme_title
+import org.jetbrains.compose.resources.stringResource
 
 /** The palette + mode picker. Selection state and every choice callback come from [ThemeViewModel]. */
 @Composable
@@ -50,9 +57,9 @@ internal fun ChangeThemeScreenStateless(
             .padding(dimensions.keyline4),
         verticalArrangement = Arrangement.spacedBy(dimensions.keyline4),
     ) {
-        NxText(text = "Appearance", style = NxTextStyle.Title)
+        NxText(text = stringResource(Res.string.theme_title), style = NxTextStyle.Title)
 
-        NxText(text = "Mode", style = NxTextStyle.Kicker, color = subtleColor)
+        NxText(text = stringResource(Res.string.theme_mode), style = NxTextStyle.Kicker, color = subtleColor)
         Row(horizontalArrangement = Arrangement.spacedBy(dimensions.keyline2)) {
             ThemeMode.entries.forEach { mode ->
                 NxChip(
@@ -63,7 +70,7 @@ internal fun ChangeThemeScreenStateless(
             }
         }
 
-        NxText(text = "Palette", style = NxTextStyle.Kicker, color = subtleColor)
+        NxText(text = stringResource(Res.string.theme_palette), style = NxTextStyle.Kicker, color = subtleColor)
         state.palettes.forEach { palette ->
             val selected = palette == state.darkPalette || palette == state.lightPalette
             NxCard(
@@ -73,7 +80,11 @@ internal fun ChangeThemeScreenStateless(
             ) {
                 NxText(text = palette.displayName, style = NxTextStyle.BodyStrong)
                 NxText(
-                    text = if (palette.dark) "Dark" else "Light",
+                    text = if (palette.dark) {
+                        stringResource(Res.string.theme_mode_dark)
+                    } else {
+                        stringResource(Res.string.theme_mode_light)
+                    },
                     style = NxTextStyle.Caption,
                     color = subtleColor,
                 )
