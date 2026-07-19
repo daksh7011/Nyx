@@ -91,7 +91,9 @@ fun appModule(platformModule: Module): Module = module {
             ),
         )
     }
-    single<DecryptFeature> { BasicDecryptProvider() }
+    single<DecryptFeature> {
+        BasicDecryptProvider(crypto = get(), stego = get(), codec = get(), fileStore = get())
+    }
     single<SettingsFeature> { BasicSettingsProvider(changeThemeRoute = ThemeRoute) }
 
     // The nested order: splash + navigation wrap first, then the tab features contribute routes.
