@@ -19,7 +19,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import com.slothiesmooth.nyx.shared.presentation.resources.Res
+import com.slothiesmooth.nyx.shared.presentation.resources.ok
 import kotlinx.coroutines.flow.filterNotNull
+import org.jetbrains.compose.resources.stringResource
 
 private val DialogPadding = 24.dp
 private val CardPadding = 16.dp
@@ -105,7 +108,7 @@ fun ViewStateError(uiState: UiState.Error) {
             )
         },
         confirmButton = {
-            TextButton(onClick = uiState.onExit) { Text("OK") }
+            TextButton(onClick = uiState.onExit) { Text(stringResource(Res.string.ok)) }
         },
     )
 }

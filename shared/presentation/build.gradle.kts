@@ -28,3 +28,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "com.slothiesmooth.nyx.shared.presentation.resources"
+}
