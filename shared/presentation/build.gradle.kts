@@ -21,6 +21,8 @@ kotlin {
             // downstream feature modules need these types on their compile classpath.
             api(libs.jetbrains.lifecycle.viewmodel.compose)
             api(libs.jetbrains.navigation.compose)
+            // UiText.Resource.args is a public ImmutableList, so downstream modules need the type.
+            api(libs.kotlinx.collections.immutable)
             // LocalLifecycleOwner (androidx.lifecycle.compose) used inside BaseViewModel.bind().
             implementation(libs.jetbrains.lifecycle.runtime.compose)
         }
