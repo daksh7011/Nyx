@@ -17,7 +17,6 @@ import com.slothiesmooth.nyx.feature.settings.basic.BasicSettingsProvider
 import com.slothiesmooth.nyx.feature.splash.api.SplashFeature
 import com.slothiesmooth.nyx.feature.splash.basic.BasicSplashProvider
 import com.slothiesmooth.nyx.feature.theme.api.ThemeFeature
-import com.slothiesmooth.nyx.feature.theme.api.ThemeRoute
 import com.slothiesmooth.nyx.feature.theme.basic.BasicThemeProvider
 import com.slothiesmooth.nyx.feature.theme.basic.ThemeRepository
 import com.slothiesmooth.nyx.feature.vault.api.VaultFeature
@@ -43,7 +42,7 @@ import org.koin.dsl.module
  * The application graph. Layers the [platformModule] (drivers, settings, file/share/camera sources,
  * capabilities) under the shared engines/infra, one binding per feature interface, and the ordered
  * feature list the [com.slothiesmooth.nyx.feature.common.api.FeatureHost] decorates. Navigation is a
- * one-off through each provider, so splash/settings get their cross-feature targets as `Any` routes.
+ * one-off through each provider, so splash gets its cross-feature target as an `Any` route.
  */
 fun appModule(platformModule: Module): Module = module {
     includes(platformModule)
@@ -94,7 +93,9 @@ fun appModule(platformModule: Module): Module = module {
     single<DecryptFeature> {
         BasicDecryptProvider(crypto = get(), stego = get(), codec = get(), fileStore = get())
     }
-    single<SettingsFeature> { BasicSettingsProvider(changeThemeRoute = ThemeRoute) }
+    single<SettingsFeature> {
+        BasicSettingsProvider(vaultSource = get(), fileStore = get(), eventBus = get(), appInfo = get())
+    }
 
     // The nested order: splash + navigation wrap first, then the tab features contribute routes.
     single<List<Feature>> {

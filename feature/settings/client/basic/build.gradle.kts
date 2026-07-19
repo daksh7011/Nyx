@@ -11,6 +11,7 @@ kotlin {
             api(projects.shared.presentation)
             implementation(projects.shared.designLibrary)
             implementation(projects.shared.data)
+            implementation(projects.feature.theme.client.api) // ThemeRoute (open theme screen)
             implementation(libs.koin.compose.viewmodel)
         }
         commonTest.dependencies {

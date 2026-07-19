@@ -8,6 +8,7 @@ import app.cash.sqldelight.async.coroutines.synchronous
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.driver.android.AndroidSqliteDriver
 import com.slothiesmooth.nyx.client.data.sqldelight.NyxDb
+import com.slothiesmooth.nyx.shared.data.source.AppInfo
 import com.slothiesmooth.nyx.shared.data.source.CameraSource
 import com.slothiesmooth.nyx.shared.data.source.PlatformCapabilities
 import com.slothiesmooth.nyx.shared.data.source.SettingsSource
@@ -37,4 +38,5 @@ fun androidPlatformModule(context: Context): Module = module {
     single<ShareSource> { AndroidShareSource(context) }
     single<CameraSource> { FileKitCameraSource() }
     single { PlatformCapabilities(camera = true, persistentVault = true) }
+    single<AppInfo> { AndroidAppInfo(context) }
 }
