@@ -8,6 +8,7 @@ kotlin {
             api(projects.feature.splash.client.api)
             api(projects.feature.common.client.api)
             api(projects.feature.common.client.koin)
+            api(projects.shared.presentation)
             implementation(projects.shared.designLibrary)
             implementation(libs.koin.compose.viewmodel)
         }
