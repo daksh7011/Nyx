@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalUriHandler
 import com.slothiesmooth.nyx.feature.common.koin.koinFeatureViewModel
 
-private const val NYX_REPO_URL = "https://github.com/slothiesmooth/nyx"
+private const val NYX_REPO_URL = "https://github.com/daksh7011/nyx"
 
 /** Resolves [SettingsViewModel] from the isolated graph and renders [SettingsContent] over its state. */
 @Composable
