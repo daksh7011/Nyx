@@ -9,6 +9,7 @@ import com.slothiesmooth.nyx.feature.decrypt.api.DecryptFeature
 import com.slothiesmooth.nyx.feature.decrypt.basic.BasicDecryptProvider
 import com.slothiesmooth.nyx.feature.encrypt.api.EncryptFeature
 import com.slothiesmooth.nyx.feature.encrypt.basic.BasicEncryptProvider
+import com.slothiesmooth.nyx.feature.encrypt.basic.EncryptFeatureDependencies
 import com.slothiesmooth.nyx.feature.navigation.api.NavigationFeature
 import com.slothiesmooth.nyx.feature.navigation.basic.BasicNavigationProvider
 import com.slothiesmooth.nyx.feature.settings.api.SettingsFeature
@@ -73,7 +74,23 @@ fun appModule(platformModule: Module): Module = module {
             shareSource = get(),
         )
     }
-    single<EncryptFeature> { BasicEncryptProvider() }
+    single<EncryptFeature> {
+        BasicEncryptProvider(
+            EncryptFeatureDependencies(
+                crypto = get(),
+                stego = get(),
+                codec = get(),
+                vaultSource = get(),
+                fileStore = get(),
+                idGenerator = get(),
+                clock = get(),
+                eventBus = get(),
+                cameraSource = get(),
+                shareSource = get(),
+                capabilities = get(),
+            ),
+        )
+    }
     single<DecryptFeature> { BasicDecryptProvider() }
     single<SettingsFeature> { BasicSettingsProvider(changeThemeRoute = ThemeRoute) }
 
