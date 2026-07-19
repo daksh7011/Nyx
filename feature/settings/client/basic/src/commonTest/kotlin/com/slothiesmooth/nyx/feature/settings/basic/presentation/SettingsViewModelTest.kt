@@ -1,5 +1,6 @@
 package com.slothiesmooth.nyx.feature.settings.basic.presentation
 
+import app.cash.turbine.test
 import com.slothiesmooth.nyx.feature.settings.basic.domain.usecase.WipeVaultUseCase
 import com.slothiesmooth.nyx.shared.data.event.DefaultDomainEventBus
 import com.slothiesmooth.nyx.shared.data.source.AppInfo
@@ -9,7 +10,6 @@ import com.slothiesmooth.nyx.shared.testsupport.FakeVaultSource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -85,6 +85,6 @@ class SettingsViewModelTest {
         withTimeout(WIPE_TIMEOUT_MS) {
             while (viewModel.state.isWiping) delay(1)
         }
-        assertTrue(vaultSource.observeActive().first().isEmpty())
+        vaultSource.observeActive().test { assertTrue(awaitItem().isEmpty()) }
     }
 }
