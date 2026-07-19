@@ -2,6 +2,7 @@ package com.slothiesmooth.nyx.feature.vault.basic.presentation.detail
 
 import androidx.compose.ui.graphics.ImageBitmap
 import com.slothiesmooth.nyx.feature.vault.basic.domain.model.VaultImage
+import com.slothiesmooth.nyx.feature.vault.basic.domain.usecase.ShareVaultImageUseCase
 import com.slothiesmooth.nyx.feature.vault.basic.presentation.VaultImageUseCases
 import com.slothiesmooth.nyx.feature.vault.basic.presentation.formatVaultDate
 import com.slothiesmooth.nyx.shared.data.id.StegoImageId
@@ -15,11 +16,16 @@ import kotlinx.coroutines.flow.combine
 /**
  * Drives the detail screen for a single stego image: watches both the active and archived streams so
  * it reflects archive/restore/delete happening anywhere, maps the target image into render-ready
- * state, and exposes the share/archive/restore/delete actions. Emits [VaultDetailUiEvent.Closed] when
- * the image disappears so the screen pops. All mapping and formatting stay out of the composables.
+ * state, and exposes the share/archive/restore/delete actions. When the image disappears from both
+ * streams (deleted here or elsewhere) the reactive collector is the single source that emits
+ * [VaultDetailUiEvent.Closed] so the screen pops. All mapping and formatting stay out of the composables.
+ *
+ * Takes the shared [VaultImageUseCases] bundle plus [shareImage] directly (only the detail screen
+ * shares, so it is not part of the bundle) so the constructor stays under the detekt parameter gate.
  */
 class VaultDetailViewModel(
     private val useCases: VaultImageUseCases,
+    private val shareImage: ShareVaultImageUseCase,
     private val clock: Clock,
 ) : BaseViewModel() {
 
@@ -65,13 +71,16 @@ class VaultDetailViewModel(
 
     fun share() {
         val id = currentId ?: return
-        async("share") { useCases.share(id, mutableState.name) }
+        async("share") { shareImage(id, mutableState.name) }
     }
 
+    /**
+     * Soft-deletes the image. This does not emit [VaultDetailUiEvent.Closed] directly: the delete makes
+     * the image drop out of both observed streams, and the [load] collector fires the single `Closed`
+     * event. Emitting here as well would double-fire and could double-pop the nav stack.
+     */
     fun delete() {
         val id = currentId ?: return
-        async("delete") {
-            if (useCases.delete(id) is AppResult.Ok) mutableState.notify(VaultDetailUiEvent.Closed)
-        }
+        async("delete") { useCases.delete(id) }
     }
 }

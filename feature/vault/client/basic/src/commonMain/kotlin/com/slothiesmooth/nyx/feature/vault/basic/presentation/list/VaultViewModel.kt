@@ -10,7 +10,9 @@ import com.slothiesmooth.nyx.shared.presentation.viewmodel.BaseViewModel
 /**
  * Drives the vault grid: collects the active and archived image streams, maps each into render-ready
  * rows off the main thread (image decoding + date formatting), and exposes archive/restore/delete
- * mutations. All logic lives here; [VaultContent] only renders [state].
+ * mutations. All logic lives here; [VaultContent] only renders [state]. Takes [VaultImageUseCases]
+ * (the six use cases it shares with the detail view model) so its constructor stays under the detekt
+ * parameter-count gate without carrying the share use case it never calls.
  */
 class VaultViewModel(
     private val useCases: VaultImageUseCases,
