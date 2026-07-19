@@ -2,6 +2,7 @@ package com.slothiesmooth.nyx.feature.navigation.api
 
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.feature.common.api.Feature
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlinx.collections.immutable.ImmutableList
 
 /**
@@ -10,7 +11,7 @@ import kotlinx.collections.immutable.ImmutableList
  */
 data class NavItem(
     val route: Any,
-    val label: String,
+    val label: UiText,
     val icon: NxIconKind,
     val selected: Boolean,
 )

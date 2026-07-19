@@ -1,8 +1,8 @@
 package com.slothiesmooth.nyx.feature.navigation.basic.models
 
-import com.slothiesmooth.nyx.designlibrary.models.NxBottomNavItem
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.feature.navigation.api.NavItem
+import com.slothiesmooth.nyx.shared.presentation.text.UiText
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,31 +11,24 @@ import kotlin.test.assertTrue
 class NavBarStateTest {
 
     @Test
-    fun `maps each nav item to its display item in order and selects the active one`() {
+    fun `keeps the items in order and selects the active one`() {
         val items = persistentListOf(
-            NavItem(route = VaultRoute, label = "Vault", icon = NxIconKind.Vault, selected = false),
-            NavItem(route = EncryptRoute, label = "Encrypt", icon = NxIconKind.Lock, selected = true),
-            NavItem(route = SettingsRoute, label = "Settings", icon = NxIconKind.Settings, selected = false),
+            navItem(VaultRoute, "Vault", NxIconKind.Vault, selected = false),
+            navItem(EncryptRoute, "Encrypt", NxIconKind.Lock, selected = true),
+            navItem(SettingsRoute, "Settings", NxIconKind.Settings, selected = false),
         )
 
         val state = NavBarState.from(items)
 
-        assertEquals(
-            persistentListOf(
-                NxBottomNavItem(icon = NxIconKind.Vault, label = "Vault"),
-                NxBottomNavItem(icon = NxIconKind.Lock, label = "Encrypt"),
-                NxBottomNavItem(icon = NxIconKind.Settings, label = "Settings"),
-            ),
-            state.items,
-        )
+        assertEquals(items, state.items)
         assertEquals(1, state.selectedIndex)
     }
 
     @Test
     fun `reports no selection when nothing is selected so the bar can hide`() {
         val items = persistentListOf(
-            NavItem(route = VaultRoute, label = "Vault", icon = NxIconKind.Vault, selected = false),
-            NavItem(route = EncryptRoute, label = "Encrypt", icon = NxIconKind.Lock, selected = false),
+            navItem(VaultRoute, "Vault", NxIconKind.Vault, selected = false),
+            navItem(EncryptRoute, "Encrypt", NxIconKind.Lock, selected = false),
         )
 
         val state = NavBarState.from(items)
@@ -55,5 +48,8 @@ class NavBarStateTest {
         val VaultRoute = Any()
         val EncryptRoute = Any()
         val SettingsRoute = Any()
+
+        fun navItem(route: Any, label: String, icon: NxIconKind, selected: Boolean): NavItem =
+            NavItem(route = route, label = UiText.raw(label), icon = icon, selected = selected)
     }
 }

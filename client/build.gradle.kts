@@ -77,3 +77,7 @@ kotlin {
         }
     }
 }
+
+compose.resources {
+    packageOfResClass = "com.slothiesmooth.nyx.client.resources"
+}
