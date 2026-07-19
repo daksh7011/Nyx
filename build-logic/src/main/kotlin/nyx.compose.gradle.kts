@@ -18,6 +18,9 @@ dependencies {
     "commonMainImplementation"(libs.findLibrary("compose-ui-tooling-preview").get())
     // ComposeViewAdapter, which Android Studio's preview renderer loads; android-only.
     "androidMainImplementation"(libs.findLibrary("compose-ui-tooling").get())
+    // On-device Compose UI tests (androidDeviceTest): runComposeUiTest + the test-manifest Activity host.
+    "androidDeviceTestImplementation"(libs.findLibrary("compose-ui-test").get())
+    "androidDeviceTestImplementation"(libs.findLibrary("compose-ui-test-manifest").get())
 }
 
 compose.resources {

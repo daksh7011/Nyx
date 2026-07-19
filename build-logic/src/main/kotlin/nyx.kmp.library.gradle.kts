@@ -27,7 +27,11 @@ kotlin {
         namespace = defaultAndroidNamespace(project.path)
         compileSdk = nyxAndroidCompileSdk
         minSdk = nyxAndroidMinSdk
+        androidResources.enable = true
         withHostTestBuilder {}.configure {}
+        withDeviceTestBuilder {}.configure {
+            instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        }
     }
 
     jvm()
@@ -57,6 +61,11 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.findLibrary("kotlinx-coroutines-test").get())
             implementation(libs.findLibrary("turbine").get())
+        }
+        getByName("androidDeviceTest").dependencies {
+            implementation(libs.findLibrary("androidx-test-runner").get())
+            implementation(libs.findLibrary("androidx-test-ext-junit").get())
+            implementation(libs.findLibrary("junit4").get())
         }
     }
 }
