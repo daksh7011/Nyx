@@ -21,12 +21,16 @@ class DefaultNyxCrypto(
 ) : NyxCrypto {
 
     override suspend fun encrypt(plaintext: String, password: String): String {
+        // Empty passwords are meaningless for a secrecy tool and crash the Android PBKDF2 provider
+        // (JVM accepts them) — reject up front so behavior is identical on every target.
+        require(password.isNotEmpty()) { REASON_EMPTY_PASSWORD }
         val salt = CryptographyRandom.nextBytes(SALT_SIZE_BYTES)
         val cipherOutput = cipherFor(password, salt).encrypt(plaintext.encodeToByteArray())
         return Base64.Default.encode(salt + cipherOutput)
     }
 
     override suspend fun decrypt(blob: String, password: String): DecryptResult {
+        if (password.isEmpty()) return DecryptResult.Failure(REASON_EMPTY_PASSWORD)
         val raw = decodeBlob(blob)
         return if (raw == null || raw.size < MIN_BLOB_SIZE_BYTES) {
             DecryptResult.Failure(failureReason(raw))

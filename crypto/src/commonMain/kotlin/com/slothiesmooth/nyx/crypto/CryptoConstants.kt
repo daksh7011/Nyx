@@ -9,3 +9,4 @@ internal const val MIN_BLOB_SIZE_BYTES = SALT_SIZE_BYTES + NONCE_SIZE_BYTES + GC
 
 internal const val REASON_MALFORMED_BASE64 = "blob is not valid Base64"
 internal const val REASON_TOO_SHORT = "blob is shorter than salt + nonce + tag (44 bytes)"
+internal const val REASON_EMPTY_PASSWORD = "password must not be empty"

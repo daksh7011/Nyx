@@ -4,6 +4,7 @@ import kotlinx.coroutines.test.runTest
 import kotlin.io.encoding.Base64
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
@@ -69,12 +70,13 @@ class DefaultNyxCryptoTest {
     }
 
     @Test
-    fun `treats an empty password as a valid user choice`() = runTest {
-        // Documented behavior: empty passwords are the user's responsibility, not rejected here.
+    fun `rejects an empty password consistently across platforms`() = runTest {
+        // Empty passwords are meaningless for a secrecy tool and crash the Android PBKDF2 provider
+        // (they compiled/passed only on JVM) — now rejected identically on every target.
         val crypto = DefaultNyxCrypto()
-        val blob = crypto.encrypt("secret", "")
-        assertEquals(DecryptResult.Success("secret"), crypto.decrypt(blob, ""))
-        assertEquals(DecryptResult.WrongPasswordOrTampered, crypto.decrypt(blob, "not empty"))
+        val blob = crypto.encrypt("secret", "correct horse")
+        assertFailsWith<IllegalArgumentException> { crypto.encrypt("secret", "") }
+        assertEquals(REASON_EMPTY_PASSWORD, assertIs<DecryptResult.Failure>(crypto.decrypt(blob, "")).reason)
     }
 
     @Test
