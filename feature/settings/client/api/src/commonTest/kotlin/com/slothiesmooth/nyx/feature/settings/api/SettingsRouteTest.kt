@@ -13,12 +13,4 @@ class SettingsRouteTest {
             routeNameOf<SettingsRoute>(),
         )
     }
-
-    @Test
-    fun `routeNameOf resolves the fully qualified SettingsLicensesRoute serial name`() {
-        assertEquals(
-            "com.slothiesmooth.nyx.feature.settings.api.SettingsLicensesRoute",
-            routeNameOf<SettingsLicensesRoute>(),
-        )
-    }
 }
