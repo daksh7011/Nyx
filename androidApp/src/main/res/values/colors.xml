@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nardo dark background (NxPalette default dark) — matches the adaptive icon body and splash field. -->
+    <color name="nyx_splash_background">#1E2020</color>
+    <color name="ic_launcher_background">#1E2020</color>
+</resources>

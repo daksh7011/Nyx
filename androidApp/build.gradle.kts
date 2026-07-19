@@ -42,9 +42,18 @@ kotlin {
 }
 
 dependencies {
+    implementation(projects.client)
     implementation(libs.compose.runtime)
     implementation(libs.compose.foundation)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.core.splashscreen)
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.koin.core)
+    implementation(libs.sqldelight.android.driver)
+    implementation(libs.sqldelight.async.extensions)
+    implementation(libs.androidx.datastore.preferences.core)
+    implementation(libs.filekit.core)
+    implementation(libs.filekit.dialogs)
 }
