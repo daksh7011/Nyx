@@ -130,7 +130,9 @@ complexity:
     ignoreStringsRegex: '$^'
   TooManyFunctions:
     active: true
-    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    # ViewModels expose one handler per user action (a wizard VM legitimately has many); like the
+    # LongParameterList relaxation above, the strict limit is not worth splitting a cohesive VM.
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**', '**/*ViewModel.kt' ]
     # 15: a design-library component file holds the component + its all-states sample + private
     # sample helpers + the @AllThemePreview entry in one file (previews were merged into components).
     thresholdInFiles: 15
