@@ -2,39 +2,43 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **⚠️ CURRENT REALITY (updated 2026-07-20) — READ `.superpowers/sdd/plan-07-addendum.md` FIRST.** This plan was authored before the codebase drifted forward. The addendum is AUTHORITATIVE and overrides any stale specifics below. Load-bearing deltas: (1) versions bumped — Kotlin 2.4.0, AGP 9.2.1, Compose Multiplatform 1.11.1, Koin 4.2.2, FileKit 0.14.2; (2) `iosX64` was DROPPED (CMP 1.11.1 + FileKit 0.14.2 don't publish it) — iOS = `iosArm64` + `iosSimulatorArm64` only; (3) the platform-module seam GREW by three bindings — it now also provides `ImagePicker`, `ClipboardWriter`, and `AppInfo` (see the current `AndroidPlatformModule` as the reference); (4) Turbine IS now an allowed test dependency; (5) module build files use the Plan-01 convention plugins (`nyx.kmp.library`/`nyx.compose`) — IGNORE every hand-rolled `kotlin {}` snippet below.
+
 **Goal:** Ship the three non-Android entry points — `:desktopApp` (runs on Linux via `./gradlew :desktopApp:run`), `:webApp` (serves via `./gradlew :webApp:wasmJsBrowserDevelopmentRun` with an export-only in-memory vault), and the committed iOS scaffold (framework link deferred to a macOS lane) — plus every platform Koin module (desktop/web/iOS) and the CI jobs that guard them.
 
-**Architecture:** Each entry app is a thin, single-target module (`:desktopApp` = jvm-only Compose Desktop; `:webApp` = wasmJs-only Compose/Wasm) that (1) initializes its platform prerequisites, (2) calls `initKoin(<platformModule>())` from `:client`, and (3) hosts the shared `App()` composable. The platform Koin module is the seam: it provides `VaultSource`, `VaultFileStore`, `SettingsSource`, `ShareSource`, `CameraSource`, and `PlatformCapabilities` — the six per-platform bindings that `appModule` (in `:client` commonMain) deliberately does NOT register, because wasm has no SqlDelight driver. iOS lives inside `:client` iosMain (`MainViewController`, `iosPlatformModule`) and is exercised only on macOS.
+**Architecture:** Each entry app is a thin, single-target module (`:desktopApp` = jvm-only Compose Desktop; `:webApp` = wasmJs-only Compose/Wasm) that (1) initializes its platform prerequisites, (2) calls `initKoin(<platformModule>())` from `:client`, and (3) hosts the shared `App()` composable. The platform Koin module is the seam: it provides `VaultSource`, `VaultFileStore`, `SettingsSource`, `ShareSource`, `CameraSource`, `ImagePicker`, `ClipboardWriter`, `AppInfo`, and `PlatformCapabilities` — the per-platform bindings that `appModule` (in `:client` commonMain) deliberately does NOT register, because wasm has no SqlDelight driver. (The original plan listed six; `ImagePicker`, `ClipboardWriter`, and `AppInfo` were added later — see the addendum.) iOS lives inside `:client` iosMain (`MainViewController`, `iosPlatformModule`) and is exercised only on macOS.
 
-**Tech Stack:** Kotlin 2.3.21, Compose Multiplatform 1.10.3 (desktop `application`/`Window`, wasm `ComposeViewport`, iOS `ComposeUIViewController`), Koin 4.2.1, SqlDelight 2.3.2 (`JdbcSqliteDriver` desktop / `NativeSqliteDriver` iOS / no driver on wasm), AndroidX DataStore 1.2.1 (jvm/ios), kotlinx-browser 0.5.0 (wasm localStorage), FileKit 0.13.0 (`filesDir`/`openFileSaver`/`download`/`openCameraPicker`/`init`), Kermit 2.1.0, GitHub Actions.
+**Tech Stack:** Kotlin 2.4.0, Compose Multiplatform 1.11.1 (desktop `application`/`Window`, wasm `ComposeViewport`, iOS `ComposeUIViewController`), Koin 4.2.2, SqlDelight 2.3.2 (`JdbcSqliteDriver` desktop / `NativeSqliteDriver` iOS / no driver on wasm), AndroidX DataStore 1.2.1 (jvm/ios), kotlinx-browser 0.5.0 (wasm localStorage), FileKit 0.14.2 (`filesDir`/`openFileSaver`/`download`/`openCameraPicker`/`openFilePicker`/`init`), Kermit, GitHub Actions.
 
 ## Global Constraints
 
 Copied verbatim from `00-INDEX.md` (the whole index applies implicitly; these are the load-bearing lines for this phase):
 
-- Kotlin 2.3.21, AGP 9.2.0, Gradle 9.4.1, Compose Multiplatform 1.10.3, JVM target 21,
+- Kotlin 2.4.0, AGP 9.2.1, Gradle 9.4.1, Compose Multiplatform 1.11.1, JVM target 21,
   compileSdk 36, targetSdk 36, minSdk 24.
-- KMP targets on every KMP module: `androidTarget` (via `com.android.kotlin.multiplatform.library`,
-  configured as `kotlin { android {} }`), `iosX64`, `iosArm64`, `iosSimulatorArm64`, `jvm`,
-  `wasmJs`. `applyDefaultHierarchyTemplate()`. iOS compiles only on macOS — never gate Linux
-  progress on iOS; `kotlin.native.ignoreDisabledTargets=true`.
+- KMP targets on every KMP library module (supplied by the `nyx.kmp.library` convention plugin):
+  `androidTarget`, `iosArm64`, `iosSimulatorArm64`, `jvm`, `wasmJs`. NOTE: `iosX64` was DROPPED
+  (CMP 1.11.1 + FileKit 0.14.2 publish no iosX64 variant). `applyDefaultHierarchyTemplate()`. iOS
+  compiles only on macOS — never gate Linux progress on iOS; `kotlin.native.ignoreDisabledTargets=true`.
 - Namespace/package: `com.slothiesmooth.nyx.<area>` (full reverse-domain everywhere; Android
   `namespace` per module must be unique).
 - US English in all identifiers/comments/docs/commits. No `@Suppress`-style gate-passers —
   the single documented exception: `NxColors.kt` may suppress MagicNumber (the one raw-ARGB file).
 - kotlinx ImmutableCollections for ALL collections in state/domain surfaces (ImmutableList/Set/Map).
 - Repository writes return `AppResult`, reads return `Flow`.
-- Tests: kotlin.test + kotlinx-coroutines-test + hand-written fakes only. No mockk/kotest/turbine.
+- Tests: kotlin.test + kotlinx-coroutines-test + hand-written fakes. Turbine IS allowed (Flow/StateFlow assertions). No mockk/kotest.
 - `suspend` end-to-end for crypto (WebCrypto provider is suspend-only; `*Blocking` throws on wasm).
 - No `println`; logging via Kermit.
 - Commit after every green test cycle (conventional commits).
 
 Phase-specific constraints (load-bearing for entry apps — read before writing any code):
 
-- **Platform-module boundary (the seam this whole phase turns on):** the six bindings
+- **Platform-module boundary (the seam this whole phase turns on):** the bindings
   `VaultSource`, `VaultFileStore`, `SettingsSource`, `ShareSource`, `CameraSource`,
-  `PlatformCapabilities` are ALWAYS provided by the platform Koin module passed to
-  `initKoin(...)`. `appModule` (in `:client` commonMain, plan 05) NEVER registers them, because
+  `ImagePicker`, `ClipboardWriter`, `AppInfo`, and `PlatformCapabilities` are ALWAYS provided
+  by the platform Koin module passed to `initKoin(...)`. (The plan originally listed six;
+  `ImagePicker`, `ClipboardWriter`, `AppInfo` were added later — mirror the current
+  `AndroidPlatformModule`. A missing binding is a runtime Koin crash, not a compile error.) `appModule` (in `:client` commonMain, plan 05) NEVER registers them, because
   it is compiled for wasmJs and wasm has no SqlDelight driver. Engines (`NyxCrypto`,
   `Steganography`), `ImageCodec` (expect/actual in `:client`), `Clock`/`IdGenerator`/
   `DomainEventBus`, and every feature stay in `appModule`. Task 1 verifies this invariant and

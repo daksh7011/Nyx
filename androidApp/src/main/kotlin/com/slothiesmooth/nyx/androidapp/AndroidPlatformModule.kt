@@ -17,6 +17,7 @@ import com.slothiesmooth.nyx.shared.data.source.PlatformCapabilities
 import com.slothiesmooth.nyx.shared.data.source.SettingsSource
 import com.slothiesmooth.nyx.shared.data.source.ShareSource
 import com.slothiesmooth.nyx.shared.data.source.VaultFileStore
+import com.slothiesmooth.nyx.shared.data.source.VaultSource
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.filesDir
@@ -31,6 +32,8 @@ private const val VAULT_DIR = "stego_vault"
 /** The Android infrastructure the app graph layers under: driver, settings, vault store, share, camera. */
 fun androidPlatformModule(context: Context): Module = module {
     single<SqlDriver> { AndroidSqliteDriver(NyxDb.Schema.synchronous(), context, DATABASE_NAME) }
+    single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
+    single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
     single<DataStore<Preferences>> {
         PreferenceDataStoreFactory.createWithPath {
             context.filesDir.resolve(PREFERENCES_FILE).absolutePath.toPath()

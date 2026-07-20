@@ -27,7 +27,6 @@ import com.slothiesmooth.nyx.shared.data.event.DomainEventBus
 import com.slothiesmooth.nyx.shared.data.id.IdGenerator
 import com.slothiesmooth.nyx.shared.data.id.Uuid4IdGenerator
 import com.slothiesmooth.nyx.shared.data.source.ImageCodec
-import com.slothiesmooth.nyx.shared.data.source.VaultSource
 import com.slothiesmooth.nyx.shared.data.time.Clock
 import com.slothiesmooth.nyx.shared.data.time.SystemClock
 import com.slothiesmooth.nyx.steganography.Steganography
@@ -56,9 +55,9 @@ fun appModule(platformModule: Module): Module = module {
     single<DomainEventBus> { DefaultDomainEventBus() }
     single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Default) }
 
-    // SqlDelight-backed vault metadata source (schema + wrappers delivered by Plan 03).
-    single { com.slothiesmooth.nyx.client.data.source.database.sqldelight.SqlDelightSource(get(), get()) }
-    single<VaultSource> { com.slothiesmooth.nyx.client.data.source.database.vault.VaultSqlSource(get()) }
+    // NOTE: VaultSource + its SqlDelight backing are SqlDriver-coupled, so they are NOT registered
+    // here (appModule compiles for wasmJs, which has no SqlDelight driver). Each non-wasm platform
+    // module binds VaultSqlSource + SqlDelightSource; the wasm module binds an in-memory VaultSource.
 
     registerFeatures()
 
