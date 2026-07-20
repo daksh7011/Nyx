@@ -1,11 +1,14 @@
 import io.gitlab.arturbosch.detekt.Detekt
+import org.gradle.api.artifacts.VersionCatalogsExtension
 
 plugins {
     id("io.gitlab.arturbosch.detekt")
 }
 
+val libs = extensions.getByType<VersionCatalogsExtension>().named("libs")
+
 dependencies {
-    "detektPlugins"("io.gitlab.arturbosch.detekt:detekt-formatting:1.23.8")
+    "detektPlugins"(libs.findLibrary("detekt-formatting").get())
 }
 
 val detektCheck by tasks.registering(Detekt::class) {
