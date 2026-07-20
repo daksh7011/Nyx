@@ -11,5 +11,4 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-serialization:${libs.versions.kotlin.get()}")
     implementation("org.jetbrains.compose:compose-gradle-plugin:${libs.versions.compose.multiplatform.get()}")
     implementation("io.gitlab.arturbosch.detekt:detekt-gradle-plugin:${libs.versions.detekt.get()}")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:${libs.versions.spotless.get()}")
 }

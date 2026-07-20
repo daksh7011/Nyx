@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.sqldelight) apply false
     alias(libs.plugins.paparazzi) apply false
     id("nyx.detekt")
-    id("nyx.spotless")
 }
 
 // SqlDelight's native driver needs the system sqlite linked into native test executables.
