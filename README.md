@@ -1,12 +1,10 @@
-<div align="center">
-    <img src="images/nyx-logo.png" alt="Nyx logo" width="180">
-    <h1>Nyx</h1>
-    <h4>Do you have a secret to share? Hide it inside an image, locked with a password.</h4>
-    <p>
-        <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT license"></a>
-        <a href="https://github.com/daksh7011/Nyx/actions/workflows/ci.yml"><img src="https://github.com/daksh7011/Nyx/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI status"></a>
-    </p>
-</div>
+![Nyx logo](images/nyx-logo.png)
+
+# Nyx
+
+**Do you have a secret to share? Hide it inside an image, locked with a password.**
+
+[![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![CI](https://github.com/daksh7011/Nyx/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/daksh7011/Nyx/actions/workflows/ci.yml)
 
 ## Overview
 
@@ -31,8 +29,9 @@ message ──(AES-256-GCM)──> encrypted blob ──(LSB embed, 2 bits per R
    different blobs. GCM is authenticated: a wrong password or a tampered image
    fails cleanly — you never get garbage output.
 2. **Embed** — the encrypted blob is marker-framed and spread across the two
-   least significant bits of each pixel's red, green, and blue channels.
-   Payloads too large for one image can span multiple images.
+   least significant bits of each pixel's red, green, and blue channels. The
+   write positions are scattered by a keyed permutation so the payload leaves no
+   clustered region behind. Payloads too large for one image can span several.
 3. **Export** — the result is always PNG (lossless — required for the payload
    to survive). Decrypting reverses the pipeline: extract, authenticate, decrypt.
 
@@ -57,40 +56,71 @@ message ──(AES-256-GCM)──> encrypted blob ──(LSB embed, 2 bits per R
 
 | Platform | Vault persistence | Camera capture | Notes |
 |---|---|---|---|
-| Android 7.0+ (API 24) | Yes | Yes | Primary target |
+| Android 12+ (API 31) | Yes | Yes | Primary target |
 | Desktop JVM (Linux / macOS / Windows) | Yes | No | Compose for Desktop |
 | Web (Kotlin/Wasm) | Session-only | No | Encrypt / decrypt / export fully work; the vault list is in-memory for now |
 | iOS (device + simulators) | Yes | Yes | Builds on the macOS lane only |
 
 ## Architecture
 
-```text
-:androidApp        :desktopApp        :webApp        client/iosApp/ (Xcode, macOS only)
-      \                 |                /
-       +----------------+---------------+
-                        |
-                     :client            global DI (initKoin), App(), SqlDelight NyxDb,
-                        |               platform source implementations
-   :feature:{navigation,splash,theme,vault,encrypt,decrypt,settings}:client:{api,basic}
-                        |               plumbing: :feature:common:client:{api,koin}
-      +---------+-------+------+------------------+----------------------+
-      |         |              |                  |                      |
-   :crypto   :steganography  :shared:data   :shared:presentation  :shared:design-library
-   AES-GCM   pure-Kotlin     results/sources  BaseViewModel,        Nx* components + tokens
-   + PBKDF2  LSB engine      events/clock/ids ViewState/UiState      \- :snapshot (Paparazzi)
+```mermaid
+flowchart TD
+    subgraph Entry["Entry apps"]
+        android[":androidApp"]
+        desktop[":desktopApp"]
+        web[":webApp"]
+        ios["client/iosApp (Xcode project, macOS-only)"]
+    end
 
-   test infra: :shared:test-support, :shared:compose-test-support
+    subgraph ClientLayer["Client"]
+        clientMod[":client — initKoin, App(), NyxDb (SqlDelight) + VaultSource, iOS source impls"]
+    end
+
+    subgraph Features["Features — each split :feature:*:client:{api, basic}"]
+        feat["navigation · splash · theme · vault · encrypt · decrypt · settings"]
+        common[":feature:common:client:{api, koin}"]
+    end
+
+    subgraph Shared["Engines and shared"]
+        crypto[":crypto (AES-256-GCM, PBKDF2)"]
+        steg[":steganography (pure-Kotlin LSB codec)"]
+        data[":shared:data (results, source interfaces, events, clock, ids)"]
+        pres[":shared:presentation (BaseViewModel, ViewState/UiState)"]
+        design[":shared:design-library (Nx* + tokens) incl. :snapshot goldens"]
+    end
+
+    subgraph TestInfra["Test infra"]
+        ts[":shared:test-support"]
+        cts[":shared:compose-test-support"]
+    end
+
+    android --> clientMod
+    desktop --> clientMod
+    web --> clientMod
+    ios --> clientMod
+
+    clientMod --> Features
+    feat --> common
+    Features --> Shared
+
+    TestInfra -.-> ClientLayer
+    TestInfra -.-> Features
+    TestInfra -.-> Shared
 ```
 
 - **Feature modules** (`:feature:X:client:{api,basic}`): `api` exposes a
   `Feature` interface plus type-safe `@Serializable` routes; `basic` implements
-  it behind an isolated Koin container. Features never depend on another
-  feature's `api` — cross-feature signaling goes through a `DomainEventBus`.
+  it behind an isolated Koin container. A `basic` module never depends on another
+  feature's `basic` — it may depend on another feature's `api` only to reach its
+  routes (e.g. vault → encrypt/decrypt). Cross-feature runtime signaling goes
+  through a `DomainEventBus`.
 - **Engines**: `:crypto` (cryptography-kotlin, AES-256-GCM + PBKDF2) and
-  `:steganography` (stdlib-only LSB codec over `PixelImage`) depend on no other
+  `:steganography` (pure-Kotlin LSB codec over `PixelImage`) depend on no other
   project module and are consumed through use cases.
-- **`:client`** owns global DI, the SqlDelight database, and the per-platform
-  implementations of the source interfaces declared in `:shared:data`.
+- **`:client`** owns global DI, the SqlDelight database (`NyxDb`) and its
+  SqlDelight-backed `VaultSource`, plus the iOS platform source implementations
+  (iOS has no separate app module). The Android, desktop, and web implementations
+  live in their entry-app modules.
 - **Design system**: `Nx*` atomic components with theme tokens, previews for
   every visual state, and Paparazzi golden tests in
   `:shared:design-library:snapshot`.
@@ -99,7 +129,7 @@ message ──(AES-256-GCM)──> encrypted blob ──(LSB embed, 2 bits per R
 
 ## Building
 
-Prerequisites: JDK 21 and an Android SDK with API 36. iOS additionally
+Prerequisites: JDK 21 and an Android SDK with API 37. iOS additionally
 requires macOS with Xcode.
 
 ```bash
@@ -124,9 +154,10 @@ on the macOS lane.
   fresh random nonce per message. GCM is authenticated encryption — a wrong
   password or a modified image is detected and rejected, never silently
   decrypted into noise.
-- **LSB steganography is an obscurity layer.** Statistical steganalysis can
-  reveal that an image likely carries a payload. Assume a capable adversary can
-  detect that something is hidden; what they cannot do without your password is
+- **LSB steganography is an obscurity layer.** The codec scatters the embedded
+  bits across the whole image with a keyed permutation to deny clustered regions
+  to RS / sample-pair steganalysis — but assume a capable adversary can still
+  detect that *something* is hidden. What they cannot do without your password is
   read it.
 - **PNG only survives lossless channels.** Messaging apps and social networks
   that recompress images (usually to JPEG) destroy the payload. Share the stego
@@ -154,11 +185,10 @@ This project follows a [code of conduct](CODE_OF_CONDUCT.md).
 
 ## Emailware
 
-Nyx is an emailware. Which means, if you liked using this app or it has helped
-you in any way, I'd like you to send me an email at
-[daksh@technowolf.in](mailto:daksh@technowolf.in) about anything you'd want to
-say about this software. I'd really appreciate it! Plus I would be more than
-happy to know my initiative helped someone. :)
+Nyx is emailware. If you liked using this app or it helped you in any way, send
+me a note at [daksh@technowolf.in](mailto:daksh@technowolf.in) — anything you'd
+want to say about it. I'd genuinely appreciate hearing that the project was
+useful to someone. :)
 
 ## License
 
