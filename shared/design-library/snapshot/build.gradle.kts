@@ -32,4 +32,7 @@ dependencies {
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     testImplementation(libs.junit4)
+    // PreviewContextConfigurationEffect — wires compose-resources' context so Res.string resolves
+    // under Paparazzi (which renders like a Compose preview).
+    testImplementation(libs.compose.components.resources)
 }

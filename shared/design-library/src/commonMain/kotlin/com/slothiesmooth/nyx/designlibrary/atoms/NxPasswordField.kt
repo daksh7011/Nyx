@@ -15,9 +15,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.sp
+import com.slothiesmooth.nyx.designlibrary.resources.Res
+import com.slothiesmooth.nyx.designlibrary.resources.nx_password_hide
+import com.slothiesmooth.nyx.designlibrary.resources.nx_password_show
 import com.slothiesmooth.nyx.designlibrary.tokens.NxIconKind
 import com.slothiesmooth.nyx.designlibrary.tokens.nxColors
 import com.slothiesmooth.nyx.designlibrary.tokens.nxType
+import org.jetbrains.compose.resources.stringResource
 
 private val PasswordTextSize = 15.sp
 
@@ -47,11 +51,16 @@ fun NxPasswordField(
         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         trailingIcon = {
+            val toggleDescription = if (visible) {
+                stringResource(Res.string.nx_password_hide)
+            } else {
+                stringResource(Res.string.nx_password_show)
+            }
             NxIconButton(
                 kind = if (visible) NxIconKind.EyeOff else NxIconKind.Eye,
                 onClick = { visible = !visible },
                 style = NxIconButtonStyle.Ghost,
-                contentDescription = if (visible) "Hide password" else "Show password",
+                contentDescription = toggleDescription,
             )
         },
         colors = OutlinedTextFieldDefaults.colors(

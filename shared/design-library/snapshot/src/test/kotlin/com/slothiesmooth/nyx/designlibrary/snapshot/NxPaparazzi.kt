@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -15,6 +16,8 @@ import com.slothiesmooth.nyx.designlibrary.tokens.LocalNxType
 import com.slothiesmooth.nyx.designlibrary.tokens.NxPalette
 import com.slothiesmooth.nyx.designlibrary.tokens.NxTheme
 import com.slothiesmooth.nyx.designlibrary.tokens.nxTypeFor
+import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.setResourceReaderAndroidContext
 
 // Real JetBrains Mono for the goldens. The production path — NxTheme's compose-resources
 // Font(Res.font.*) — is async and loses the race to Paparazzi's single layoutlib frame (Roboto).
@@ -44,8 +47,13 @@ fun nxPaparazzi(): Paparazzi = Paparazzi(
  * seam with the blocking JetBrains Mono family. The override nests inside [NxTheme] because NxTheme
  * re-provides LocalNxType (with the async production font) and still owns colors, dimensions, etc.
  */
+@OptIn(ExperimentalResourceApi::class)
 @Composable
 fun NxSnapshot(palette: NxPalette, content: @Composable () -> Unit) {
+    // Paparazzi runs neither compose-resources' AndroidContextProvider (a ContentProvider) nor sets
+    // LocalInspectionMode, so PreviewContextConfigurationEffect no-ops. Set the reader's context
+    // directly from LocalContext (Paparazzi's) so stringResource(Res.string.*) resolves.
+    setResourceReaderAndroidContext(LocalContext.current)
     NxTheme(palette = palette) {
         CompositionLocalProvider(LocalNxType provides nxTypeFor(jetBrainsMono)) {
             Surface(color = MaterialTheme.colorScheme.background) { content() }
