@@ -23,7 +23,7 @@ import kotlin.time.Instant
 class VaultRowsTest {
 
     @Test
-    fun `formatVaultDate builds a date UiText from the month resource, day, and year`() {
+    fun `formatVaultDate builds a date UiText from the month resource and day and year`() {
         val label = formatVaultDate(Instant.parse("2026-07-13T12:00:00Z"), TimeZone.UTC)
         assertEquals(UiText.res(Res.string.vault_date_format, Res.string.vault_month_7, 13, 2026), label)
     }

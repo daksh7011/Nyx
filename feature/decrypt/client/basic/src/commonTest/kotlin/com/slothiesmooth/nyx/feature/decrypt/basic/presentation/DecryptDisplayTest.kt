@@ -28,7 +28,7 @@ class DecryptDisplayTest {
     }
 
     @Test
-    fun `failure maps to the generic unreadable message, ignoring the technical reason`() {
+    fun `failure maps to the generic unreadable message ignoring the technical reason`() {
         val display = mapDecryptOutcome(DecryptOutcome.Failure("codec error 0x5"))
         assertEquals(UiText.res(Res.string.decrypt_unreadable), display.error)
         assertNull(display.plaintext)

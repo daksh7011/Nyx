@@ -62,7 +62,7 @@ class EncryptDomainTest {
     }
 
     @Test
-    fun `save writes the file, upserts an auto-named record, and emits StegoImageStored`() = runTest {
+    fun `save writes the file and upserts an auto-named record and emits StegoImageStored`() = runTest {
         val source = FakeVaultSource()
         val store = FakeVaultFileStore()
         val bus = DefaultDomainEventBus()
