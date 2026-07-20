@@ -15,6 +15,16 @@ sqldelight {
 }
 
 kotlin {
+    // The iOS targets (declared by nyx.kmp.library) export a single static `App` framework to the
+    // Xcode host; NativeSqliteDriver needs system sqlite, hence -lsqlite3. Skipped on Linux.
+    listOf(iosArm64(), iosSimulatorArm64()).forEach { iosTarget ->
+        iosTarget.binaries.framework {
+            baseName = "App"
+            isStatic = true
+            linkerOpts("-lsqlite3")
+        }
+    }
+
     sourceSets {
         // Intermediate source set: iOS + JVM + wasmJs share the skiko-based image codec
         // (skiko ships with Compose Multiplatform on every non-android target). Never android.
@@ -64,6 +74,9 @@ kotlin {
         }
         iosMain.dependencies {
             implementation(libs.sqldelight.native.driver)
+            implementation(libs.androidx.datastore.preferences.core)
+            implementation(libs.filekit.core)
+            implementation(libs.filekit.dialogs)
         }
         jvmMain.dependencies {
             implementation(libs.sqldelight.sqlite.driver)
