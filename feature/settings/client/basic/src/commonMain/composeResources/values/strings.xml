@@ -1,0 +1,13 @@
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_version_label">Nyx %1$s · %2$s</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_licenses_title">Open-source licenses</string>
+    <string name="settings_source_code">Source code</string>
+    <string name="settings_wipe_vault">Wipe vault</string>
+    <string name="settings_wipe_confirm_title">Wipe vault?</string>
+    <string name="settings_wipe_confirm_message">This permanently deletes every stored image and its hidden message. This cannot be undone.</string>
+    <string name="settings_wipe_confirm_action">Wipe</string>
+    <string name="settings_cancel">Cancel</string>
+    <string name="settings_wiping_progress">Wiping vault</string>
+</resources>

@@ -77,3 +77,6 @@ fastlane/README.md
 
 app/release/*
 app/debug/*
+
+# Kotlin build cache
+.kotlin/

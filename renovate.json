@@ -1,34 +1,26 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": [
-    "config:base"
-  ],
-  "lockFileMaintenance": {
-    "enabled": true,
-    "automerge": true,
-    "automergeType": "pr",
-    "platformAutomerge": true
-  },
+  "extends": ["config:recommended"],
   "packageRules": [
     {
-      "matchUpdateTypes": [
-        "minor",
-        "patch"
-      ],
+      "description": "Automerge non-major updates of stable (>=1.0) dependencies once CI is green",
+      "matchUpdateTypes": ["minor", "patch"],
       "matchCurrentVersion": "!/^0/",
       "automerge": true
     },
     {
-      "matchPackagePatterns": [
-        "androidx.compose.ui:ui",
-        "androidx.compose.ui:ui-tooling-preview"
-      ],
-      "groupName": "androidx compose ui updates"
+      "description": "DO-NOT-BUMP-PAST-0.13: FileKit 0.14.x is compiled with Kotlin 2.4 and drops the iosX64 target, which this project ships",
+      "matchPackageNames": ["/^io\\.github\\.vinceglb:filekit/"],
+      "allowedVersions": "<0.14.0"
     },
     {
+      "description": "Toolchain versions move together (Kotlin, AGP, Compose plugins/runtime, Paparazzi); bump manually as a verified set. The [.:] terminator keeps org.jetbrains.kotlinx libraries bot-bumpable",
       "matchPackageNames": [
-        "org.jetbrains.kotlin.*",
-        "com.google.devtools.ksp"
+        "/^org\\.jetbrains\\.kotlin[.:]/",
+        "/^com\\.android\\.tools\\.build:gradle/",
+        "/^com\\.android\\.(application|library|kotlin\\.multiplatform\\.library)/",
+        "/^org\\.jetbrains\\.compose/",
+        "/^app\\.cash\\.paparazzi/"
       ],
       "enabled": false
     }

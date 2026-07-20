@@ -1,0 +1,14 @@
+<resources>
+    <string name="decrypt_title">Decrypt</string>
+    <string name="decrypt_pick_prompt">Choose an image that hides an encrypted message.</string>
+    <string name="decrypt_choose_image">Choose image</string>
+    <string name="decrypt_image_content_description">Image to decrypt</string>
+    <string name="decrypt_password_label">Password</string>
+    <string name="decrypt_reveal_message">Reveal message</string>
+    <string name="decrypt_copy_content_description">Copy message</string>
+    <string name="decrypt_progress">Decrypting</string>
+    <string name="decrypt_wrong_password">Wrong password, or this image has been tampered with.</string>
+    <string name="decrypt_no_message">No hidden message was found in this image.</string>
+    <string name="decrypt_unreadable">This image could not be read.</string>
+    <string name="decrypt_load_failed">This image could not be loaded from the vault.</string>
+</resources>

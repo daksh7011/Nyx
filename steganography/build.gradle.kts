@@ -1,13 +1,11 @@
 plugins {
-    id("local.noui.library")
+    id("nyx.kmp.library")
 }
 
-android {
-    namespace = "in.technowolf.nyx.steganography"
-}
-
-dependencies {
-    implementation(libs.coroutines)
-
-    implementation(projects.utils)
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
+    }
 }

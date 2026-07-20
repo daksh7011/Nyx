@@ -1,0 +1,4 @@
+<resources>
+    <string name="nx_password_hide">Hide password</string>
+    <string name="nx_password_show">Show password</string>
+</resources>
