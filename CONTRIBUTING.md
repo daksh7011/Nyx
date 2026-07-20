@@ -1,37 +1,116 @@
-# Contributing
+# Contributing to Nyx
 
-We appreciate contributions of any kind - new contributions
-are welcome whether it's through bug reports or new pull requests.
+Contributions of any kind are welcome — code, bug reports, docs, UI ideas,
+typo fixes. You are one issue away. This project follows a
+[code of conduct](CODE_OF_CONDUCT.md).
 
-## Tell us about enhancements and bugs
+## Development setup
 
-Please add an issue. We'll review it, add labels and reply when we get the chance.
+1. Install **JDK 21** (any distribution; Temurin works well).
+2. Install **Android Studio** (latest stable — the project uses AGP 9.2, older
+   IDE versions will refuse to sync) with an Android SDK for **API 36**.
+3. Clone and build:
 
-## See an issue you'd like to work on
+   ```bash
+   git clone git@github.com:YOUR-USERNAME/Nyx.git
+   cd Nyx
+   ./gradlew build
+   ```
 
-Comment on the issue that you'd like to work on and we'll add the
-`claimed` label.  If you see the `claimed` label already on the issue you
-might want to ask the contributor if they'd like some help.
+`./gradlew build` runs assembly, all host tests, and detekt. If it is green,
+your setup is correct.
 
-## Documentation needs updating
+### Linux / Windows caveat (iOS)
 
-Go right ahead! Just submit a pull request when you're done.
+Every KMP module declares iOS targets, but they only compile on macOS with
+Xcode. On other hosts they are skipped automatically via
+`kotlin.native.ignoreDisabledTargets=true` — Android, desktop, and web build
+and test locally. Do not try to fix iOS compile errors blind from Linux; that
+work happens on the macOS lane.
 
-## Pull Requests
+## Build logic: convention plugins
 
-We love pull requests from everyone:
+Module build scripts stay tiny because shared configuration lives in the
+`build-logic/` included build:
 
-1. [Fork](https://docs.github.com/en/get-started/quickstart/fork-a-repo) this repository:
-2. Clone forked repository `git clone git@github.com:YOUR-USERNAME/Nyx.git`
-3. Branch of the `main` branch.
-4. Make changes, push changes to your fork and submit a pull request against the `master` branch.
+| Plugin id | Used by | What it does |
+|---|---|---|
+| `nyx.kmp.library` | every KMP module | declares the six targets (android, iosX64, iosArm64, iosSimulatorArm64, jvm, wasmJs), default hierarchy template, opt-ins |
+| `nyx.compose` | UI modules | Compose Multiplatform + compose-resources configuration |
+| `nyx.feature.api` | `:feature:*:client:api` | KMP library + minimal api-surface dependencies |
+| `nyx.feature.basic` | `:feature:*:client:basic` | KMP + Compose + DI + test wiring |
 
-At this point you're waiting on us. We like to at least comment on pull requests within few days. We may suggest some
-changes or improvements or alternatives.
+Change build behavior in `build-logic/`, never by copy-pasting into module
+scripts. Versions live in exactly one place: `gradle/libs.versions.toml`.
 
-Some things that will increase the chance that your pull request is accepted:
+## Adding a feature (checklist)
 
-1. Write a [good commit message](https://chris.beams.io/posts/git-commit/)
-2. Make sure all tests and lint checks are passing (review them on the pull request page)
-3. Update [README](README.md) with any changes are needed
-4. Write tests (if needed)
+Features follow an api/basic split. For a new feature `foo`:
+
+1. Create `feature/foo/client/api` and `feature/foo/client/basic`; include
+   both in `settings.gradle.kts`.
+2. **api module** (package `com.slothiesmooth.nyx.feature.foo.api`):
+   - `interface FooFeature : Feature` — the only surface other modules may see.
+   - `@Serializable` route types (`data object FooRoute`, or a `data class`
+     for routes with arguments). No string routes.
+3. **basic module** (package `com.slothiesmooth.nyx.feature.foo.basic`):
+   - `BasicFooProvider : KoinFeatureProvider`, implementing `FooFeature` —
+     registers repositories/use cases/view models in `onProvideDI`, screens in
+     `provideNavigation`.
+   - Domain: single-purpose use case classes with `operator fun invoke`,
+     `factoryOf`-registered. Repository writes return `AppResult`; reads
+     return `Flow`.
+   - Presentation: view models extend `BaseViewModel`; screen state is a
+     `@Stable` read-only interface plus a mutable implementation; all
+     collections use kotlinx-immutable types.
+   - UI: composables are dumb — no filtering/sorting/mapping/pluralization in
+     UI; the view model exposes render-ready state. Every screen gets previews
+     covering every visual state (loading, error, success, empty).
+4. Wire it in `:client`'s app module:
+   `single<FooFeature> { BasicFooProvider(...) }` and add it to the ordered
+   `List<Feature>`.
+5. **Never** depend on another feature's `api` from a feature module.
+   Cross-feature signaling uses `DomainEventBus`; cross-feature reads use
+   projection interfaces declared in `:shared:data` and wired in `:client`.
+6. Data access goes through source interfaces (`VaultSource`,
+   `SettingsSource`, ...) declared in `:shared:data` and implemented in
+   `:client` / platform modules — features never touch drivers directly.
+7. Tests: use cases and view models against hand-written fakes.
+
+## Quality gates
+
+Every PR must pass all of these (CI runs them; run locally first):
+
+```bash
+./gradlew detektCheck      # static analysis + formatting — maxIssues=0
+./gradlew build            # assemble + all host tests + detekt
+./gradlew :shared:design-library:snapshot:verifyPaparazziDebug
+```
+
+Ground rules:
+
+- **No lint suppressions to make a build pass.** A detekt finding is a design
+  signal — fix the root cause. The single documented exception is
+  `NxColors.kt`, the one raw-ARGB token file.
+- **detekt is the single formatter/linter.** Its `formatting` ruleset (ktlint
+  under the hood, `active: true`) is the source of truth — there is no separate
+  spotless step. Do not add a second formatter.
+- **Testing stack** is kotlin.test + kotlinx-coroutines-test + turbine + hand-
+  written fakes. No mockk, no kotest. Tests serve purpose, not count.
+- **Paparazzi goldens are font-sensitive.** Record on Linux (matches the
+  ubuntu CI runner) with
+  `./gradlew :shared:design-library:snapshot:recordPaparazziDebug` and commit
+  the PNGs.
+- **US English** everywhere — identifiers, comments, docs, commit messages.
+
+## Commit style
+
+Conventional Commits: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`,
+`test:`, `build:`, `ci:`. Keep commits small — one green change per commit.
+
+## Pull requests
+
+1. Fork this repository and branch off `develop`.
+2. Make your change; keep all quality gates green.
+3. Open a pull request against `develop`. We usually comment within a few
+   days and may suggest changes or alternatives.
