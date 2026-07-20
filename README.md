@@ -1,108 +1,165 @@
 <div align="center">
-    <h1>
-        <br>
-        <a href="#">
-            <img src="https://gitlab.com/technowolf/nyx/-/raw/develop/images/nyx-logo.png" 
-            alt="Nyx Logo" width="200"></a>
-        <br>
-        Nyx
-        <br>
-    </h1>
-    <h4 align="center">Do you have secret to share? Hide it in image with secret password with Nyx.</h4>
+    <img src="images/nyx-logo.png" alt="Nyx logo" width="180">
+    <h1>Nyx</h1>
+    <h4>Do you have a secret to share? Hide it inside an image, locked with a password.</h4>
+    <p>
+        <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" alt="MIT license"></a>
+        <a href="https://github.com/daksh7011/Nyx/actions/workflows/ci.yml"><img src="https://github.com/daksh7011/Nyx/actions/workflows/ci.yml/badge.svg?branch=develop" alt="CI status"></a>
+    </p>
 </div>
 
-<div align="center">
-    <a href="https://gitlab.com/technowolf/nyx/-/blob/develop/LICENSE" target="_blank">
-        <img src="https://img.shields.io/badge/license-MIT-brightgreen.svg">
-    </a>
-    <a href="https://gitlab.com/technowolf/nyx/-/pipelines">
-        <img alt="pipeline status" src="https://gitlab.com/technowolf/nyx/badges/develop/pipeline.svg" />
-    </a>
-    <a href="https://saythanks.io/to/daksh7011" target="_blank">
-        <img src="https://img.shields.io/badge/SayThanks.io-%E2%98%BC-1EAEDB.svg">
-    </a>
-    <a href="https://www.paypal.me/daksh7011" target="_blank">
-        <img src="https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000&amp;style=flat">
-    </a>
-    <br>
-    <br>
-</div>
+## Overview
 
-[![build debug](https://github.com/daksh7011/Nyx/actions/workflows/check.yml/badge.svg?branch=develop)](https://github.com/daksh7011/Nyx/actions/workflows/check.yml)
+Nyx hides an encrypted text message inside the pixels of an ordinary image.
+The message is sealed with AES-256-GCM using a key derived from your password,
+written into the least significant bits of the image's RGB channels, and
+exported as a lossless PNG. To everyone else it is just a picture; with the
+password, Nyx recovers the exact message.
 
-# Overview
+Nyx is a Compose Multiplatform app: one Kotlin codebase runs on Android,
+desktop (Linux/macOS/Windows), the web (Kotlin/Wasm), and iOS.
 
-Nyx lets you hide your secrets in images with secret password, Only your friends, family or a person
-having the secret password can unlock the secret message. Rest of the world would just see the
-beautiful image.
+## How it works
 
-Nyx uses concept of steganography to hide the messages in images. Since processed image will be
-identical to original image, No one can really know that there is a hidden message in.
+```text
+message ──(AES-256-GCM)──> encrypted blob ──(LSB embed, 2 bits per R/G/B channel)──> stego PNG
+          key = PBKDF2-HMAC-SHA256(password, 600,000 iterations, random 16-byte salt)
+```
 
-Features: 
-* Hide Your Messages: While images are visible to world, Nyx harnesses the pixels in the image and
-modifies them in such way that even trained eyes would not be able to recognize the difference.
+1. **Encrypt** — the plaintext is sealed with AES-256-GCM. Every message gets a
+   fresh random salt and nonce, so encrypting the same text twice produces
+   different blobs. GCM is authenticated: a wrong password or a tampered image
+   fails cleanly — you never get garbage output.
+2. **Embed** — the encrypted blob is marker-framed and spread across the two
+   least significant bits of each pixel's red, green, and blue channels.
+   Payloads too large for one image can span multiple images.
+3. **Export** — the result is always PNG (lossless — required for the payload
+   to survive). Decrypting reverses the pipeline: extract, authenticate, decrypt.
 
-* Tons of Photos: Don't have photos on your device? Don't worry. Nyx uses Unsplash API to provide
-you with tons of photos to select from. However, you can always select images from your device.
+## Features
 
-* Invisible Changes: The algorithm Nyx uses, makes the changes to the image totally invisible.
-There will be no image distortion.
+- **Encrypt wizard** — pick a cover image (file picker on every platform,
+  camera on Android/iOS), type a message and password, get a stego PNG saved
+  to your vault and ready to share.
+- **Vault** — a grid of your stego images with detail view, share/export,
+  archive, and delete. Metadata lives in SQLDelight; image bytes live as PNG
+  files on disk.
+- **Decrypt** — open a vault image or pick any image, enter the password,
+  reveal and copy the hidden message. Wrong password and no-hidden-message are
+  reported honestly and distinctly.
+- **Themes** — five palettes (Midnight, Espresso, Nardo, Cream, Mist) with a
+  system/light/dark mode override, persisted across launches.
+- **Settings** — about, open-source licenses, wipe vault, app version.
+- **Ad-free, account-free, network-free** — Nyx makes zero network calls.
+  Your images and secrets never leave your device.
 
-* Multiple Layers of Security: We have added multiple layers to make sure your secrets remains
-secrets. Nyx encrypts your message with secure AES-256 algorithm and then write the encrypted
-gibberish message to the image.
+## Platforms
 
-* Hardened Algorithm: Nyx uses LSB(Least Significant Bit) algorithm to hide the messages in image
-files. Trying to break LSB is significantly hard since it is very hard to differentiate encoded bits
-of image matrix.  Also, Nyx spreads the encoding of bits throughout the image selected so it is
-even harder to determine which bit was changed. Even after attacker finds out the message from
-processed image, message is encrypted with AES-256. And without password the encrypted message
-is just some gibberish.
+| Platform | Vault persistence | Camera capture | Notes |
+|---|---|---|---|
+| Android 7.0+ (API 24) | Yes | Yes | Primary target |
+| Desktop JVM (Linux / macOS / Windows) | Yes | No | Compose for Desktop |
+| Web (Kotlin/Wasm) | Session-only | No | Encrypt / decrypt / export fully work; the vault list is in-memory for now |
+| iOS (device + simulators) | Yes | Yes | Builds on the macOS lane only |
 
-* Share Images: Nyx lets you share the images you have processed with secret message with world.
-You can share the images to any Social Media, File Sharing Tools, or directly through
-Bluetooth and NFC. Secrets are still recoverable on the other side.
+## Architecture
 
-* Resistant to Attacks: We have tested the processed images by launching several attacks.
-We used stegdetect and a modified version of stegdetect. In most of the test cases, detection
-was negative in processed images. Though in some cases we managed to detect the encrypted message
-in images but since it needs password to decrypt the message it was useless.
+```text
+:androidApp        :desktopApp        :webApp        client/iosApp/ (Xcode, macOS only)
+      \                 |                /
+       +----------------+---------------+
+                        |
+                     :client            global DI (initKoin), App(), SqlDelight NyxDb,
+                        |               platform source implementations
+   :feature:{navigation,splash,theme,vault,encrypt,decrypt,settings}:client:{api,basic}
+                        |               plumbing: :feature:common:client:{api,koin}
+      +---------+-------+------+------------------+----------------------+
+      |         |              |                  |                      |
+   :crypto   :steganography  :shared:data   :shared:presentation  :shared:design-library
+   AES-GCM   pure-Kotlin     results/sources  BaseViewModel,        Nx* components + tokens
+   + PBKDF2  LSB engine      events/clock/ids ViewState/UiState      \- :snapshot (Paparazzi)
 
-* Designed with Material Design: Nyx is designed with concepts of Material Design to provide
-intuitive and best possible user experience. Also, Nyx supports dark mode throughout every screen.
+   test infra: :shared:test-support, :shared:compose-test-support
+```
 
-* Ad-Free: Nyx is being developed for the open-source community and for the people. We don't want
-money, We just want people to use secure medium to convey their secrets from prying eyes.
+- **Feature modules** (`:feature:X:client:{api,basic}`): `api` exposes a
+  `Feature` interface plus type-safe `@Serializable` routes; `basic` implements
+  it behind an isolated Koin container. Features never depend on another
+  feature's `api` — cross-feature signaling goes through a `DomainEventBus`.
+- **Engines**: `:crypto` (cryptography-kotlin, AES-256-GCM + PBKDF2) and
+  `:steganography` (stdlib-only LSB codec over `PixelImage`) depend on no other
+  project module and are consumed through use cases.
+- **`:client`** owns global DI, the SqlDelight database, and the per-platform
+  implementations of the source interfaces declared in `:shared:data`.
+- **Design system**: `Nx*` atomic components with theme tokens, previews for
+  every visual state, and Paparazzi golden tests in
+  `:shared:design-library:snapshot`.
+- **Convention plugins** in `build-logic/` keep module build scripts
+  declarative; `gradle/libs.versions.toml` is the single version source.
 
-Disclaimer:
-Nyx is being developed by TechnoWolf. Nyx is designed to provide an intuitive platform to enhance
-the security and anonymity of its users. The protocols and Algorithms used to develop Nyx are
-largely considered as state of the art in security technology. Although Nyx will be constantly
-updated to match the best practices available in current security technology, and eliminate bugs,
-We do not guarantee by any means that Nyx or technology used in it are 100% foolproof and unbreakable.
-To achieve maximum security and anonymity one should utilize the best practices available to keep
-themselves safe. Please do note that Nyx is still experimental project and it should NOT be used
-for real world deployments. Nyx is provided under terms of MIT license.
+## Building
 
-# Contribution Guide
-Please take a look at the [contributing](CONTRIBUTING.md) guidelines if you're interested in helping by any means.
+Prerequisites: JDK 21 and an Android SDK with API 36. iOS additionally
+requires macOS with Xcode.
 
-Contribution to this project is not limited to coding help, You can suggest a feature, help with docs, UI design 
-ideas or even some typos. You are just an issue away. Don't hesitate to create an issue.
+```bash
+./gradlew build                                    # everything: assemble + tests + detekt
+./gradlew :androidApp:assembleDebug                # Android APK
+./gradlew :androidApp:installDebug                 # install on a connected device
+./gradlew :desktopApp:run                          # run the desktop app
+./gradlew :webApp:wasmJsBrowserDevelopmentRun      # dev server for the web app
+./gradlew :shared:design-library:snapshot:verifyPaparazziDebug   # design-system goldens
+```
 
-# Emailware
+**Linux / Windows note:** iOS targets are skipped automatically
+(`kotlin.native.ignoreDisabledTargets=true`); everything else builds and tests
+locally. iOS compilation and the `client/iosApp/` Xcode project are validated
+on the macOS lane.
 
-Nyx is an emailware. Which means, if you liked using this app or has helped you in anyway, I'd like you send me an email
-on [daksh@technowolf.in](mailto:daksh@technowolf.in) about anything you'd want to say about this software.
-I'd really appreciate it! Plus I would be more than happy to know my initiative helped someone. :)
+## Security model (please read)
 
-# License
+- **The security layer is the cryptography, not the steganography.** Messages
+  are encrypted with AES-256-GCM; keys derive from your password via
+  PBKDF2-HMAC-SHA256 with 600,000 iterations and a random 16-byte salt, with a
+  fresh random nonce per message. GCM is authenticated encryption — a wrong
+  password or a modified image is detected and rejected, never silently
+  decrypted into noise.
+- **LSB steganography is an obscurity layer.** Statistical steganalysis can
+  reveal that an image likely carries a payload. Assume a capable adversary can
+  detect that something is hidden; what they cannot do without your password is
+  read it.
+- **PNG only survives lossless channels.** Messaging apps and social networks
+  that recompress images (usually to JPEG) destroy the payload. Share the stego
+  image as a file, not as an inline photo.
+- **Your password is the whole game.** A weak password falls to offline
+  guessing regardless of iteration count. There is no recovery mechanism: lose
+  the password, lose the message.
+- **Clean break from pre-rewrite Nyx.** Images produced by the old (pre-2026)
+  Android app use an abandoned format and cannot be decrypted by this version.
 
-[MIT License](LICENSE) Copyright (c) 2020 TechnoWolf FOSS
+Nyx is an experimental open-source project provided under the MIT license,
+without warranty of any kind. It builds on well-reviewed primitives via
+[cryptography-kotlin](https://github.com/whyoleg/cryptography-kotlin), but it
+has not been independently audited. Do not rely on it as your only protection
+for high-stakes secrets.
 
-Nyx is provided under terms of MIT license.
+## Contributing
 
-# Links
+See [CONTRIBUTING.md](CONTRIBUTING.md) for dev setup, architecture
+conventions, and the add-a-feature checklist. Contribution is not limited to
+code — feature ideas, docs, UI design ideas, and even typo fixes are welcome.
+You are just an issue away: [issue tracker](https://github.com/daksh7011/Nyx/issues).
 
-[Issue Tracker](https://gitlab.com/technowolf/nyx/issues)
+This project follows a [code of conduct](CODE_OF_CONDUCT.md).
+
+## Emailware
+
+Nyx is an emailware. Which means, if you liked using this app or it has helped
+you in any way, I'd like you to send me an email at
+[daksh@technowolf.in](mailto:daksh@technowolf.in) about anything you'd want to
+say about this software. I'd really appreciate it! Plus I would be more than
+happy to know my initiative helped someone. :)
+
+## License
+
+[MIT License](LICENSE) — Copyright (c) 2020 TechnoWolf FOSS
