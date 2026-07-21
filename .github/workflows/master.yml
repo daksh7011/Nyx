@@ -1,0 +1,17 @@
+# Runs on every push to master. Linux build/verify chain plus the iOS chain on a self-hosted macOS runner.
+name: Master
+
+on:
+  push:
+    branches: [ master ]
+
+concurrency:
+  group: master-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+
+  ios:
+    uses: ./.github/workflows/_ios.yml

@@ -1,0 +1,17 @@
+# Runs on every push to develop. Linux build/verify chain plus the iOS chain on a self-hosted macOS runner.
+name: Develop
+
+on:
+  push:
+    branches: [ develop ]
+
+concurrency:
+  group: develop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    uses: ./.github/workflows/_build.yml
+
+  ios:
+    uses: ./.github/workflows/_ios.yml

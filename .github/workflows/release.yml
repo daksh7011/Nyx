@@ -1,0 +1,35 @@
+# Light release workflow. Builds UNSIGNED artifacts only — signing, versioning and publishing are not
+# wired up yet. Expand once a signing key and store/publish targets are defined.
+name: Release
+
+on:
+  workflow_dispatch:
+  push:
+    tags: [ 'v*' ]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  artifacts:
+    name: Unsigned artifacts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      # TODO: no signing key configured yet — this produces an unsigned release APK and an unsigned
+      # desktop distributable. Add signing + publishing (Play, notarization, etc.) when defined.
+      - name: Build unsigned release artifacts
+        run: ./gradlew :androidApp:assembleRelease :desktopApp:createDistributable
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nyx-unsigned-artifacts
+          if-no-files-found: warn
+          path: |
+            androidApp/build/outputs/apk/release/*.apk
+            desktopApp/build/compose/binaries/**
