@@ -32,7 +32,9 @@ class BasicSplashProvider(
     }
 
     override suspend fun onReceiveAction(action: BaseFeatureProvider.Action, context: FeatureContext) {
-        if (action is Advance) context.setDestination(afterSplashRoute)
+        // replaceDestination pops splash off the back stack, so it becomes the app root: Back on the
+        // start screen exits the app instead of flashing splash, and rapid Back can't re-enter it.
+        if (action is Advance) context.replaceDestination(afterSplashRoute)
     }
 
     override fun Module.onProvideDI() {

@@ -29,14 +29,21 @@ fun NavController.restoreDestination(route: Any) {
     )
 }
 
-/** Clears back to the graph start (exclusive) and navigates to [route] — used for tab switches. */
+/**
+ * Clears back to the back-stack root (exclusive) and navigates to [route] — used for tab switches, so
+ * the tabs stay single-level and Back from the root tab exits the app. Anchors on the current root
+ * rather than `graph.startDestinationRoute`, because the transient splash is the graph's declared
+ * start yet is popped once it advances (see BasicSplashProvider).
+ */
 fun NavController.setDestination(route: Any) {
+    val rootRoute = currentBackStack.value.firstOrNull { entry -> entry.destination.route != null }
+        ?.destination
+        ?.route
     navigate(
         route,
         navOptions {
-            graph.startDestinationRoute?.let { graphRoute ->
-                popUpTo(graphRoute) { inclusive = false }
-            }
+            rootRoute?.let { home -> popUpTo(home) { inclusive = false } }
+            launchSingleTop = true
         },
     )
 }
