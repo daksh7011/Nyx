@@ -43,7 +43,9 @@ class BasicNavigationProvider : BaseFeatureProvider(), NavigationFeature {
         NxBottomNav(
             items = state.items.toBottomNavItems(),
             selectedIndex = state.selectedIndex,
-            onSelect = { index -> context.setDestination(items[index].route) },
+            // Re-tapping the active tab must not re-navigate: it would reload the screen and lose any
+            // in-progress input (e.g. a half-filled encrypt wizard).
+            onSelect = { index -> if (index != state.selectedIndex) context.setDestination(items[index].route) },
         )
     }
 
