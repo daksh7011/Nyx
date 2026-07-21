@@ -7,6 +7,7 @@ import com.slothiesmooth.nyx.feature.encrypt.basic.domain.usecase.SaveToVaultUse
 import com.slothiesmooth.nyx.feature.encrypt.basic.resources.Res
 import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_capacity_hint
 import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_failed
+import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_save_failed
 import com.slothiesmooth.nyx.feature.encrypt.basic.resources.encrypt_too_large
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.CameraSource
@@ -52,14 +53,13 @@ class EncryptViewModel(
             val thumb = runCatching { bytes.toImageBitmap() }.getOrNull()
             val label = if (decoded is AppResult.Ok) {
                 val fit = estimateMaxMessageChars(decoded.value.width, decoded.value.height)
-                UiText.res(Res.string.encrypt_capacity_hint, fit)
+                UiText.res(Res.string.encrypt_capacity_hint, formatCompactCount(fit))
             } else {
                 null
             }
             withState {
                 mutableState.thumbnail = thumb
                 mutableState.maxCharsLabel = label
-                mutableState.step = EncryptStep.Compose
             }
         }
     }
@@ -70,6 +70,16 @@ class EncryptViewModel(
 
     fun onCameraCapture() {
         async("camera") { cameraSource.capture()?.let { onImagePicked(it.bytes) } }
+    }
+
+    /** Advances from the image step once a cover is chosen. */
+    fun onImageContinue() = withState {
+        if (mutableState.thumbnail != null) mutableState.step = EncryptStep.Message
+    }
+
+    /** Advances from the message step once the secret is non-blank. */
+    fun onMessageContinue() = withState {
+        if (mutableState.message.isNotBlank()) mutableState.step = EncryptStep.Password
     }
 
     fun onMessageChange(value: String) = updateInput { mutableState.message = value }
@@ -108,6 +118,14 @@ class EncryptViewModel(
     private suspend fun onEncryptSuccess(pngBytes: ByteArray) {
         resultBytes = pngBytes
         val saved = if (capabilities.persistentVault) saveToVault(pngBytes, name = "") else null
+        if (saved is AppResult.Err) {
+            // The vault write failed: stay on the password step and surface it instead of faking success.
+            withState {
+                mutableState.validationError = UiText.res(Res.string.encrypt_save_failed)
+                mutableState.uiState = UiState.Ready
+            }
+            return
+        }
         val savedId = (saved as? AppResult.Ok)?.value
         val name = savedId?.let { "nyx-${it.value.take(ID_PREFIX_LENGTH)}.png" } ?: DEFAULT_SHARE_NAME
         shareFileName = name
@@ -125,8 +143,9 @@ class EncryptViewModel(
 
     fun back() = withState {
         mutableState.step = when (mutableState.step) {
-            EncryptStep.Result -> EncryptStep.Compose
-            EncryptStep.Compose -> EncryptStep.PickImage
+            EncryptStep.Result -> EncryptStep.Password
+            EncryptStep.Password -> EncryptStep.Message
+            EncryptStep.Message -> EncryptStep.PickImage
             EncryptStep.PickImage -> EncryptStep.PickImage
         }
     }

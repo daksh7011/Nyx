@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Nyx is a private, on-device steganography vault: the encrypted images, the vault database and the
+  settings must never leave the device. Every domain is excluded from both cloud backup and
+  device-to-device transfer so the vault cannot be extracted off the device (Android 12+).
+  android:allowBackup="false" keeps pre-Android-12 devices consistent.
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="root" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+        <exclude domain="root" />
+    </device-transfer>
+</data-extraction-rules>

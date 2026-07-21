@@ -2,8 +2,9 @@ package com.slothiesmooth.nyx.feature.splash.basic
 
 import com.slothiesmooth.nyx.shared.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
-private const val SPLASH_DWELL_MS = 1_100L
+private val SPLASH_DWELL = 1_100.milliseconds
 
 /** Holds the splash on-screen for a short brand dwell, then flips [SplashState.ready]. */
 class SplashViewModel(
@@ -22,7 +23,7 @@ class SplashViewModel(
      * background dispatcher the test scheduler cannot advance.
      */
     fun startDwell() = ui("splashDwell") {
-        delay(SPLASH_DWELL_MS)
+        delay(SPLASH_DWELL)
         withState { mutableState.ready = true }
     }
 }

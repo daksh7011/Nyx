@@ -13,10 +13,10 @@ import com.slothiesmooth.nyx.shared.data.source.VaultSource
 import com.slothiesmooth.nyx.shared.data.time.Clock
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlin.coroutines.coroutineContext
 import kotlin.time.Instant
 
 private const val ARCHIVE_FAILED = "Failed to archive image"
@@ -63,7 +63,7 @@ class VaultRepositoryImpl(
     private suspend inline fun mutate(failureMessage: String, block: () -> Unit): AppResult<Unit> {
         // runCatching also traps CancellationException; rethrow it so structured cancellation works.
         val result = runCatching { block() }
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         return result.fold(
             onSuccess = { AppResult.Ok(Unit) },
             onFailure = { cause -> AppResult.Err(AppError.Storage(failureMessage, cause)) },

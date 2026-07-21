@@ -8,13 +8,13 @@ import com.slothiesmooth.nyx.shared.presentation.state.MutableViewState
 import com.slothiesmooth.nyx.shared.presentation.state.ViewState
 import com.slothiesmooth.nyx.shared.presentation.text.UiText
 
-/** The three wizard steps: pick a cover image, compose the message, then the saved/share result. */
-enum class EncryptStep { PickImage, Compose, Result }
+/** The four wizard steps: pick a cover image, write the message, set the password, then the result. */
+enum class EncryptStep { PickImage, Message, Password, Result }
 
 /**
  * Read-only wizard state the screen observes. Everything is render-ready: the [thumbnail] is already
- * decoded, [maxCharsLabel] is already formatted, and [canEncrypt]/[validationError] are already
- * computed by the view model — the composables never map, format, or validate.
+ * decoded, [maxCharsLabel] is already formatted, and [messageReady]/[canEncrypt]/[validationError]
+ * are already computed by the view model — the composables never map, format, or validate.
  */
 interface EncryptState : ViewState {
     val step: EncryptStep
@@ -22,6 +22,7 @@ interface EncryptState : ViewState {
     val hasImage: Boolean
     val maxCharsLabel: UiText?
     val message: String
+    val messageReady: Boolean
     val password: String
     val confirmPassword: String
     val validationError: UiText?
@@ -43,4 +44,5 @@ class EncryptMutableState(cameraVisible: Boolean) : MutableViewState(), EncryptS
     override var savedName: String? by mutableStateOf(null)
     override val showCamera: Boolean = cameraVisible
     override val hasImage: Boolean get() = thumbnail != null
+    override val messageReady: Boolean get() = message.isNotBlank()
 }

@@ -1,7 +1,7 @@
 package com.slothiesmooth.nyx.steganography
 
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 
 /**
  * Hides a UTF-8 payload in the low 2 bits of each R/G/B channel (6 bits per pixel), framed with
@@ -16,7 +16,7 @@ class Steganography(
 ) {
 
     suspend fun encode(images: List<PixelImage>, payload: String): StegoEncodeResult {
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         val frameBytes = buildFrame(payload)
         val requiredBits = frameBytes.size.toLong() * BITS_PER_BYTE
         val availableBits = channelCount(images) * BITS_PER_CHANNEL
@@ -44,7 +44,7 @@ class Steganography(
     }
 
     suspend fun decode(images: List<PixelImage>): String? {
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         return extractFrameBytes(images)?.decodeToString()
     }
 

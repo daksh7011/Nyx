@@ -10,8 +10,8 @@ import com.slothiesmooth.nyx.shared.data.source.StegoImageRecord
 import com.slothiesmooth.nyx.shared.data.source.VaultFileStore
 import com.slothiesmooth.nyx.shared.data.source.VaultSource
 import com.slothiesmooth.nyx.shared.data.time.Clock
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 
 private const val ID_PREFIX_LENGTH = 8
 private const val SAVE_FAILED = "Failed to save image to the vault"
@@ -52,7 +52,7 @@ class SaveToVaultUseCase(
         )
         // runCatching also traps CancellationException; rethrow it so structured cancellation works.
         val upsert = runCatching { vaultSource.upsert(record) }
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         if (upsert.isFailure) {
             return AppResult.Err(AppError.Storage(SAVE_FAILED, upsert.exceptionOrNull()))
         }

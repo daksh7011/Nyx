@@ -6,8 +6,8 @@ import dev.whyoleg.cryptography.algorithms.AES
 import dev.whyoleg.cryptography.algorithms.PBKDF2
 import dev.whyoleg.cryptography.algorithms.SHA256
 import dev.whyoleg.cryptography.random.CryptographyRandom
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 import kotlin.io.encoding.Base64
 
 /**
@@ -50,7 +50,7 @@ class DefaultNyxCrypto(
         val attempt = runCatching { cipher.decrypt(cipherOutput).decodeToString() }
         // Re-throw if the coroutine was cancelled during decrypt (runCatching also catches
         // CancellationException); any other failure is a wrong password or a tampered blob.
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         return attempt.fold(
             onSuccess = { DecryptResult.Success(it) },
             onFailure = { DecryptResult.WrongPasswordOrTampered },
