@@ -21,7 +21,7 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
       # TODO: no signing key configured yet — this produces an unsigned release APK and an unsigned
       # desktop distributable. Add signing + publishing (Play, notarization, etc.) when defined.
       - name: Build unsigned release artifacts
