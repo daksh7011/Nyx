@@ -53,7 +53,7 @@ class EncryptViewModel(
             val thumb = runCatching { bytes.toImageBitmap() }.getOrNull()
             val label = if (decoded is AppResult.Ok) {
                 val fit = estimateMaxMessageChars(decoded.value.width, decoded.value.height)
-                UiText.res(Res.string.encrypt_capacity_hint, fit)
+                UiText.res(Res.string.encrypt_capacity_hint, formatCompactCount(fit))
             } else {
                 null
             }

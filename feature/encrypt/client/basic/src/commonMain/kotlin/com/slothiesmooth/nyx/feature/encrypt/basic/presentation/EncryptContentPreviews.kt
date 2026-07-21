@@ -31,7 +31,7 @@ private fun previewState(
     this.canEncrypt = canEncrypt
     this.savedName = savedName
     this.thumbnail = thumbnail
-    this.maxCharsLabel = UiText.raw("About 1820 characters fit")
+    this.maxCharsLabel = UiText.raw("About 1.8k characters fit")
     if (blocking) uiState = UiState.Blocking
 }
 

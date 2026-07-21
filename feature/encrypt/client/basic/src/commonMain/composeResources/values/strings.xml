@@ -21,7 +21,7 @@
     <string name="encrypt_encrypted_image_content_description">Encrypted image</string>
     <string name="encrypt_share">Share image</string>
     <string name="encrypt_another">Encrypt another</string>
-    <string name="encrypt_capacity_hint">About %d characters fit</string>
+    <string name="encrypt_capacity_hint">About %1$s characters fit</string>
     <string name="encrypt_passwords_do_not_match">Passwords do not match</string>
     <string name="encrypt_failed">Could not encrypt this image.</string>
     <string name="encrypt_too_large">Message too large for this image. It needs about %1$d characters of capacity but this image holds about %2$d. Use a larger image or a shorter message.</string>
