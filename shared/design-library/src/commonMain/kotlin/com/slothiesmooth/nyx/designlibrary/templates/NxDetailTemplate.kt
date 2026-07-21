@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -55,6 +56,9 @@ fun NxDetailTemplate(
             modifier = Modifier
                 .fillMaxWidth()
                 .weight(1f)
+                // imePadding before verticalScroll shrinks the scroll viewport above the keyboard, so
+                // the focused field scrolls into view instead of being covered by the IME.
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(dimensions.keyline4),
             verticalArrangement = Arrangement.spacedBy(dimensions.keyline3),

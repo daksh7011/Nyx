@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -42,7 +43,9 @@ fun NxFormTemplate(
 ) {
     val colors = MaterialTheme.nxColors
     val dimensions = MaterialTheme.nxDimensions
-    Column(modifier = modifier.fillMaxSize().background(colors.bg)) {
+    // imePadding on the root lifts the whole form — scroll area and the pinned primary action — above
+    // the keyboard, since edge-to-edge stops the window resizing and nothing else consumes the IME inset.
+    Column(modifier = modifier.fillMaxSize().imePadding().background(colors.bg)) {
         NxTopBar(title = title, onBack = onBack)
         Column(
             modifier = Modifier
