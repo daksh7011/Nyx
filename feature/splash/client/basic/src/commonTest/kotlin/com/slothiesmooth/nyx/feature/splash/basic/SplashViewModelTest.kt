@@ -13,8 +13,9 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 
-private const val AFTER_DWELL_MS = 2_000L
+private val AFTER_DWELL = 2.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SplashViewModelTest {
@@ -31,7 +32,7 @@ class SplashViewModelTest {
         viewModel.startDwell()
         runCurrent()
         assertFalse(viewModel.state.ready)
-        advanceTimeBy(AFTER_DWELL_MS)
+        advanceTimeBy(AFTER_DWELL)
         runCurrent()
         assertTrue(viewModel.state.ready)
     }
