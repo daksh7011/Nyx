@@ -6,8 +6,8 @@ import com.slothiesmooth.nyx.shared.data.result.AppError
 import com.slothiesmooth.nyx.shared.data.result.AppResult
 import com.slothiesmooth.nyx.shared.data.source.VaultFileStore
 import com.slothiesmooth.nyx.shared.data.source.VaultSource
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlin.coroutines.coroutineContext
 
 private const val WIPE_FAILED = "Failed to wipe the vault"
 
@@ -27,7 +27,7 @@ class WipeVaultUseCase(
             vaultSource.purgeAll()
             eventBus.emit(DomainEvent.VaultWiped)
         }
-        coroutineContext.ensureActive()
+        currentCoroutineContext().ensureActive()
         return result.fold(
             onSuccess = { AppResult.Ok(Unit) },
             onFailure = { cause -> AppResult.Err(AppError.Storage(WIPE_FAILED, cause)) },
