@@ -26,7 +26,7 @@ jobs:
       # desktop distributable. Add signing + publishing (Play, notarization, etc.) when defined.
       - name: Build unsigned release artifacts
         run: ./gradlew :androidApp:assembleRelease :desktopApp:createDistributable
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: nyx-unsigned-artifacts
           if-no-files-found: warn
