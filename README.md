@@ -4,7 +4,7 @@
 
 **Do you have a secret to share? Hide it inside an image, locked with a password.**
 
-[![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![CI](https://github.com/daksh7011/Nyx/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/daksh7011/Nyx/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![Develop](https://github.com/daksh7011/Nyx/actions/workflows/develop.yml/badge.svg)](https://github.com/daksh7011/Nyx/actions/workflows/develop.yml)
 
 ## Overview
 
