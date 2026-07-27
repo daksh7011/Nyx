@@ -1,21 +1,13 @@
-# Release workflow. Triggered by a version tag (v*) cut from master (or manual dispatch).
-#
-# Produces:
-#   - a SIGNED Android App Bundle (.aab) + mapping.txt, uploaded as a workflow artifact for MANUAL
-#     upload to the Play Console (no automated publishing / no service account),
-#   - a SIGNED Android APK for sideloading, attached to a draft GitHub Release,
-#   - desktop installers (Linux .deb, Windows .exe/.msi) attached to the same draft GitHub Release.
-#
-# Signing key: base64 JKS + credentials come from GitHub secrets. Put them on a `release` Environment
-# with a required reviewer so the signed build pauses for approval and the keystore is unreachable from
-# any other workflow. The four secrets are: ANDROID_KEYSTORE_BASE64, ANDROID_KEYSTORE_PASSWORD,
-# ANDROID_KEY_ALIAS, ANDROID_KEY_PASSWORD.
+# Release workflow. Triggered by a bare semver tag cut from master (e.g. 0.1.0, 1.0.0), or manual dispatch.
+
 name: Release
 
 on:
   workflow_dispatch:
   push:
-    tags: [ 'v*' ]
+    # Bare MAJOR.MINOR.PATCH tags — no "v" prefix. `+` means one-or-more of the preceding character
+    # in GitHub's tag filter syntax, so this matches 0.1.0 and 10.20.30 but not a branch-like name.
+    tags: [ '[0-9]+.[0-9]+.[0-9]+' ]
 
 concurrency:
   group: release-${{ github.ref }}
