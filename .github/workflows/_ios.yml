@@ -8,8 +8,6 @@ on:
 jobs:
   ios:
     name: iOS framework (device + simulator)
-    # Register self-hosted macOS runners with these labels. ARM64 is required —
-    # iosSimulatorArm64 links only on Apple Silicon.
     runs-on: [self-hosted, macOS, ARM64]
     # Security: never run a fork's PR code on a self-hosted machine. Only same-repo
     # PRs and branch pushes reach the runner.
