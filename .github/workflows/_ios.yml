@@ -1,4 +1,4 @@
-# Reusable iOS build chain on a self-hosted macOS runner. Called by ci / develop / master as a
+# Reusable iOS build chain on a GitHub-hosted macOS runner. Called by ci / develop / master as a
 # separate chain. Not triggered on its own.
 name: iOS Build
 
@@ -8,10 +8,7 @@ on:
 jobs:
   ios:
     name: iOS framework (device + simulator)
-    runs-on: [self-hosted, macOS, ARM64]
-    # Security: never run a fork's PR code on a self-hosted machine. Only same-repo
-    # PRs and branch pushes reach the runner.
-    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-java@v5
@@ -19,6 +16,14 @@ jobs:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v6
+      # The Kotlin/Native toolchain and its platform libs are ~1GB and are re-downloaded on every
+      # cold runner otherwise. Keyed on the catalog so a Kotlin version bump invalidates it.
+      - name: Cache Kotlin/Native toolchain
+        uses: actions/cache@v4
+        with:
+          path: ~/.konan
+          key: konan-${{ runner.os }}-${{ hashFiles('gradle/libs.versions.toml') }}
+          restore-keys: konan-${{ runner.os }}-
       - name: Compile + link iOS frameworks (device + simulator)
         run: |
           ./gradlew :client:compileKotlinIosArm64 :client:compileKotlinIosSimulatorArm64
