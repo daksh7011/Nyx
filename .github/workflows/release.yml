@@ -1,35 +1,153 @@
-# Light release workflow. Builds UNSIGNED artifacts only — signing, versioning and publishing are not
-# wired up yet. Expand once a signing key and store/publish targets are defined.
+# Release workflow. Triggered by a version tag cut from master.
+
 name: Release
 
 on:
   workflow_dispatch:
   push:
-    tags: [ 'v*' ]
+    tags: [ '*' ]
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
+# Least privilege: read-only by default; only the publish job is granted contents: write.
+permissions:
+  contents: read
+
 jobs:
-  artifacts:
-    name: Unsigned artifacts
+  android:
+    name: Signed Android (AAB + APK)
     runs-on: ubuntu-latest
+    # Gate the signing build behind an environment so a reviewer must approve
+    environment: release
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0            # full history for the master-ancestor guard
+          persist-credentials: false
+      - name: Verify tag is on master
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          git fetch --no-tags origin master
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/master \
+            || { echo "::error::Tag ${GITHUB_REF_NAME} is not on master — refusing to sign."; exit 1; }
+      # The tag only triggers the build; the shipped version comes from nyx-version in the catalog.
+      # Without this they can drift, publishing 1.0.0 artifacts under a 1.2.0 release — and Play then
+      # rejects the duplicate versionCode. Also rejects any tag that is not a version tag.
+      - name: Verify tag matches nyx-version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          TOML=$(grep -m1 '^nyx-version' gradle/libs.versions.toml | cut -d'"' -f2)
+          [ "$GITHUB_REF_NAME" = "$TOML" ] \
+            || { echo "::error::Tag $GITHUB_REF_NAME != nyx-version $TOML"; exit 1; }
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '21'
       - uses: gradle/actions/setup-gradle@v6
-      # TODO: no signing key configured yet — this produces an unsigned release APK and an unsigned
-      # desktop distributable. Add signing + publishing (Play, notarization, etc.) when defined.
-      - name: Build unsigned release artifacts
-        run: ./gradlew :androidApp:assembleRelease :desktopApp:createDistributable
+      - name: Decode keystore
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/release.jks"
+          chmod 600 "$RUNNER_TEMP/release.jks"
+      - name: Build signed AAB + APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: ./gradlew :androidApp:bundleRelease :androidApp:assembleRelease
+      - name: Delete keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
+      - name: Upload AAB + mapping
+        uses: actions/upload-artifact@v7
+        with:
+          name: nyx-android-play
+          if-no-files-found: error
+          path: |
+            androidApp/build/outputs/bundle/release/*.aab
+            androidApp/build/outputs/mapping/release/mapping.txt
+      - name: Upload APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: nyx-apk
+          if-no-files-found: error
+          path: androidApp/build/outputs/apk/release/*.apk
+
+  desktop-linux:
+    name: Desktop installer (Linux .deb)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Package .deb (ProGuard release)
+        run: ./gradlew :desktopApp:packageReleaseDeb
       - uses: actions/upload-artifact@v7
         with:
-          name: nyx-unsigned-artifacts
-          if-no-files-found: warn
+          name: nyx-desktop-linux
+          if-no-files-found: error
+          path: desktopApp/build/compose/binaries/main-release/deb/*.deb
+
+  desktop-windows:
+    name: Desktop installers (Windows .exe/.msi)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Install WiX Toolset 3.x
+        run: choco install wixtoolset -y --no-progress
+      - name: Package .exe + .msi (ProGuard release)
+        run: ./gradlew :desktopApp:packageReleaseExe :desktopApp:packageReleaseMsi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nyx-desktop-windows
+          if-no-files-found: error
           path: |
-            androidApp/build/outputs/apk/release/*.apk
-            desktopApp/build/compose/binaries/**
+            desktopApp/build/compose/binaries/main-release/exe/*.exe
+            desktopApp/build/compose/binaries/main-release/msi/*.msi
+
+  release:
+    name: Publish draft GitHub Release
+    needs: [ android, desktop-linux, desktop-windows ]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write            # create the Release and upload assets
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v7
+        with:
+          path: dist
+          merge-multiple: true
+      - name: Create or update draft release (APK + desktop installers; NOT the AAB)
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          mapfile -t FILES < <(find dist -type f \( -name '*.apk' -o -name '*.deb' -o -name '*.exe' -o -name '*.msi' \) | sort)
+          if [ "${#FILES[@]}" -eq 0 ]; then echo "::error::No release assets found in dist/"; exit 1; fi
+          printf 'Attaching to %s:\n' "$TAG"; printf '  %s\n' "${FILES[@]}"
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release upload "$TAG" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+          else
+            gh release create "$TAG" "${FILES[@]}" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$TAG" \
+              --draft \
+              --generate-notes
+          fi
