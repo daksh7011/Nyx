@@ -1,4 +1,7 @@
 [versions]
+# App version — single source of truth. Bump on develop before merging to master.
+# androidApp derives versionCode from this; desktopApp uses it as packageVersion.
+nyx-version = "1.0.0"
 agp = "9.3.0"
 kotlin = "2.4.10"
 compose-multiplatform = "1.11.1"
