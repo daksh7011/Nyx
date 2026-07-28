@@ -41,17 +41,39 @@ compose.desktop {
         }
 
         nativeDistributions {
-            // DMG dropped for now (macOS shipping is deferred). Exe = consumer double-click installer,
-            // Msi = Windows Installer database; both are jpackage/WiX outputs and build only on Windows.
-            targetFormats(TargetFormat.Deb, TargetFormat.Exe, TargetFormat.Msi)
+            // Exe = consumer double-click installer, Msi = Windows Installer database (both jpackage/WiX,
+            // Windows-only), Deb = Linux, Dmg = macOS. Declaring a format the host cannot build is safe:
+            // the plugin sets `packageTask.enabled = targetFormat.isCompatibleWithCurrentOS`, so e.g.
+            // packageReleaseDmg is reported SKIPPED off macOS rather than failing the Linux/Windows jobs.
+            targetFormats(TargetFormat.Deb, TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Msi)
             packageName = "Nyx"
             // Single source of truth (libs.versions.toml). Strip any pre-release qualifier: MSI/EXE
             // require a numeric MAJOR.MINOR.BUILD, whereas nyx-version may one day carry "-rc1".
+            // NOTE: version validation runs for ALL declared formats on EVERY host, so the macOS rule
+            // now applies on Linux/Windows too. Keep MAJOR >= 1 — jpackage rejects a leading 0
+            // ("CFBundleVersion cannot be zero"), and that would fail ONLY the macOS job, late.
             packageVersion = libs.versions.nyx.version.get().substringBefore('-')
             // jlink omits java.sql from the runtime image by default, so the packaged app throws
             // NoClassDefFoundError: java/sql/DriverManager the moment it opens the SQLDelight vault DB
             // (SQLDelight sqlite-driver -> DriverManager). java.naming is a frequent transitive of java.sql.
             modules("java.sql", "java.naming")
+
+            macOS {
+                // Not strictly required for an unsigned DMG (CFBundleIdentifier would otherwise be
+                // derived from mainClass), but pinned so the app identity cannot silently change if
+                // mainClass is ever refactored, and because it is a prerequisite for signing later.
+                bundleID = "com.slothiesmooth.nyx"
+                dockName = "Nyx"
+                appCategory = "public.app-category.utilities"
+                // The generated Info.plist otherwise claims 10.13, which is untrue for a JDK 21
+                // runtime image in an arm64-only bundle.
+                minimumSystemVersion = "12.0"
+                // Deliberately NO signing{} / notarization{} block: there is no Apple Developer
+                // membership yet. The plugin then applies an ad-hoc signature on arm64, which is
+                // load-bearing (Apple silicon refuses to run wholly unsigned arm64 code) even though
+                // Gatekeeper still blocks the app. This is why the DMG is built on an arm64 runner
+                // only — see the desktop-macos job in release.yml.
+            }
         }
     }
 }
