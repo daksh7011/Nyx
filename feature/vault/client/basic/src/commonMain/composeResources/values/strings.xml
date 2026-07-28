@@ -1,0 +1,29 @@
+<resources>
+    <string name="vault_title">Vault</string>
+    <string name="vault_toggle_archived">Toggle archived</string>
+    <string name="vault_loading">Loading vault</string>
+    <string name="vault_empty_title">Your vault is empty</string>
+    <string name="vault_empty_body">Hide an encrypted message inside an image to get started.</string>
+    <string name="vault_encrypt_cta">Encrypt a message</string>
+    <string name="vault_archived_section">Archived</string>
+    <string name="vault_detail_untitled">Image</string>
+    <string name="vault_share">Share</string>
+    <string name="vault_detail_loading">Loading</string>
+    <string name="vault_decrypt_this">Decrypt this</string>
+    <string name="vault_restore">Restore</string>
+    <string name="vault_archive">Archive</string>
+    <string name="vault_delete">Delete</string>
+    <string name="vault_date_format">%1$s %2$d, %3$d</string>
+    <string name="vault_month_1">Jan</string>
+    <string name="vault_month_2">Feb</string>
+    <string name="vault_month_3">Mar</string>
+    <string name="vault_month_4">Apr</string>
+    <string name="vault_month_5">May</string>
+    <string name="vault_month_6">Jun</string>
+    <string name="vault_month_7">Jul</string>
+    <string name="vault_month_8">Aug</string>
+    <string name="vault_month_9">Sep</string>
+    <string name="vault_month_10">Oct</string>
+    <string name="vault_month_11">Nov</string>
+    <string name="vault_month_12">Dec</string>
+</resources>

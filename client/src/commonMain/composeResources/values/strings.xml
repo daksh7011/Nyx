@@ -1,0 +1,6 @@
+<resources>
+    <string name="nav_vault">Vault</string>
+    <string name="nav_encrypt">Encrypt</string>
+    <string name="nav_decrypt">Decrypt</string>
+    <string name="nav_settings">Settings</string>
+</resources>

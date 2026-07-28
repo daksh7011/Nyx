@@ -1,0 +1,27 @@
+name: iosApp
+options:
+  bundleIdPrefix: com.slothiesmooth.nyx
+  deploymentTarget:
+    iOS: "15.0"
+targets:
+  iosApp:
+    type: application
+    platform: iOS
+    sources:
+      - path: iosApp
+    info:
+      path: iosApp/Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.slothiesmooth.nyx
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        FRAMEWORK_SEARCH_PATHS:
+          - "$(SRCROOT)/../build/xcode-frameworks/$(CONFIGURATION)/$(SDK_NAME)"
+        OTHER_LDFLAGS:
+          - "-framework"
+          - "App"
+    preBuildScripts:
+      - name: "Build App.framework (Kotlin/Native)"
+        script: |
+          cd "$SRCROOT/../.."
+          ./gradlew :client:embedAndSignAppleFrameworkForXcode

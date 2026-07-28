@@ -1,0 +1,71 @@
+# Reusable build + verify chain (Linux). Called by ci / develop / master. Not triggered on its own.
+name: Build & Verify
+
+on:
+  workflow_call:
+
+jobs:
+  quality:
+    name: Detekt
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Detekt
+        run: ./gradlew detektCheck --continue
+
+  tests:
+    name: Host tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Run host tests
+        run: ./gradlew allTests -x wasmJsBrowserTest --continue
+
+  android:
+    name: Android debug
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Assemble Android debug
+        run: ./gradlew :androidApp:assembleDebug
+
+  desktop:
+    name: Desktop
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Compile desktop + build distributable
+        run: ./gradlew :desktopApp:compileKotlin :desktopApp:createDistributable
+
+  web:
+    name: Web (wasmJs)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v6
+      - name: Wasm browser tests + production bundle
+        run: ./gradlew :webApp:wasmJsBrowserTest :webApp:wasmJsBrowserDistribution
