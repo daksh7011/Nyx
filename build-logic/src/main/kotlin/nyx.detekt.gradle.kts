@@ -11,7 +11,7 @@ dependencies {
     "detektPlugins"(libs.findLibrary("detekt-formatting").get())
 }
 
-val detektCheck by tasks.registering(Detekt::class) {
+tasks.register<Detekt>("detektCheck") {
     description = "Runs detekt across all module Kotlin sources."
     group = "verification"
     parallel = true

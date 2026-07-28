@@ -32,7 +32,7 @@ class AppResultTest {
 
     @Test
     fun `errors carry their payloads`() {
-        assertEquals("bad name", (AppError.Validation("bad name") as AppError.Validation).message)
+        assertEquals("bad name", AppError.Validation("bad name").message)
         val cause = IllegalStateException("disk full")
         val storage = AppError.Storage("write failed", cause)
         assertEquals("write failed", storage.message)

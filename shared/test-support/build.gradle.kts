@@ -12,7 +12,7 @@ kotlin {
         }
         // Shared by jvm + android: their `createTestSqlDriver` actual both use JdbcSqliteDriver.
         // Android host (JVM) unit tests are the only android consumer of this test-support module.
-        val androidJvmMain by creating {
+        val androidJvmMain = create("androidJvmMain") {
             dependsOn(commonMain.get())
             dependencies {
                 implementation(libs.sqldelight.sqlite.driver)
