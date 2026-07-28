@@ -1,4 +1,8 @@
 # Release workflow. Triggered by a version tag cut from master.
+#
+# A tag push produces a published GitHub Release carrying the Android APK and the Linux/macOS/Windows
+# desktop installers. The Android App Bundle is NOT attached — it is kept as a private workflow
+# artifact for manual upload to the Play Console, along with the R8 mapping file.
 
 name: Release
 
@@ -16,31 +20,41 @@ permissions:
   contents: read
 
 jobs:
-  android:
-    name: Signed Android (AAB + APK)
+  # Validates the tag in ~20s before any build starts. Previously these checks lived on the android
+  # job only, so a bad tag still burned 20+ minutes of desktop runner time before anything noticed.
+  guard:
+    name: Verify tag
     runs-on: ubuntu-latest
-    # Gate the signing build behind an environment so a reviewer must approve
-    environment: release
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0            # full history for the master-ancestor guard
           persist-credentials: false
-      - name: Verify tag is on master
+      # Guarded per-step rather than per-job so workflow_dispatch still succeeds and does not skip
+      # every dependent job.
+      - name: Tag must be on master and match nyx-version
         if: startsWith(github.ref, 'refs/tags/')
         run: |
+          set -euo pipefail
           git fetch --no-tags origin master
           git merge-base --is-ancestor "$GITHUB_SHA" origin/master \
-            || { echo "::error::Tag ${GITHUB_REF_NAME} is not on master — refusing to sign."; exit 1; }
-      # The tag only triggers the build; the shipped version comes from nyx-version in the catalog.
-      # Without this they can drift, publishing 1.0.0 artifacts under a 1.2.0 release — and Play then
-      # rejects the duplicate versionCode. Also rejects any tag that is not a version tag.
-      - name: Verify tag matches nyx-version
-        if: startsWith(github.ref, 'refs/tags/')
-        run: |
+            || { echo "::error::Tag $GITHUB_REF_NAME is not on master — refusing to build."; exit 1; }
+          # The tag only triggers the build; the shipped version comes from nyx-version. Without this
+          # they drift, publishing 1.0.0 artifacts under a 1.2.0 release, and Play then rejects the
+          # duplicate versionCode. This also rejects any tag that is not a version tag.
           TOML=$(grep -m1 '^nyx-version' gradle/libs.versions.toml | cut -d'"' -f2)
           [ "$GITHUB_REF_NAME" = "$TOML" ] \
             || { echo "::error::Tag $GITHUB_REF_NAME != nyx-version $TOML"; exit 1; }
+
+  android:
+    name: Signed Android (AAB + APK)
+    needs: guard
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
@@ -62,10 +76,12 @@ jobs:
       - name: Delete keystore
         if: always()
         run: rm -f "$RUNNER_TEMP/release.jks"
-      - name: Upload AAB + mapping
+      # Named outside the nyx-* pattern the release job downloads, so the bundle and the mapping file
+      # are structurally unable to reach the public Release rather than merely filtered out by name.
+      - name: Upload AAB + mapping (private — for manual Play upload)
         uses: actions/upload-artifact@v7
         with:
-          name: nyx-android-play
+          name: play-android-aab
           if-no-files-found: error
           path: |
             androidApp/build/outputs/bundle/release/*.aab
@@ -79,6 +95,7 @@ jobs:
 
   desktop-linux:
     name: Desktop installer (Linux .deb)
+    needs: guard
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -97,8 +114,90 @@ jobs:
           if-no-files-found: error
           path: desktopApp/build/compose/binaries/main-release/deb/*.deb
 
+  # macOS installer — ARM64 ONLY and UNSIGNED, deliberately single-arch.
+  #
+  # Do not add an Intel leg. With no signing configured the plugin unsigns the bundle and then
+  # re-signs only on arm64, so an x86_64 build ships partially signed — the state macOS reports as
+  # "Nyx.app is damaged and can't be opened", which gives the user no recovery path at all. That is
+  # strictly worse than shipping nothing for Intel. Single-arch also avoids two legs emitting an
+  # identically named Nyx-<version>.dmg.
+  desktop-macos:
+    name: Desktop installer (macOS .dmg, arm64, unsigned)
+    needs: guard
+    runs-on: macos-15             # Pinned: macos-latest is mid-migration to macos-26.
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      # gradle.properties asks for a large heap for both the Gradle and Kotlin daemons, but the
+      # macOS arm64 standard runner only has 7 GB. Java .properties take the LAST occurrence of a
+      # key, so appending wins. Must run before setup-gradle so the daemon starts with this heap.
+      - name: Trim daemon heaps for the 7 GB runner
+        run: |
+          set -euo pipefail
+          {
+            printf '\n# CI override: the macOS arm64 standard runner has 7 GB RAM.\n'
+            printf 'org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8\n'
+            printf 'kotlin.daemon.jvmargs=-Xmx2g\n'
+          } >> gradle.properties
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+      # Temurin passes the Compose JDK-vendor check, which rejects only Homebrew-built JDKs on macOS.
+      # Do NOT add compose.desktop.packaging.checkJdkVendor=false — a Homebrew JDK bakes an absolute
+      # harfbuzz path into the runtime and would ship a DMG that crashes on end users' machines.
+      - uses: gradle/actions/setup-gradle@v6
+      # jpackage shells out to hdiutil, which fails intermittently on hosted macOS runners
+      # ("Resource busy"). Retry rather than lose a whole release run to it.
+      - name: Package .dmg (ProGuard release)
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3; do
+            if ./gradlew :desktopApp:packageReleaseDmg; then
+              exit 0
+            fi
+            echo "::warning::packageReleaseDmg failed (attempt ${attempt}/3) — retrying in 30s"
+            sleep 30
+          done
+          echo "::error::packageReleaseDmg failed after 3 attempts"
+          exit 1
+      # Turns a partially-signed bundle into a loud build failure instead of a "damaged app" dialog
+      # for the user. The Gatekeeper rejection printed at the end is expected and not fatal.
+      - name: Assert the app bundle signature is internally consistent
+        run: |
+          set -euo pipefail
+          APP="desktopApp/build/compose/binaries/main-release/app/Nyx.app"
+          test -d "$APP" || { echo "::error::$APP not found"; exit 1; }
+          codesign --verify --deep --strict --verbose=2 "$APP" \
+            || { echo "::error::Nyx.app signature is inconsistent — macOS would report it as damaged."; exit 1; }
+          echo "Gatekeeper rejection below is EXPECTED (no Developer ID, not notarized):"
+          spctl -a -vvv -t exec "$APP" || true
+      # Puts the caveat where every user actually looks: the filename.
+      - name: Label the DMG as unsigned arm64
+        run: |
+          set -euo pipefail
+          cd desktopApp/build/compose/binaries/main-release/dmg
+          shopt -s nullglob
+          found=0
+          for f in *.dmg; do
+            case "$f" in
+              *-arm64-unsigned.dmg) found=1; continue ;;
+            esac
+            mv -- "$f" "${f%.dmg}-arm64-unsigned.dmg"
+            found=1
+          done
+          [ "$found" = 1 ] || { echo "::error::no .dmg was produced"; exit 1; }
+          ls -la
+      - uses: actions/upload-artifact@v7
+        with:
+          name: nyx-desktop-macos
+          if-no-files-found: error
+          path: desktopApp/build/compose/binaries/main-release/dmg/*.dmg
+
   desktop-windows:
     name: Desktop installers (Windows .exe/.msi)
+    needs: guard
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v7
@@ -122,32 +221,113 @@ jobs:
             desktopApp/build/compose/binaries/main-release/msi/*.msi
 
   release:
-    name: Publish draft GitHub Release
-    needs: [ android, desktop-linux, desktop-windows ]
-    if: startsWith(github.ref, 'refs/tags/')
+    name: Publish GitHub Release
+    needs: [ android, desktop-linux, desktop-macos, desktop-windows ]
+    # always() so a failed leg produces a loud, re-runnable failure instead of silently skipping the
+    # release entirely (which previously discarded ~20 minutes of otherwise-green CI).
+    if: ${{ always() && startsWith(github.ref, 'refs/tags/') }}
     runs-on: ubuntu-latest
     permissions:
       contents: write            # create the Release and upload assets
     steps:
+      # A partial release (Windows installer but no DMG) is worse than no release. This job is
+      # idempotent, so fixing a flaky leg and re-running completes the release without a new tag.
+      - name: Refuse to publish a partial release
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') || contains(needs.*.result, 'skipped') }}
+        run: |
+          echo "::error::A build leg did not succeed — refusing to publish a partial release for ${GITHUB_REF_NAME}."
+          exit 1
+
+      # pattern + one directory per artifact: merge-multiple would flatten everything into a single
+      # directory where same-named files silently overwrite each other. find recurses anyway.
       - name: Download build artifacts
         uses: actions/download-artifact@v8
         with:
           path: dist
-          merge-multiple: true
-      - name: Create or update draft release (APK + desktop installers; NOT the AAB)
+          pattern: nyx-*
+
+      - name: Create, populate and publish the release
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ github.ref_name }}
         run: |
-          mapfile -t FILES < <(find dist -type f \( -name '*.apk' -o -name '*.deb' -o -name '*.exe' -o -name '*.msi' \) | sort)
-          if [ "${#FILES[@]}" -eq 0 ]; then echo "::error::No release assets found in dist/"; exit 1; fi
-          printf 'Attaching to %s:\n' "$TAG"; printf '  %s\n' "${FILES[@]}"
-          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            gh release upload "$TAG" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
-          else
-            gh release create "$TAG" "${FILES[@]}" \
+          set -euo pipefail
+
+          # AGP emits "androidApp-release.apk", a poor public asset name next to Nyx-1.0.1.exe.
+          APK="$(find dist -type f -name 'androidApp-release.apk' -print -quit || true)"
+          if [ -n "$APK" ]; then
+            mv -- "$APK" "$(dirname "$APK")/Nyx-${TAG}.apk"
+          fi
+
+          # NUL-delimited so whitespace in a filename can never split an argument. A read loop rather
+          # than `mapfile -d ''` so the script also runs on bash < 4.4 and stays locally testable.
+          # The .aab and mapping.txt are absent by construction: they upload under a non-nyx-* name.
+          FILES=()
+          while IFS= read -r -d '' f; do
+            FILES+=("$f")
+          done < <(
+            find dist -type f \( \
+              -name '*.apk' -o -name '*.deb' -o \
+              -name '*.dmg' -o \
+              -name '*.exe' -o -name '*.msi' \) -print0 | sort -z
+          )
+          if [ "${#FILES[@]}" -eq 0 ]; then
+            echo "::error::No release assets found under dist/"
+            exit 1
+          fi
+
+          # The macOS DMG is unsigned, so this is the only integrity check a user can perform on it.
+          : > SHA256SUMS.txt
+          for f in "${FILES[@]}"; do
+            ( cd "$(dirname "$f")" && sha256sum "$(basename "$f")" ) >> SHA256SUMS.txt
+          done
+          FILES+=(SHA256SUMS.txt)
+
+          printf 'Attaching to %s:\n' "$TAG"
+          printf '  %s\n' "${FILES[@]}"
+
+          # Indented to match the surrounding script: YAML strips the block-scalar indentation, so
+          # the EOF terminator still lands at column 0 in the generated shell script.
+          NOTES="$(cat <<'EOF'
+          ### Installing on macOS
+
+          The macOS build is **not signed with an Apple Developer ID and is not notarized**, and it
+          is **Apple silicon (arm64) only**. macOS blocks it on first launch. This is expected:
+
+          1. Open the `.dmg` and drag **Nyx** into **Applications**.
+          2. Double-click **Nyx**. macOS says it cannot verify the developer — click **Done**.
+             **Do not click "Move to Trash".**
+          3. Open **System Settings → Privacy & Security**, scroll to **Security**, click
+             **Open Anyway**, and authenticate.
+
+          > Right-click → Open no longer works; Apple removed that bypass in macOS 15 Sequoia. The
+          > **Open Anyway** button only appears for about an hour after a blocked launch attempt, so
+          > try to launch the app first, then go to System Settings.
+
+          Verify downloads against `SHA256SUMS.txt` before installing.
+          EOF
+          )"
+
+          # Create as a draft first so a half-populated release is never publicly visible.
+          # --verify-tag stops gh from inventing a tag on the default branch (develop) if the tag
+          # somehow does not exist.
+          if ! gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release create "$TAG" \
               --repo "$GITHUB_REPOSITORY" \
               --title "$TAG" \
+              --verify-tag \
               --draft \
+              --notes "$NOTES" \
               --generate-notes
           fi
+
+          # --clobber keeps re-runs idempotent.
+          gh release upload "$TAG" "${FILES[@]}" --repo "$GITHUB_REPOSITORY" --clobber
+
+          # Publish. This is what binds the release to the tag and makes the assets downloadable;
+          # a draft has no /releases/tag/<tag> URL and is invisible to everyone without push access.
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false --latest=true
+
+          gh release view "$TAG" --repo "$GITHUB_REPOSITORY" \
+            --json url,isDraft,assets \
+            --jq '"published=\(.isDraft|not) url=\(.url) assets=\(.assets|length)"'
