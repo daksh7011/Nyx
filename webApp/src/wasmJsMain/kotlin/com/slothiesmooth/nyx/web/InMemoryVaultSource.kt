@@ -29,21 +29,22 @@ class InMemoryVaultSource : VaultSource {
     override suspend fun upsert(record: StegoImageRecord) {
         records.update { list ->
             val index = list.indexOfFirst { existing -> existing.id == record.id }
-            if (index >= 0) list.set(index, record) else list.add(record)
+            if (index >= 0) list.replacingAt(index, record) else list.adding(record)
         }
     }
 
     override suspend fun setArchived(id: String, archived: Boolean, updatedAt: String) {
         records.update { list ->
             val index = list.indexOfFirst { existing -> existing.id == id }
-            if (index < 0) list else list.set(index, list[index].copy(isArchived = archived, updatedAt = updatedAt))
+            if (index < 0) return@update list
+            list.replacingAt(index, list[index].copy(isArchived = archived, updatedAt = updatedAt))
         }
     }
 
     override suspend fun softDelete(id: String, deletedAt: String) {
         records.update { list ->
             val index = list.indexOfFirst { existing -> existing.id == id }
-            if (index < 0) list else list.set(index, list[index].copy(deletedAt = deletedAt))
+            if (index < 0) list else list.replacingAt(index, list[index].copy(deletedAt = deletedAt))
         }
     }
 
