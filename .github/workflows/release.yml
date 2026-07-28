@@ -124,7 +124,7 @@ jobs:
   desktop-macos:
     name: Desktop installer (macOS .dmg, arm64, unsigned)
     needs: guard
-    runs-on: macos-15             # Pinned: macos-latest is mid-migration to macos-26.
+    runs-on: macos-latest         # arm64. Xcode is unused here — jpackage only needs the JDK below.
     steps:
       - uses: actions/checkout@v7
         with:
