@@ -115,16 +115,10 @@ jobs:
           path: desktopApp/build/compose/binaries/main-release/deb/*.deb
 
   # macOS installer — ARM64 ONLY and UNSIGNED, deliberately single-arch.
-  #
-  # Do not add an Intel leg. With no signing configured the plugin unsigns the bundle and then
-  # re-signs only on arm64, so an x86_64 build ships partially signed — the state macOS reports as
-  # "Nyx.app is damaged and can't be opened", which gives the user no recovery path at all. That is
-  # strictly worse than shipping nothing for Intel. Single-arch also avoids two legs emitting an
-  # identically named Nyx-<version>.dmg.
   desktop-macos:
     name: Desktop installer (macOS .dmg, arm64, unsigned)
     needs: guard
-    runs-on: macos-15             # Pinned: macos-latest is mid-migration to macos-26.
+    runs-on: macos-latest         # arm64. Xcode is unused here — jpackage only needs the JDK below.
     steps:
       - uses: actions/checkout@v7
         with:
