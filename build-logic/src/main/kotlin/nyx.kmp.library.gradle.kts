@@ -13,6 +13,18 @@ val nyxAndroidCompileSdk = libs.findVersion("android-compileSdk").get().required
 val nyxAndroidMinSdk = libs.findVersion("android-minSdk").get().requiredVersion.toInt()
 val nyxJvmToolchain = 21
 
+// A metadata (commonMain) klib's `unique_name` is the Kotlin module name, which KGP derives as
+// `archivesName.orElse(project.name)` + "_<sourceSet>" — WITHOUT the "$group:" prefix that native,
+// JS and JVM klibs get. Every ":feature:*:client:api" module is named "api" and every
+// ":feature:*:client:basic" is named "basic", so they all emitted `unique_name=api_commonMain` /
+// `basic_commonMain` and the KLIB loader warned about the collision. Project paths are unique, so
+// deriving the archive base name from the path makes every metadata klib unique.
+// Only local archive FILE names change: nothing here is published to Maven, and consumers use
+// `projects.*` dependencies, which Gradle resolves by variant metadata rather than by file name.
+base {
+    archivesName.set(project.path.removePrefix(":").replace(":", "-"))
+}
+
 fun defaultAndroidNamespace(projectPath: String): String {
     val segments = projectPath
         .removePrefix(":")
