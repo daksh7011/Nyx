@@ -58,7 +58,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Decode keystore
         env:
@@ -104,7 +104,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Package .deb (ProGuard release)
         run: ./gradlew :desktopApp:packageReleaseDeb
@@ -137,7 +137,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       # Temurin passes the Compose JDK-vendor check, which rejects only Homebrew-built JDKs on macOS.
       # Do NOT add compose.desktop.packaging.checkJdkVendor=false — a Homebrew JDK bakes an absolute
       # harfbuzz path into the runtime and would ship a DMG that crashes on end users' machines.
@@ -200,7 +200,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Install WiX Toolset 3.x
         run: choco install wixtoolset -y --no-progress
