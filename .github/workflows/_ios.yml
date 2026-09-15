@@ -14,7 +14,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       # The Kotlin/Native toolchain and its platform libs are ~1GB and are re-downloaded on every
       # cold runner otherwise. Keyed on the catalog so a Kotlin version bump invalidates it.
