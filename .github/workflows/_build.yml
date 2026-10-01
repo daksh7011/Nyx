@@ -13,7 +13,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Detekt
         run: ./gradlew detektCheck --continue
@@ -26,7 +26,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Run host tests
         run: ./gradlew allTests -x wasmJsBrowserTest --continue
@@ -39,7 +39,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Assemble Android debug
         run: ./gradlew :androidApp:assembleDebug
@@ -52,7 +52,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Compile desktop + build distributable
         run: ./gradlew :desktopApp:compileKotlin :desktopApp:createDistributable
@@ -65,7 +65,7 @@ jobs:
       - uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: '21.0.12+101.0.LTS'
+          java-version: '25.0.4+101.0.LTS'
       - uses: gradle/actions/setup-gradle@v6
       - name: Wasm browser tests + production bundle
         run: ./gradlew :webApp:wasmJsBrowserTest :webApp:wasmJsBrowserDistribution
